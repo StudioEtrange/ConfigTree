@@ -28,7 +28,7 @@ setup(
     entry_points={
         'configtree.parsers': (
             '.json = json:load',
-            '.yaml = yaml:loads',
+            '.yaml = yaml:load',
         ),
     },
     include_package_data=True,

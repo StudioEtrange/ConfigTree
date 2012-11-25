@@ -9,7 +9,6 @@ for entry in pkg_resources.iter_entry_points('configtree.parsers'):
     try:
         parsers[entry.name] = entry.load()
     except ImportError as e:
-        #raise
         pass
 
 
@@ -23,7 +22,6 @@ def load(path, postprocess=None):
             filenames.sort()
             for filename in filenames:
                 filepath = os.path.join(dirpath, filename)
-                print filepath
                 result.update(load_file(filepath))
     if postprocess:
         postprocess(result)
