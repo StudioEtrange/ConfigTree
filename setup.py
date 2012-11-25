@@ -25,6 +25,12 @@ setup(
     download_url='https://bitbucket.org/kr41/configtree/downloads',
     license='BSD',
     packages=['configtree'],
+    entry_points={
+        'configtree.parsers': (
+            '.json = json:load',
+            '.yaml = yaml:loads',
+        ),
+    },
     include_package_data=True,
     zip_safe=True,
 )
