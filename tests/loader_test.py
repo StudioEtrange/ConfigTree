@@ -2,7 +2,7 @@ import os
 from nose import tools
 
 
-from configtree.loader import load
+from configtree.loader import load, ignore, accept
 
 
 data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
@@ -37,6 +37,25 @@ def postprocess_test():
     tools.eq_(result, {
         'env.name': 'env_2',
         'env.path': os.path.abspath('data/env_2'),
+        'x': 2,
+        'y': 1,
+        'z': 1,
+    })
+
+
+def ingore_test():
+    result = load(data_dir, filter=ignore('20*', '*settings.*'))
+    tools.eq_(result, {
+        'env.name': 'env_1',
+        'env.path': 'data/env_1',
+    })
+
+
+def accept_test():
+    result = load(data_dir, filter=accept('??_default*', '??_env_1*'))
+    tools.eq_(result, {
+        'env.name': 'env_1',
+        'env.path': 'data/env_1',
         'x': 2,
         'y': 1,
         'z': 1,
