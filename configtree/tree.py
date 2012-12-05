@@ -2,6 +2,72 @@ from collections import defaultdict, Mapping, MutableMapping
 
 
 class Tree(MutableMapping):
+    """
+    A Tree is a dictionary like object, which supports nested keys.
+
+    Examples:
+
+    ..  code-block:: pycon
+
+        >>> tree = Tree()
+        >>> tree['a.b.c'] = 1
+        >>> tree['a'] == {'b.c': 1}
+        True
+        >>> tree['a.b'] == {'c': 1}
+        True
+        >>> tree['a']['b'] == {'c': 1}
+        True
+        >>> tree['a.b']['d'] = 2
+        >>> tree['a.b'] == {'c': 1, 'd': 2}
+        True
+
+    Tree object unable to create empty branch on demand:
+
+    ..  code-block:: pycon
+
+        >>> branch = tree['x.y']                        # DOCTEST: +ellipsis
+        Traceback (most recent call last):
+        ...
+        KeyError: 'x.y'
+
+    Use :meth:`branch` for this purposes.  It explicitly creates
+    a :class:`BranchProxy` object tied to specified key:
+
+    ..  code-block:: pycon
+
+        >>> branch = tree.branch('x.y')
+        >>> branch['z'] = 3
+        >>> tree == {'a.b.c': 1, 'a.b.d': 2, 'x.y.z': 3}
+        True
+
+    An empty brach automatically collapses from Tree:
+
+    ..  code-block:: pycon
+
+        >>> del branch['z']
+        >>> 'x.y' in tree
+        False
+
+    Tree object doesn't perform any implicit type inspection and conversion.
+    It means what you put into tree is what you get from.  Even when you put
+    one branch to another, Tree won't create a copy:
+
+    ..  code-block:: pycon
+
+        >>> tree['x'] = tree['a']
+        >>> tree['x.b.c']                               # DOCTEST: +ellipsis
+        Traceback (most recent call last):
+        ...
+        KeyError: 'x.b.c'
+        >>> tree['x']['b.c']
+        1
+        >>> tree['x']['b.c'] = 3
+        >>> tree['a.b.c']
+        3
+
+    It's a road to debug hell, don't follow it.
+
+    """
 
     def __init__(self, data=None, sep='.'):
         self._sep = sep
@@ -58,10 +124,27 @@ class Tree(MutableMapping):
                                               self._items, self._sep)
 
     def branch(self, key):
+        """ Returns a :class:`BranchProxy` object for specified ``key`` """
         return BranchProxy(key, self)
 
 
 class BranchProxy(MutableMapping):
+    """
+    A Branch Proxy is a helper object.  This kind of object
+    is created on demand when you expose an intermediate key of
+    :class:`Tree` object:
+
+    ..  code-block:: pycon
+
+        >>> tree = Tree({'a.b.c': 1})
+        >>> branch = tree['a.b']
+        >>> isinstance(branch, BranchProxy)
+        True
+
+    The class methods are similar to :class:`Tree` ones.
+    Each method is just proxied to corresponding owner's one.
+
+    """
 
     def __init__(self, key, owner):
         self._key = key
@@ -91,16 +174,31 @@ class BranchProxy(MutableMapping):
         return len(self.keys())
 
     def branch(self, key):
+        """ Returns a :class:`BranchProxy` object for specified ``key`` """
         return self._owner.branch(self._itemkey(key))
 
     def as_tree(self):
+        """ Converts Branch into separate :class:`Tree` object """
         return self._owner.__class__(self, sep=self._owner._sep)
 
 
 def flatten(d, sep='.'):
+    """
+    A generator function to flatten out nested dictionaries into flat one.
+
+    It's useful in combination with :class:`Tree` constructor
+    or method ``update``:
+
+    ..  code-block:: pycon
+
+        >>> fd = flatten({'a': {'b': {'c': 1}}})
+        >>> Tree(fd)
+        Tree({'a.b.c': 1}, sep='.')
+
+    """
     for key, value in d.items():
         if isinstance(value, Mapping):
             for subkey, subvalue in flatten(value, sep=sep):
-                yield '{0}{1}{2}'.format(key, sep, subkey), subvalue
+                yield ''.join((key, sep, subkey)), subvalue
         else:
             yield str(key), value
