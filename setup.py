@@ -8,7 +8,7 @@ import configtree
 setup(
     name='ConfigTree',
     version=configtree.__version__,
-    description="A coroutine based utils for processing data via pipelines",
+    description="",
     long_description=readme,
     classifiers=[
         'License :: OSI Approved :: BSD License',
