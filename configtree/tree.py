@@ -1,4 +1,9 @@
+""" The module contains base :class:`Tree` and utility stuff """
+
 from collections import defaultdict, Mapping, MutableMapping
+
+
+__all__ = ['Tree', 'flatten']
 
 
 class Tree(MutableMapping):
@@ -184,10 +189,10 @@ class BranchProxy(MutableMapping):
 
 def flatten(d, sep='.'):
     """
-    A generator function to flatten out nested dictionaries into flat one.
+    A generator which flattens out passed nested mapping objects.
 
     It's useful in combination with :class:`Tree` constructor
-    or method ``update``:
+    or :meth:`Tree.update`:
 
     ..  code-block:: pycon
 
