@@ -1,6 +1,6 @@
 from nose import tools
 
-from configtree.tree import Tree, flatten
+from configtree.core import Tree, flatten
 
 
 td = Tree()
