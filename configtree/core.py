@@ -1,9 +1,8 @@
-""" The module contains base :class:`Tree` and utility stuff """
-
 from collections import defaultdict, Mapping, MutableMapping
+from pkg_resources import EntryPoint
 
 
-__all__ = ['Tree', 'flatten']
+__all__ = ['Tree', 'ProcessingTree', 'flatten']
 
 
 class Tree(MutableMapping):
@@ -185,6 +184,79 @@ class BranchProxy(MutableMapping):
     def as_tree(self):
         """ Converts Branch into separate :class:`Tree` object """
         return self._owner.__class__(self, sep=self._owner._sep)
+
+
+class ProcessingTree(Tree):
+    """
+    A Processing Tree is sublcass of :class:`Tree` which able to process
+    items during update.
+
+    First use case is list merging:
+
+    ..  codeblock-pycon::
+
+        >>> pt = ProcessingTree({'a.b.c': [1, 2, 3]})
+        >>> pt.update({'a.b.c#extend': [4, 5, 6]})
+        >>> pt
+        ProcessingTree({'a.b.c': [1, 2, 3, 4, 5, 6]}, sep='.')
+
+    Next one is executing expression from string value:
+
+    ..  codeblock-pycon::
+
+        >>> pt = ProcessingTree()
+        >>> pt.update({'a.b.c': '>>> 1 + 1'})
+        >>> pt['a.b.c']
+        2
+        >>> pt['a.b.d'] = ">>> self['a.b.c'] * 2"
+        >>> pt['a.b.d']
+        4
+        >>> pt['a.b.e'] = ">>> branch['d'] + 2"
+        >>> pt['a.b.e']
+        6
+
+    Update ``__locals__`` branch to extend expression namespace:
+
+    ..  codeblock-pycon::
+
+        >>> from datetime import date
+        >>> pt['__locals__.date'] = date
+        >>> pt['today'] = '>>> date.today()'
+        >>> pt['today'] == date.today()
+        True
+
+    Any string passed to ``__locals__`` branch will be treated as name
+    to import:
+
+    ..  codeblock-pycon::
+
+        >>> pt['__locals__.ceil'] = 'math:ceil'
+        >>> pt['x'] = '>>> ceil(3.1)'
+        >>> pt['x']
+        4
+
+    """
+
+    _method_sep = '#'
+    _exp_prefix = '>>> '
+
+    def __setitem__(self, key, value):
+        if isinstance(value, str):
+            if value.startswith(self._exp_prefix):
+                branch = None
+                if self._sep in key:
+                    branch_key = key.rsplit(self._sep, 1)[0]
+                    branch = self.branch(branch_key)
+                value = value[len(self._exp_prefix):]
+                value = eval(value, {'self': self, 'branch': branch},
+                                     self.branch('__locals__'))
+            elif key.startswith('__locals__' + self._sep):
+                value = EntryPoint.parse('x={0}'.format(value)).load(False)
+        if self._method_sep in key:
+            key, method = key.split(self._method_sep)
+            getattr(self[key], method)(value)
+        else:
+            super(ProcessingTree, self).__setitem__(key, value)
 
 
 def flatten(d, sep='.'):
