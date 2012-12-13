@@ -1,8 +1,15 @@
+from sys import version_info
 from collections import defaultdict, Mapping, MutableMapping
 from pkg_resources import EntryPoint
 
 
 __all__ = ['Tree', 'ProcessingTree', 'flatten']
+
+
+if version_info[0] == 3:
+    string = str
+else:
+    string = basestring
 
 
 class Tree(MutableMapping):
@@ -73,8 +80,9 @@ class Tree(MutableMapping):
 
     """
 
-    def __init__(self, data=None, sep='.'):
-        self._sep = sep
+    _key_sep = '.'
+
+    def __init__(self, data=None):
         self._branches = defaultdict(set)
         self._items = {}
         if data:
@@ -84,11 +92,11 @@ class Tree(MutableMapping):
         if key in self._branches:
             del self[key]
         self._items[key] = value
-        if self._sep in key:
-            path = key.split(self._sep)
+        if self._key_sep in key:
+            path = key.split(self._key_sep)
             for i in range(1, len(path)):
-                lead = self._sep.join(path[:i])
-                tail = self._sep.join(path[i:])
+                lead = self._key_sep.join(path[:i])
+                tail = self._key_sep.join(path[i:])
                 if lead in self._items:
                     del self[lead]
                 self._branches[lead].add(tail)
@@ -104,11 +112,11 @@ class Tree(MutableMapping):
     def __delitem__(self, key):
         try:
             del self._items[key]
-            if self._sep in key:
-                path = key.split(self._sep)
+            if self._key_sep in key:
+                path = key.split(self._key_sep)
                 for i in range(1, len(path)):
-                    lead = self._sep.join(path[:i])
-                    tail = self._sep.join(path[i:])
+                    lead = self._key_sep.join(path[:i])
+                    tail = self._key_sep.join(path[i:])
                     self._branches[lead].discard(tail)
                     if not self._branches[lead]:
                         del self._branches[lead]
@@ -124,8 +132,7 @@ class Tree(MutableMapping):
         return len(self._items)
 
     def __repr__(self):
-        return '{0}({1!r}, sep={2!r})'.format(self.__class__.__name__,
-                                              self._items, self._sep)
+        return '{0}({1!r})'.format(self.__class__.__name__, self._items)
 
     def branch(self, key):
         """ Returns a :class:`BranchProxy` object for specified ``key`` """
@@ -155,7 +162,7 @@ class BranchProxy(MutableMapping):
         self._owner = owner
 
     def _itemkey(self, key):
-        return self._owner._sep.join((self._key, key))
+        return self._owner._key_sep.join((self._key, key))
 
     def keys(self):
         if self._key not in self._owner._branches:
@@ -183,7 +190,7 @@ class BranchProxy(MutableMapping):
 
     def as_tree(self):
         """ Converts Branch into separate :class:`Tree` object """
-        return self._owner.__class__(self, sep=self._owner._sep)
+        return self._owner.__class__(self)
 
 
 class ProcessingTree(Tree):
@@ -198,7 +205,7 @@ class ProcessingTree(Tree):
         >>> pt = ProcessingTree({'a.b.c': [1, 2, 3]})
         >>> pt.update({'a.b.c#extend': [4, 5, 6]})
         >>> pt
-        ProcessingTree({'a.b.c': [1, 2, 3, 4, 5, 6]}, sep='.')
+        ProcessingTree({'a.b.c': [1, 2, 3, 4, 5, 6]})
 
     Next one is executing expression from string value:
 
@@ -231,7 +238,7 @@ class ProcessingTree(Tree):
     ..  codeblock-pycon::
 
         >>> pt['__locals__.ceil'] = 'math:ceil'
-        >>> pt['x'] = '>>> ceil(3.1)'
+        >>> pt['x'] = '>>> int(ceil(3.1))'
         >>> pt['x']
         4
 
@@ -241,16 +248,16 @@ class ProcessingTree(Tree):
     _exp_prefix = '>>> '
 
     def __setitem__(self, key, value):
-        if isinstance(value, str):
+        if isinstance(value, string):
             if value.startswith(self._exp_prefix):
                 branch = None
-                if self._sep in key:
-                    branch_key = key.rsplit(self._sep, 1)[0]
+                if self._key_sep in key:
+                    branch_key = key.rsplit(self._key_sep, 1)[0]
                     branch = self.branch(branch_key)
                 value = value[len(self._exp_prefix):]
                 value = eval(value, {'self': self, 'branch': branch},
                                      self.branch('__locals__'))
-            elif key.startswith('__locals__' + self._sep):
+            elif key.startswith('__locals__' + self._key_sep):
                 value = EntryPoint.parse('x={0}'.format(value)).load(False)
         if self._method_sep in key:
             key, method = key.split(self._method_sep)
@@ -270,7 +277,7 @@ def flatten(d, sep='.'):
 
         >>> fd = flatten({'a': {'b': {'c': 1}}})
         >>> Tree(fd)
-        Tree({'a.b.c': 1}, sep='.')
+        Tree({'a.b.c': 1})
 
     """
     for key, value in d.items():
