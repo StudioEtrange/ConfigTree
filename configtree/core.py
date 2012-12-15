@@ -51,7 +51,7 @@ class Tree(MutableMapping):
         >>> tree == {'a.b.c': 1, 'a.b.d': 2, 'x.y.z': 3}
         True
 
-    An empty brach automatically collapses from Tree:
+    An empty branch automatically collapses from Tree:
 
     ..  code-block:: pycon
 
