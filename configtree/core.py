@@ -9,7 +9,7 @@ __all__ = ['Tree', 'ProcessingTree', 'flatten']
 if version_info[0] == 3:
     string = str
 else:
-    string = basestring
+    string = basestring     # NOQA
 
 
 class Tree(MutableMapping):
