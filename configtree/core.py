@@ -266,7 +266,7 @@ class ProcessingTree(Tree):
             super(ProcessingTree, self).__setitem__(key, value)
 
 
-def flatten(d, sep='.'):
+def flatten(d):
     """
     A generator which flattens out passed nested mapping objects.
 
@@ -282,7 +282,7 @@ def flatten(d, sep='.'):
     """
     for key, value in d.items():
         if isinstance(value, Mapping):
-            for subkey, subvalue in flatten(value, sep=sep):
-                yield ''.join((key, sep, subkey)), subvalue
+            for subkey, subvalue in flatten(value):
+                yield '{0}.{1}'.format(key, subkey), subvalue
         else:
             yield str(key), value
