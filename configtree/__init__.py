@@ -1,4 +1,4 @@
-from .core import Tree, flatten
+from .tree import Tree, flatten
 from .config import ConfigTree
 
 
