@@ -1,17 +1,16 @@
 import os
-from pkg_resources import iter_entry_points, EntryPoint
+from pkg_resources import EntryPoint
 from collections import deque
 
 from .tree import Tree, flatten
 from .compat import string
+from .loader import load_json, load_yaml
 
 
-parsers = {}
-for entry in iter_entry_points('configtree.parsers'):
-    try:
-        parsers[entry.name] = entry.load()
-    except ImportError as e:
-        pass
+loaders = {
+    '.json': load_json,
+    '.yaml': load_yaml,
+}
 
 
 class ProcessingTree(Tree):
@@ -102,7 +101,7 @@ class ConfigTree(ProcessingTree):
             self['__loader__.dir'] = os.path.dirname(path)
             ext = os.path.splitext(path)[1]
             with open(path) as f:
-                data = parsers[ext](f)
+                data = loaders[ext](f)
                 self.update(flatten(data))
             include = self['__loader__'].pop('include', [])
             self.include(*include)
@@ -112,7 +111,7 @@ class ConfigTree(ProcessingTree):
         for path in pathes:
             path = self.abspath(path)
             if os.path.isfile(path) and \
-               os.path.splitext(path)[1] in parsers and \
+               os.path.splitext(path)[1] in loaders and \
                path not in queue:
                 queue.append(path)
             elif os.path.isdir(path):

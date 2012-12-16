@@ -5,7 +5,8 @@ from nose import tools
 from configtree.config import ConfigTree
 
 
-data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
+data_dir = os.path.dirname(os.path.realpath(__file__))
+data_dir = os.path.join(data_dir, 'data', 'config')
 
 
 def abspath_test():

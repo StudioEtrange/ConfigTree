@@ -1,13 +1,18 @@
 from os import path
+from sys import version_info
 from setuptools import setup
 
-readme = ''.join(open(path.join(path.dirname(__file__), 'README.rst')))
 
-import configtree
+readme = ''.join(open(path.join(path.dirname(__file__), 'README.rst')))
+requirements = ['pyyaml']
+
+if version_info[0] == 2 and version_info[1] < 7:
+    requirements.extend(['ordereddict', 'simplejson'])
+
 
 setup(
     name='ConfigTree',
-    version=configtree.__version__,
+    version='0.1',
     description="",
     long_description=readme,
     classifiers=[
@@ -25,12 +30,7 @@ setup(
     download_url='https://bitbucket.org/kr41/configtree/downloads',
     license='BSD',
     packages=['configtree'],
-    entry_points={
-        'configtree.parsers': (
-            '.json = json:load',
-            '.yaml = yaml:load',
-        ),
-    },
+    install_requires=requirements,
     include_package_data=True,
     zip_safe=True,
 )
