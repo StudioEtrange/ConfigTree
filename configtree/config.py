@@ -36,47 +36,35 @@ class ProcessingTree(Tree):
         >>> pt['a.b.e']
         6
 
-    Update ``__namespace__`` branch to extend names available in expression:
+    Update ``namespace`` attribute to extend names available in expression:
 
     ..  codeblock-pycon::
 
         >>> from math import floor
-        >>> pt['__namespace__.floor'] = floor
+        >>> pt.namespace['floor'] = floor
         >>> pt['x'] = '>>> int(floor(3.8))'
         >>> pt['x']
         3
-
-    Any string passed to ``__namespace__`` branch will be treated as name
-    to import:
-
-    ..  codeblock-pycon::
-
-        >>> pt['__namespace__.ceil'] = 'math:ceil'
-        >>> pt['y'] = '>>> int(ceil(3.1))'
-        >>> pt['y']
-        4
 
     """
 
     _method_sep = '#'
     _exp_prefix = '>>> '
 
+    def __init__(self, data=None, namespace=None):
+        self.namespace = namespace or {}
+        super(ProcessingTree, self).__init__(data)
+
     def __setitem__(self, key, value):
-        if isinstance(value, string):
-            if value.startswith(self._exp_prefix):
-                if self._key_sep in key:
-                    branch_key = key.rsplit(self._key_sep, 1)[0]
-                    branch = self.branch(branch_key)
-                else:
-                    branch = self
-                value = value[len(self._exp_prefix):]
-                value = eval(
-                    value,
-                    {'self': self, 'branch': branch},
-                    self.branch('__namespace__')
-                )
-            elif key.startswith('__namespace__' + self._key_sep):
-                value = EntryPoint.parse('x={0}'.format(value)).load(False)
+        if isinstance(value, string) and value.startswith(self._exp_prefix):
+            if self._key_sep in key:
+                branch_key = key.rsplit(self._key_sep, 1)[0]
+                branch = self.branch(branch_key)
+            else:
+                branch = self
+            local = {'self': self, 'branch': branch}
+            value = value[len(self._exp_prefix):]
+            value = eval(value, self.namespace, local)
         if self._method_sep in key:
             key, method = key.split(self._method_sep)
             getattr(self[key], method)(value)
@@ -122,6 +110,7 @@ class ConfigTree(ProcessingTree):
                             files.append(subpath)
                     enqueue(sorted(files))
 
+        global_namespace = self.namespace.copy()
         enqueue([path])
         while queue:
             path = queue.popleft()
@@ -130,9 +119,20 @@ class ConfigTree(ProcessingTree):
             ext = os.path.splitext(path)[1]
             with open(path) as f:
                 data = self.loaders[ext](f)
+                imports = data.pop('__import__', {})
+                self.namespace.update((alias, _import(ep))
+                                      for alias, ep in imports.items())
                 self.update(flatten(data))
+                self.namespace = global_namespace
             include = self.pop('__include__', [])
             if isinstance(include, string):
                 include = [include]
             enqueue(include)
             del self['__file__'], self['__dir__']
+
+
+def _import(ep):
+    if ep not in _import.cache:
+        _import.cache[ep] = EntryPoint.parse('x={0}'.format(ep)).load(False)
+    return _import.cache
+_import.cache = {}
