@@ -1,6 +1,6 @@
 """
-The module provides loaders from YAML and JSON files, which are load data
-into ``OrderedDict``.
+The module provides loaders from YAML and JSON files, which load data
+into :class:`OrderedDict` objects.
 
 """
 

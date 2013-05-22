@@ -24,7 +24,7 @@ class Tree(MutableMapping):
         >>> tree['a.b'] == {'c': 1, 'd': 2}
         True
 
-    Tree object unable to create empty branch on demand:
+    Tree object is unable to create an empty branch on demand:
 
     ..  code-block:: pycon
 
@@ -52,8 +52,8 @@ class Tree(MutableMapping):
         False
 
     Tree object doesn't perform any implicit type inspection and conversion.
-    It means what you put into tree is what you get from.  Even when you put
-    one branch to another, Tree won't create a copy:
+    It means what you put into tree is what you will get from one later.
+    Even when you put one branch to another, Tree won't create a copy:
 
     ..  code-block:: pycon
 
@@ -194,8 +194,10 @@ def flatten(d):
 
     ..  code-block:: pycon
 
-        >>> fd = flatten({'a': {'b': {'c': 1}}})
-        >>> Tree(fd)
+        >>> nested = {'a': {'b': {'c': 1}}}
+        >>> Tree(nested)                        # without flatten
+        Tree({'a': {'b': {'c': 1}}})
+        >>> Tree(flatten(nested))               # with flatten
         Tree({'a.b.c': 1})
 
     """
