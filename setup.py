@@ -34,9 +34,9 @@ setup(
     include_package_data=True,
     zip_safe=True,
     entry_points="""\
-        [configtree.loader]
-        .json = configtree.loader:load_json
-        .yaml = configtree.loader:load_yaml
-        .yml = configtree.loader:load_yaml
+        [configtree.source]
+        .json = configtree.source:load_json
+        .yaml = configtree.source:load_yaml
+        .yml = configtree.source:load_yaml
     """,
 )

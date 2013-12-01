@@ -1,16 +1,16 @@
 import os
 from nose import tools
 
-from configtree import loader
+from configtree import source
 from configtree.tree import flatten
 
 
 data_dir = os.path.dirname(os.path.realpath(__file__))
-data_dir = os.path.join(data_dir, 'data', 'loader')
+data_dir = os.path.join(data_dir, 'data', 'source')
 
 
 def json_test():
-    result = loader.load_json(open(os.path.join(data_dir, 'test.json')))
+    result = source.load_json(open(os.path.join(data_dir, 'test.json')))
     result = list(flatten(result))
     tools.eq_(result, [
         ('a', 1),
@@ -22,7 +22,7 @@ def json_test():
 
 
 def yaml_test():
-    result = loader.load_yaml(open(os.path.join(data_dir, 'test.yaml')))
+    result = source.load_yaml(open(os.path.join(data_dir, 'test.yaml')))
     result = list(flatten(result))
     tools.eq_(result, [
         ('a', 1),
@@ -34,6 +34,6 @@ def yaml_test():
 
 
 def map_test():
-    tools.eq_(loader.map['.yml'], loader.load_yaml)
-    tools.eq_(loader.map['.yaml'], loader.load_yaml)
-    tools.eq_(loader.map['.json'], loader.load_json)
+    tools.eq_(source.map['.yml'], source.load_yaml)
+    tools.eq_(source.map['.yaml'], source.load_yaml)
+    tools.eq_(source.map['.json'], source.load_json)

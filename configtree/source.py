@@ -26,7 +26,7 @@ def load_json(data):
 
 
 map = {}
-for entry_point in pkg_resources.iter_entry_points('configtree.loader'):
+for entry_point in pkg_resources.iter_entry_points('configtree.source'):
     map[entry_point.name] = entry_point.load()
 
 
