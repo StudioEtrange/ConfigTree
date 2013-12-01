@@ -68,7 +68,18 @@ class Tree(MutableMapping):
         >>> tree['a.b.c']
         3
 
-    It's a road to debug hell, don't follow it.
+    It's a road to debug hell, don't follow it.  If you want to copy a branch,
+    use :meth:`update` method.
+
+    ..  code-block:: pycon
+
+        >>> tree = Tree({'a.b.c': 1})
+        >>> tree.branch('x').update(tree['a'])
+        >>> tree == {'a.b.c': 1, 'x.b.c': 1}
+        True
+        >>> tree['x.b.c'] = 3
+        >>> tree == {'a.b.c': 1, 'x.b.c': 3}
+        True
 
     """
 
