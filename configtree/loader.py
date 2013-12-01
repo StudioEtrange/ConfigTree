@@ -4,13 +4,15 @@ into :class:`OrderedDict` objects.
 
 """
 
+import pkg_resources
+
 import yaml
 from yaml.constructor import ConstructorError
 
 from .compat import OrderedDict, json
 
 
-__all__ = ['load_yaml', 'load_json']
+__all__ = ['map']
 
 
 def load_yaml(data):
@@ -21,6 +23,11 @@ def load_yaml(data):
 def load_json(data):
     """ Load data from JSON file into ``OrderedDict`` """
     return json.load(data, object_pairs_hook=OrderedDict)
+
+
+map = {}
+for entry_point in pkg_resources.iter_entry_points('configtree.loader'):
+    map[entry_point.name] = entry_point.load()
 
 
 # The following code has been stolen from https://gist.github.com/844388
