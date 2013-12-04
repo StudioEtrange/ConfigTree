@@ -61,10 +61,10 @@ def update_test():
     update(tree, 'a.b.z', '>>> self["a.b.x"] + branch["y"]')
     tools.eq_(tree['a.b.z'], 3)
 
-    update(tree, 'a.b.l!', [])
+    update(tree, 'a.b.l?', [])
     tools.eq_(tree['a.b.l'], [])
 
-    update(tree, 'a.b.l!', [1, 2, 3])
+    update(tree, 'a.b.l?', [1, 2, 3])
     tools.eq_(tree['a.b.l'], [])
 
     update(tree, 'a.b.l#extend', [4, 5, 6])

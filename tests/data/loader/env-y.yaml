@@ -4,6 +4,6 @@ a.b:
     z: ">>> self['a.b.x'] + branch['y']"
     c: "$>> x = {self[a.b.x]}, y = {branch[y]}"
     l: []
-    l!: [1, 2, 3]
+    l?: [1, 2, 3]
     l#extend: [4, 5, 6]
 z: ">>> int(floor(3.8))"

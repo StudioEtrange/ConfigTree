@@ -78,7 +78,7 @@ class Updater(object):
         self.namespace = namespace or {}
 
     def __call__(self, tree, key, value):
-        if key.endswith('!'):
+        if key.endswith('?'):
             key = key[:-1]
             if key in tree:
                 return
