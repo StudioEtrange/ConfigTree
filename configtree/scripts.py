@@ -3,7 +3,7 @@ import sys
 import argparse
 
 from . import target
-from . import loader
+from .loader import Loader
 
 
 def main(argv=None):
@@ -26,10 +26,19 @@ def main(argv=None):
         '-b', '--branch', required=False,
         help='branch of tree, which should be processed'
     )
+    parser.add_argument(
+        '-s', '--settings', nargs='*', default=[],
+        help='loader settings'
+    )
     args = parser.parse_args(argv)
 
-    tree = loader.load(args.path)
+    settings = {}
+    for arg in args.settings:
+        key, value = arg.split('=')
+        settings[key] = value
+
+    load = Loader.from_settings(settings, args.path)
+    tree = load(args.path)
     if args.branch is not None:
         tree = tree[args.branch]
     print(target.map[args.format](tree))
-
