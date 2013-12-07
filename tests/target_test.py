@@ -23,7 +23,7 @@ def json_test():
 
 def bash_test():
     result = target.output_bash(t)
-    tools.eq_(result, 'A_X="1"\nA_Y="10"')
+    tools.eq_(result, 'export A_X=1\nexport A_Y=10')
 
 
 def map_test():

@@ -22,7 +22,7 @@ def output_bash(tree):
     result = []
     for key, value in tree.items():
         key = key.replace('.', '_').upper()
-        result.append('{0}="{1}"'.format(key, value))
+        result.append('export {0}={1}'.format(key, value))
     return '\n'.join(result)
 
 
