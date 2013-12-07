@@ -3,6 +3,7 @@ import sys
 import argparse
 
 from . import target
+from . import loader
 
 
 def main(argv=None):
@@ -26,4 +27,9 @@ def main(argv=None):
         help='branch of tree, which should be processed'
     )
     args = parser.parse_args(argv)
-    print(args)
+
+    tree = loader.load(args.path)
+    if args.branch is not None:
+        tree = tree[args.branch]
+    print(target.map[args.format](tree))
+
