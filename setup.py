@@ -7,7 +7,7 @@ readme = ''.join(open(path.join(path.dirname(__file__), 'README.rst')))
 requirements = ['pyyaml']
 
 if version_info[0] == 2 and version_info[1] < 7:
-    requirements.extend(['ordereddict', 'simplejson'])
+    requirements.extend(['ordereddict', 'simplejson', 'argparse'])
 
 
 setup(
