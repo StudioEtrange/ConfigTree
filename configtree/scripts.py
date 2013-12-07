@@ -24,7 +24,7 @@ def main(argv=None):
     )
     parser.add_argument(
         '-b', '--branch', required=False,
-        help='branch of tree, which should be processed'
+        help='branch of tree, which should be converted'
     )
     parser.add_argument(
         '-s', '--settings', nargs='*', default=[],
