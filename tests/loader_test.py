@@ -115,3 +115,22 @@ def load_test():
         'a.b.l': [4, 5, 6],
         'z': 3,
     })
+
+    load = Loader.from_settings({'walk.env': 'y'}, data_dir)
+    result = load(data_dir)
+    tools.eq_(result, {
+        'a.x': 1,
+        'a.y': 2,
+        'b.x': 10,
+        'b.y': 20,
+        'subsystem.a.x': 101,
+        'subsystem.a.y': 102,
+        'subsystem.b.x': 110,
+        'subsystem.b.y': 120,
+        'a.b.x': 1,
+        'a.b.y': 2,
+        'a.b.z': 3,
+        'a.b.c': 'x = 1, y = 2',
+        'a.b.l': [4, 5, 6],
+        'z': 3,
+    })

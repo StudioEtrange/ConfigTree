@@ -1,5 +1,6 @@
 import os
 import re
+import pkg_resources
 
 from . import source
 from .compat import string
@@ -7,6 +8,38 @@ from .tree import Tree, flatten
 
 
 class Loader(object):
+
+    defaults = {
+        'walk.factory': 'configtree.loader:Walker',
+        'update.factory': 'configtree.loader:Updater',
+        'factory': 'configtree.tree:Tree',
+    }
+
+    @classmethod
+    def from_settings(cls, settings, path=None):
+
+        def get_worker(settings):
+            if isinstance(settings, string):
+                return import_spec(settings)
+            factory = import_spec(settings.pop('factory'))
+            return factory(**settings)
+
+        settings_ = Tree(cls.defaults)
+
+        if path is not None:
+            filename = os.path.join(path, '.settings')
+            if os.path.isfile(filename):
+                with open(filename) as data:
+                    data = source.load_yaml(data)
+                    if data:
+                        settings_.update(data)
+
+        settings_.update(settings)
+
+        walk = get_worker(settings_['walk'])
+        update = get_worker(settings_['update'])
+        factory = import_spec(settings_['factory'])
+        return cls(walk, update, factory)
 
     def __init__(self, walk=None, update=None, factory=None):
         self.walk = walk or Walker()
@@ -80,6 +113,9 @@ class Updater(object):
 
     def __init__(self, namespace=None):
         self.namespace = namespace or {}
+        for key, value in self.namespace.items():
+            if isinstance(value, string):
+                self.namespace[key] = import_spec(value)
 
     def __call__(self, tree, key, value):
         if key.endswith('?'):
@@ -107,3 +143,9 @@ class Updater(object):
                 else:
                     value = value.format(**local)
         set_value(key, value)
+
+
+def import_spec(spec):
+    entry_point = 'x={0}'.format(spec)
+    entry_point = pkg_resources.EntryPoint.parse(entry_point)
+    return entry_point.load(False)
