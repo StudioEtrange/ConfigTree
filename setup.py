@@ -35,7 +35,7 @@ setup(
     zip_safe=True,
     entry_points="""\
         [console_scripts]
-        configtree = configtree.scripts:main
+        configtree = configtree.script:main
 
         [configtree.target]
         json = configtree.target:output_json
