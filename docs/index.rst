@@ -12,8 +12,10 @@ API:
    :maxdepth: 2
 
    api/tree
-   api/config
    api/loader
+   api/script
+   api/source
+   api/target
 
 
 
