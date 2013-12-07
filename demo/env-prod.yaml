@@ -1,0 +1,5 @@
+database:
+    user: demo-user
+    password: 0384wtr703fh13
+http:
+    host: example.com
