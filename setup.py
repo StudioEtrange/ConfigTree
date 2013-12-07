@@ -34,6 +34,13 @@ setup(
     include_package_data=True,
     zip_safe=True,
     entry_points="""\
+        [console_scripts]
+        configtree = configtree.scripts:main
+
+        [configtree.target]
+        json = configtree.target:output_json
+        bash = configtree.target:output_bash
+
         [configtree.source]
         .json = configtree.source:load_json
         .yaml = configtree.source:load_yaml
