@@ -12,7 +12,13 @@ t = Tree({
 
 def json_test():
     result = target.output_json(t)
-    tools.eq_(result, '{\n    "a.x": 1, \n    "a.y": 10\n}')
+    result = [line.rstrip() for line in result.split('\n')]
+    tools.eq_(result, [
+        '{',
+        '    "a.x": 1,',
+        '    "a.y": 10',
+        '}',
+    ])
 
 
 def bash_test():
