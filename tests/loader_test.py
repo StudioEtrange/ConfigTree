@@ -1,7 +1,7 @@
 import os
 from nose import tools
 
-from configtree.loader import load, Walker, Updater
+from configtree.loader import Loader, Walker, Updater
 from configtree.tree import Tree
 
 
@@ -80,6 +80,7 @@ def update_test():
 
 
 def load_test():
+    load = Loader()
     result = load(data_dir)
     tools.eq_(result, {
         'a.x': 1,
@@ -96,7 +97,8 @@ def load_test():
 
     walk = Walker(env='y')
     update = Updater(namespace={'floor': floor})
-    result = load(data_dir, walk, update)
+    load = Loader(walk=walk, update=update)
+    result = load(data_dir)
     tools.eq_(result, {
         'a.x': 1,
         'a.y': 2,

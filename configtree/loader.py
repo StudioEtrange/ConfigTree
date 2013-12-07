@@ -6,17 +6,21 @@ from .compat import string
 from .tree import Tree, flatten
 
 
-def load(path, walk=None, update=None, tree=None):
-    walk = walk or Walker()
-    update = update or Updater()
-    tree = tree or Tree
-    result = tree()
-    for f in walk(path):
-        ext = os.path.splitext(f)[1]
-        with open(f) as data:
-            for key, value in flatten(source.map[ext](data)):
-                update(result, key, value)
-    return result
+class Loader(object):
+
+    def __init__(self, walk=None, update=None, factory=None):
+        self.walk = walk or Walker()
+        self.update = update or Updater()
+        self.factory = factory or Tree
+
+    def __call__(self, path):
+        result = self.factory()
+        for f in self.walk(path):
+            ext = os.path.splitext(f)[1]
+            with open(f) as data:
+                for key, value in flatten(source.map[ext](data)):
+                    self.update(result, key, value)
+        return result
 
 
 class Walker(object):
