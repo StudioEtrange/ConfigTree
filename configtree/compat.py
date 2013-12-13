@@ -1,20 +1,22 @@
+# flake8: noqa
+
 """ The module provides compatibility layer between Python 2.x and 3.x """
 
 from sys import version_info
 
 try:
     # Python 2.7, Python 3.x
-    from collections import OrderedDict     # NOQA
+    from collections import OrderedDict
 except ImportError:
     # Python 2.6
-    from ordereddict import OrderedDict     # NOQA
+    from ordereddict import OrderedDict
 
 if version_info[0] == 2 and version_info[1] < 7:
-    import simplejson as json               # NOQA
+    import simplejson as json
 else:
-    import json                             # NOQA
+    import json
 
-if version_info[0] == 3:
-    string = str
+if version_info[0] == 2:
+    string = basestring
 else:
-    string = basestring                     # NOQA
+    string = str
