@@ -1,3 +1,9 @@
+"""
+The module provides a shell script which loads configuration tree
+and convert it into various formats
+
+"""
+
 import os
 import sys
 import argparse

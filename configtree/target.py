@@ -1,6 +1,11 @@
 """
-The module provides converters, which output :class:`Tree` objects into
-various formats.
+The module provides converters, which output :class:`configtree.tree.Tree`
+objects into various formats.  The converters are available via global variable
+``map`` in format ``{'format_name': converter}``.  The map is filled on scaning
+entry points ``configtree.target``.  So if you want to extend this module,
+you can define this entry point in your own application.  The converter map
+is used by shell script defined in :mod:`configtree.script` to covert
+configuration tree into other formats.
 
 """
 
@@ -13,15 +18,35 @@ __all__ = ['map']
 
 
 def output_json(tree):
-    """ Convert :class:`Tree` object into JSON fromat """
+    """
+    Convert :class:`configtree.tree.Tree` object into JSON fromat:
+
+    ..  code-block:: pycon
+
+        >>> from configtree import Tree
+        >>> print(output_json(Tree({'a.b.c': 1})))
+        {
+            "a.b.c": 1
+        }
+
+    """
     return json.dumps(dict(tree), indent=4)
 
 
 def output_bash(tree):
-    """ Convert :class:`Tree` object into BASH fromat """
+    """
+    Convert :class:`configtree.tree.Tree` object into BASH fromat:
+
+    ..  code-block:: pycon
+
+        >>> from configtree import Tree
+        >>> print(output_bash(Tree({'a.b.c': 1})))
+        export A_B_C=1
+
+    """
     result = []
     for key, value in tree.items():
-        key = key.replace('.', '_').upper()
+        key = key.replace(tree._key_sep, '_').upper()
         result.append('export {0}={1}'.format(key, value))
     return '\n'.join(result)
 

@@ -8,6 +8,28 @@ from .tree import Tree, flatten
 
 
 class Loader(object):
+    """
+    A Loader is a callable object which loads :class:`configtree.tree.Tree`
+    object from files.  It accepts three arguments during construction:
+    ``walk``, ``update``, and ``factory``.
+
+    The ``walk`` argument should be a callable object, which accepts single
+    argument---path to configuration tree files.  It should return an iterator
+    over the files to load and may filter out some files.
+    By default :class:`Walker` is used.
+
+    The ``update`` argument should be a callable object, which accepts three
+    arguments: result configuration tree object, key, and value.
+    It should set specified value under the specified key into result tree.
+    So it may provide some syntactic sugar. By default :class:`Updater`
+    is used.
+
+    The ``factory`` argument should be a callable object, which constructs a
+    result configuration tree object. By default class
+    :class:`configtree.tree.Tree` is used.  This argument may be used, if you
+    want to use your own class, for example derived from default one.
+
+    """
 
     defaults = {
         'walk.factory': 'configtree.loader:Walker',
