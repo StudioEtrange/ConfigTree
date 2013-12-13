@@ -51,8 +51,12 @@ class Loader(object):
         for f in self.walk(path):
             ext = os.path.splitext(f)[1]
             with open(f) as data:
+                result['__file__'] = f
+                result['__dir__'] = os.path.dirname(f)
                 for key, value in flatten(source.map[ext](data)):
                     self.update(result, key, value)
+                del result['__file__']
+                del result['__dir__']
         return result
 
 

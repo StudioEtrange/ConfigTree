@@ -114,6 +114,8 @@ def load_test():
         'a.b.c': 'x = 1, y = 2',
         'a.b.l': [4, 5, 6],
         'z': 3,
+        'path': os.path.join(data_dir, 'somepath'),
+        'here': os.path.join(data_dir, 'env-y.yaml'),
     })
 
     load = Loader.from_settings({'walk.env': 'y'}, data_dir)
@@ -133,4 +135,6 @@ def load_test():
         'a.b.c': 'x = 1, y = 2',
         'a.b.l': [4, 5, 6],
         'z': 3,
+        'path': os.path.join(data_dir, 'somepath'),
+        'here': os.path.join(data_dir, 'env-y.yaml'),
     })

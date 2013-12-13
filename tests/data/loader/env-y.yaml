@@ -7,3 +7,5 @@ a.b:
     l?: [1, 2, 3]
     l#extend: [4, 5, 6]
 z: ">>> int(floor(3.8))"
+path: "$>> {self[__dir__]}/somepath"
+here: "$>> {self[__file__]}"
