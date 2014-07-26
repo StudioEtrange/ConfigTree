@@ -1,9 +1,10 @@
 syntax: glob
 
 docs/_build
-manage
 build
 dist
+.tox
+.coverage
 *.egg-info
 *.pyc
 *.sublime-*
