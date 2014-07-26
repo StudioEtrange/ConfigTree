@@ -29,6 +29,10 @@ class Loader(object):
     :class:`configtree.tree.Tree` is used.  This argument may be used, if you
     want to use your own class, for example derived from default one.
 
+    The Loader accepts single argument during call---path to configuration tree
+    files.  It uses ``walk`` to get files to load, loads their content, then
+    it uses ``update`` to put content into result configuration tree.
+
     """
 
     defaults = {
@@ -39,6 +43,14 @@ class Loader(object):
 
     @classmethod
     def from_settings(cls, settings, path=None):
+        """
+        The method constructs Loader from settings.  It gets default settings,
+        updates them by loaded ones from ``.settings`` file under the specified
+        path (if any), then updates them using passed ones via ``settings``
+        argument.  The result settings is used to get ``walk``, ``update``,
+        and ``factory`` objects and construct Loader.
+
+        """
 
         def get_worker(settings):
             if isinstance(settings, string):
