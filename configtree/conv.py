@@ -9,7 +9,8 @@ configuration tree into other formats.
 
 """
 
-import pkg_resources
+from os import linesep
+from pkg_resources import iter_entry_points
 
 from .compat import json, unicode
 
@@ -49,9 +50,9 @@ def output_bash(tree):
         value = unicode(tree[key]).replace("'", "\\'")
         key = key.replace(tree._key_sep, '_').upper()
         result.append("{0}='{1}'".format(key, value))
-    return '\n'.join(result)
+    return linesep.join(result)
 
 
 map = {}
-for entry_point in pkg_resources.iter_entry_points('configtree.target'):
+for entry_point in iter_entry_points('configtree.conv'):
     map[entry_point.name] = entry_point.load()

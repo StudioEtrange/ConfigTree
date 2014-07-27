@@ -8,7 +8,7 @@ import os
 import sys
 import argparse
 
-from . import target
+from . import conv
 from .loader import Loader
 
 
@@ -25,7 +25,7 @@ def main(argv=None):
     )
     parser.add_argument(
         '-f', '--format', default='json', required=False,
-        choices=target.map.keys(),
+        choices=conv.map.keys(),
         help='output format (default: json)'
     )
     parser.add_argument(
@@ -47,4 +47,4 @@ def main(argv=None):
     tree = load(args.path)
     if args.branch is not None:
         tree = tree[args.branch]
-    print(target.map[args.format](tree))
+    print(conv.map[args.format](tree))

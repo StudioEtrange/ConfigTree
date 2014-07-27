@@ -37,9 +37,9 @@ setup(
         [console_scripts]
         configtree = configtree.script:main
 
-        [configtree.target]
-        json = configtree.target:output_json
-        bash = configtree.target:output_bash
+        [configtree.conv]
+        json = configtree.conv:output_json
+        bash = configtree.conv:output_bash
 
         [configtree.source]
         .json = configtree.source:load_json

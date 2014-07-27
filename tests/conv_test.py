@@ -2,7 +2,7 @@ from os import linesep
 
 from nose import tools
 
-from configtree import target
+from configtree import conv
 from configtree.tree import Tree
 
 
@@ -14,7 +14,7 @@ t = Tree({
 
 
 def json_test():
-    result = target.output_json(t)
+    result = conv.output_json(t)
     result = [line.rstrip() for line in result.split(linesep)]
     tools.eq_(result, [
         '{',
@@ -26,7 +26,7 @@ def json_test():
 
 
 def bash_test():
-    result = target.output_bash(t)
+    result = conv.output_bash(t)
     result = [line.rstrip() for line in result.split(linesep)]
     tools.eq_(result, [
         "A_X='1'",
@@ -34,6 +34,7 @@ def bash_test():
         "A_Z='Testing \\'bash\\''",
     ])
 
+
 def map_test():
-    tools.eq_(target.map['json'], target.output_json)
-    tools.eq_(target.map['bash'], target.output_bash)
+    tools.eq_(conv.map['json'], conv.output_json)
+    tools.eq_(conv.map['bash'], conv.output_bash)
