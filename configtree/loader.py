@@ -122,7 +122,6 @@ class Walker(object):
                     target = env_dirs
                 else:
                     target = dirs
-                target = env_dirs if name.startswith('env-') else dirs
                 target.append(fullname)
             elif os.path.isfile(fullname):
                 basename, ext = os.path.splitext(name)
