@@ -158,6 +158,11 @@ def delete_test():
     tools.ok_('i' not in td)
 
 
+@tools.raises(KeyError)
+def delete_key_error_test():
+    del td['i']
+
+
 def flatten_test():
     fd = dict(flatten({'a': {'b': {'c': {1: 1, 2: 2}}}}))
     tools.eq_(fd, {'a.b.c.1': 1, 'a.b.c.2': 2})
