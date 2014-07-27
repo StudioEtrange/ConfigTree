@@ -18,5 +18,7 @@ else:
 
 if version_info[0] == 2:
     string = basestring
+    unicode = unicode
 else:
     string = str
+    unicode = str

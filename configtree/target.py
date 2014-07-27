@@ -11,7 +11,7 @@ configuration tree into other formats.
 
 import pkg_resources
 
-from .compat import json
+from .compat import json, unicode
 
 
 __all__ = ['map']
@@ -30,7 +30,7 @@ def output_json(tree):
         }
 
     """
-    return json.dumps(dict(tree), indent=4)
+    return json.dumps(dict(tree), indent=4, sort_keys=True)
 
 
 def output_bash(tree):
@@ -41,13 +41,14 @@ def output_bash(tree):
 
         >>> from configtree import Tree
         >>> print(output_bash(Tree({'a.b.c': 1})))
-        export A_B_C=1
+        A_B_C='1'
 
     """
     result = []
-    for key, value in tree.items():
+    for key in sorted(tree.keys()):
+        value = unicode(tree[key]).replace("'", "\\'")
         key = key.replace(tree._key_sep, '_').upper()
-        result.append('export {0}={1}'.format(key, value))
+        result.append("{0}='{1}'".format(key, value))
     return '\n'.join(result)
 
 
