@@ -161,11 +161,12 @@ class BranchProxy(MutableMapping):
     """
 
     def __init__(self, key, owner):
+        self._key_sep = owner._key_sep
         self._key = key
         self._owner = owner
 
     def _itemkey(self, key):
-        return self._owner._key_sep.join((self._key, key))
+        return self._key_sep.join((self._key, key))
 
     def keys(self):
         if self._key not in self._owner._branches:
