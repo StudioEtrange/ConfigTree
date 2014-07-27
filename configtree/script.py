@@ -25,7 +25,7 @@ def main(argv=None):
     )
     parser.add_argument(
         '-f', '--format', default='json', required=False,
-        choices=conv.map.keys(),
+        choices=list(sorted(conv.map.keys())),
         help='output format (default: json)'
     )
     parser.add_argument(
