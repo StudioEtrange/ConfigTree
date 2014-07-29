@@ -10,6 +10,7 @@ t = Tree({
     'a.x': 1,
     'a.y': 'Testing "json"',
     'a.z': "Testing 'bash'",
+    'none': None,
 })
 
 
@@ -20,7 +21,8 @@ def json_test():
         '{',
         '    "a.x": 1,',
         '    "a.y": "Testing \\"json\\"",',
-        '    "a.z": "Testing \'bash\'"',
+        '    "a.z": "Testing \'bash\'",',
+        '    "none": null',
         '}',
     ])
 
@@ -32,6 +34,7 @@ def bash_test():
         "A_X='1'",
         "A_Y='Testing \"json\"'",
         "A_Z='Testing \\'bash\\''",
+        "NONE=''",
     ])
 
 

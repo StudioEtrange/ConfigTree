@@ -47,7 +47,10 @@ def output_bash(tree):
     """
     result = []
     for key in sorted(tree.keys()):
-        value = unicode(tree[key]).replace("'", "\\'")
+        value = tree[key]
+        if value is None:
+            value = ''
+        value = unicode(value).replace("'", "\\'")
         key = key.replace(tree._key_sep, '_').upper()
         result.append("{0}='{1}'".format(key, value))
     return linesep.join(result)
