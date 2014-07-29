@@ -6,17 +6,10 @@
 Welcome to ConfigTree's documentation!
 ======================================
 
-API:
-
 .. toctree::
    :maxdepth: 2
 
-   api/tree
-   api/loader
-   api/script
-   api/source
-   api/target
-
+   api
 
 
 Indices and tables
