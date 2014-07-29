@@ -3,7 +3,7 @@ The module provides loaders from YAML and JSON files, which load data
 into :class:`collections.OrderedDict` objects.  The loaders are available
 via global variable ``map`` in format ``{'.ext': loader}``.  The map is filled
 on scaning entry points ``configtree.source``.  So if you want to extend this
-module, you can define this entry point in your own application.  The loader
+module, you can define this entry point in your own package.  The loader
 map is used by :mod:`configtree.loader` module to fill
 :class:`configtree.tree.Tree` objects from files.
 
