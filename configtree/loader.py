@@ -1,97 +1,25 @@
 import os
 import re
-import pkg_resources
 
 from . import source
 from .compat import string
 from .tree import Tree, flatten
 
 
-class Loader(object):
-    """
-    A Loader is a callable object which loads :class:`configtree.tree.Tree`
-    object from files.  It accepts three arguments during construction:
-    ``walk``, ``update``, and ``factory``.
-
-    The ``walk`` argument should be a callable object, which accepts single
-    argument---path to configuration tree files.  It should return an iterator
-    over the files to load and may filter out some files.
-    By default :class:`Walker` is used.
-
-    The ``update`` argument should be a callable object, which accepts three
-    arguments: result configuration tree object, key, and value.
-    It should set specified value under the specified key into result tree.
-    So it may provide some syntactic sugar. By default :class:`Updater`
-    is used.
-
-    The ``factory`` argument should be a callable object, which constructs a
-    result configuration tree object. By default class
-    :class:`configtree.tree.Tree` is used.  This argument may be used, if you
-    want to use your own class, for example derived from default one.
-
-    The Loader accepts single argument during call---path to configuration tree
-    files.  It uses ``walk`` to get files to load, loads their content, then
-    it uses ``update`` to put content into result configuration tree.
-
-    """
-
-    defaults = {
-        'walk.factory': 'configtree.loader:Walker',
-        'update.factory': 'configtree.loader:Updater',
-        'factory': 'configtree.tree:Tree',
-    }
-
-    @classmethod
-    def from_settings(cls, settings, path=None):
-        """
-        The method constructs Loader from settings.  It gets default settings,
-        updates them by loaded ones from ``.settings`` file under the specified
-        path (if any), then updates them using passed ones via ``settings``
-        argument.  The result settings is used to get ``walk``, ``update``,
-        and ``factory`` objects and construct Loader.
-
-        """
-
-        def get_worker(settings):
-            if isinstance(settings, string):
-                return import_spec(settings)
-            factory = import_spec(settings.pop('factory'))
-            return factory(**settings)
-
-        settings_ = Tree(cls.defaults)
-
-        if path is not None:
-            filename = os.path.join(path, '.settings')
-            if os.path.isfile(filename):
-                with open(filename) as data:
-                    data = source.load_yaml(data)
-                    if data:
-                        settings_.update(data)
-
-        settings_.update(settings)
-
-        walk = get_worker(settings_['walk'])
-        update = get_worker(settings_['update'])
-        factory = import_spec(settings_['factory'])
-        return cls(walk, update, factory)
-
-    def __init__(self, walk=None, update=None, factory=None):
-        self.walk = walk or Walker()
-        self.update = update or Updater()
-        self.factory = factory or Tree
-
-    def __call__(self, path):
-        result = self.factory()
-        for f in self.walk(path):
-            ext = os.path.splitext(f)[1]
-            with open(f) as data:
-                result['__file__'] = f
-                result['__dir__'] = os.path.dirname(f)
-                for key, value in flatten(source.map[ext](data)):
-                    self.update(result, key, value)
-                del result['__file__']
-                del result['__dir__']
-        return result
+def load(path, walk=None, update=None, tree=None):
+    walk = walk or Walker()
+    update = update or Updater()
+    tree = tree or Tree()
+    for f in walk(path):
+        ext = os.path.splitext(f)[1]
+        with open(f) as data:
+            tree['__file__'] = f
+            tree['__dir__'] = os.path.dirname(f)
+            for key, value in flatten(source.map[ext](data)):
+                update(tree, key, value)
+            del tree['__file__']
+            del tree['__dir__']
+    return tree
 
 
 class Walker(object):
@@ -150,9 +78,6 @@ class Updater(object):
 
     def __init__(self, namespace=None):
         self.namespace = namespace or {}
-        for key, value in self.namespace.items():
-            if isinstance(value, string):
-                self.namespace[key] = import_spec(value)
 
     def __call__(self, tree, key, value):
         if key.endswith('?'):
@@ -180,9 +105,3 @@ class Updater(object):
                 else:
                     value = value.format(**local)
         set_value(key, value)
-
-
-def import_spec(spec):
-    entry_point = 'x={0}'.format(spec)
-    entry_point = pkg_resources.EntryPoint.parse(entry_point)
-    return entry_point.load(False)

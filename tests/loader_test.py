@@ -1,7 +1,8 @@
+import math
 import os
 from nose import tools
 
-from configtree.loader import Loader, Walker, Updater
+from configtree.loader import load, Walker, Updater
 from configtree.tree import Tree
 
 
@@ -73,15 +74,14 @@ def update_test():
     update(tree, 'a.b.c', '$>> x = {self[a.b.x]}, y = {branch[y]}')
     tools.eq_(tree['a.b.c'], 'x = 1, y = 2')
 
-    from math import floor
-    update = Updater(namespace={'floor': floor})
+    update = Updater(namespace={'floor': math.floor})
     update(tree, 'z', '>>> int(floor(3.8))')
     tools.eq_(tree['z'], 3)
 
 
 def load_test():
-    load = Loader()
-    result = load(data_dir)
+    update = Updater(namespace={'floor': math.floor})
+    result = load(data_dir, update=update)
     tools.eq_(result, {
         'a.x': 1,
         'a.y': 2,
@@ -92,34 +92,9 @@ def load_test():
         'subsystem.b.x': 110,
         'subsystem.b.y': 120,
     })
-
-    from math import floor
 
     walk = Walker(env='y')
-    update = Updater(namespace={'floor': floor})
-    load = Loader(walk=walk, update=update)
-    result = load(data_dir)
-    tools.eq_(result, {
-        'a.x': 1,
-        'a.y': 2,
-        'b.x': 10,
-        'b.y': 20,
-        'subsystem.a.x': 101,
-        'subsystem.a.y': 102,
-        'subsystem.b.x': 110,
-        'subsystem.b.y': 120,
-        'a.b.x': 1,
-        'a.b.y': 2,
-        'a.b.z': 3,
-        'a.b.c': 'x = 1, y = 2',
-        'a.b.l': [4, 5, 6],
-        'z': 3,
-        'path': os.path.join(data_dir, 'somepath'),
-        'here': os.path.join(data_dir, 'env-y.yaml'),
-    })
-
-    load = Loader.from_settings({'walk.env': 'y'}, data_dir)
-    result = load(data_dir)
+    result = load(data_dir, walk=walk, update=update)
     tools.eq_(result, {
         'a.x': 1,
         'a.y': 2,

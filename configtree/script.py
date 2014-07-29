@@ -9,7 +9,7 @@ import sys
 import argparse
 
 from . import conv
-from .loader import Loader
+from .loader import load
 
 
 def main(argv=None):
@@ -32,18 +32,8 @@ def main(argv=None):
         '-b', '--branch', required=False,
         help='branch of tree, which should be converted'
     )
-    parser.add_argument(
-        '-s', '--settings', nargs='*', default=[],
-        help='loader settings'
-    )
     args = parser.parse_args(argv)
 
-    settings = {}
-    for arg in args.settings:
-        key, value = arg.split('=')
-        settings[key] = value
-
-    load = Loader.from_settings(settings, args.path)
     tree = load(args.path)
     if args.branch is not None:
         tree = tree[args.branch]
