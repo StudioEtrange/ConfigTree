@@ -18,14 +18,14 @@ from .compat import json, unicode
 __all__ = ['map']
 
 
-def output_json(tree):
+def to_json(tree):
     """
     Convert :class:`configtree.tree.Tree` object into JSON fromat:
 
     ..  code-block:: pycon
 
         >>> from configtree import Tree
-        >>> print(output_json(Tree({'a.b.c': 1})))
+        >>> print(to_json(Tree({'a.b.c': 1})))
         {
             "a.b.c": 1
         }
@@ -34,14 +34,14 @@ def output_json(tree):
     return json.dumps(dict(tree), indent=4, sort_keys=True)
 
 
-def output_bash(tree):
+def to_bash(tree):
     """
     Convert :class:`configtree.tree.Tree` object into BASH fromat:
 
     ..  code-block:: pycon
 
         >>> from configtree import Tree
-        >>> print(output_bash(Tree({'a.b.c': 1})))
+        >>> print(to_bash(Tree({'a.b.c': 1})))
         A_B_C='1'
 
     """

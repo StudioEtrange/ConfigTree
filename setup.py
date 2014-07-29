@@ -38,8 +38,8 @@ setup(
         configtree = configtree.script:main
 
         [configtree.conv]
-        json = configtree.conv:output_json
-        bash = configtree.conv:output_bash
+        json = configtree.conv:to_json
+        bash = configtree.conv:to_bash
 
         [configtree.source]
         .json = configtree.source:load_json

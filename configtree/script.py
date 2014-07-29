@@ -1,6 +1,6 @@
 """
 The module provides a shell script which loads configuration tree
-and convert it into various formats
+and convert it into various formats.
 
 """
 

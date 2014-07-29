@@ -15,7 +15,7 @@ t = Tree({
 
 
 def json_test():
-    result = conv.output_json(t)
+    result = conv.to_json(t)
     result = [line.rstrip() for line in result.split(linesep)]
     tools.eq_(result, [
         '{',
@@ -28,7 +28,7 @@ def json_test():
 
 
 def bash_test():
-    result = conv.output_bash(t)
+    result = conv.to_bash(t)
     result = [line.rstrip() for line in result.split(linesep)]
     tools.eq_(result, [
         "A_X='1'",
@@ -39,5 +39,5 @@ def bash_test():
 
 
 def map_test():
-    tools.eq_(conv.map['json'], conv.output_json)
-    tools.eq_(conv.map['bash'], conv.output_bash)
+    tools.eq_(conv.map['json'], conv.to_json)
+    tools.eq_(conv.map['bash'], conv.to_bash)
