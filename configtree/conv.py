@@ -34,14 +34,14 @@ def to_json(tree):
     return json.dumps(dict(tree), indent=4, sort_keys=True)
 
 
-def to_bash(tree):
+def to_shell(tree):
     """
-    Convert :class:`configtree.tree.Tree` object into BASH fromat:
+    Convert :class:`configtree.tree.Tree` object into shell script fromat:
 
     ..  code-block:: pycon
 
         >>> from configtree import Tree
-        >>> print(to_bash(Tree({'a.b.c': 1})))
+        >>> print(to_shell(Tree({'a.b.c': 1})))
         A_B_C='1'
 
     """

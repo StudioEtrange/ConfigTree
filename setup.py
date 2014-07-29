@@ -39,11 +39,11 @@ setup(
 
         [configtree.conv]
         json = configtree.conv:to_json
-        bash = configtree.conv:to_bash
+        shell = configtree.conv:to_shell
 
         [configtree.source]
-        .json = configtree.source:load_json
-        .yaml = configtree.source:load_yaml
-        .yml = configtree.source:load_yaml
+        .json = configtree.source:from_json
+        .yaml = configtree.source:from_yaml
+        .yml = configtree.source:from_yaml
     """,
 )

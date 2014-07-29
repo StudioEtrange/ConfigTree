@@ -30,8 +30,8 @@ API
 
 ..  automodule:: configtree.source
 
-..  autofunction:: load_json
-..  autofunction:: load_yaml
+..  autofunction:: from_json
+..  autofunction:: from_yaml
 
 
 :mod:`configtree.conv`
@@ -40,7 +40,7 @@ API
 ..  automodule:: configtree.conv
 
 ..  autofunction:: to_json
-..  autofunction:: to_bash
+..  autofunction:: to_shell
 
 
 :mod:`configtree.script`

@@ -20,12 +20,12 @@ from .compat import OrderedDict, json
 __all__ = ['map']
 
 
-def load_yaml(data):
+def from_yaml(data):
     """ Load data from YAML file into ``collections.OrderedDict`` """
     return yaml.load(data, Loader=OrderedDictYAMLLoader)
 
 
-def load_json(data):
+def from_json(data):
     """ Load data from JSON file into ``collections.OrderedDict`` """
     return json.load(data, object_pairs_hook=OrderedDict)
 
