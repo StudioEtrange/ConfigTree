@@ -2,8 +2,8 @@
 The module provides converters, which output :class:`configtree.tree.Tree`
 objects into various formats.  The converters are available via global variable
 ``map`` in format ``{'format_name': converter}``.  The map is filled on scaning
-entry points ``configtree.target``.  So if you want to extend this module,
-you can define this entry point in your own application.  The converter map
+entry points ``configtree.conv``.  So if you want to extend this module,
+you can define this entry point in your own package.  The converter map
 is used by shell script defined in :mod:`configtree.script` to covert
 configuration tree into other formats.
 
