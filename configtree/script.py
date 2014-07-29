@@ -34,7 +34,19 @@ def main(argv=None):
     )
     args = parser.parse_args(argv)
 
-    tree = load(args.path)
+    sys.path.insert(0, args.path)
+    try:
+        import loaderconf
+        conf = loaderconf.__dict__
+    except ImportError:
+        conf = {}
+
+    tree = load(
+        args.path,
+        walk=conf.get('walk'),
+        update=conf.get('update'),
+        tree=conf.get('tree')
+    )
     if args.branch is not None:
         tree = tree[args.branch]
     print(conv.map[args.format](tree))
