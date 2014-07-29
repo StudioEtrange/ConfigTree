@@ -7,8 +7,8 @@ from .tree import Tree, flatten
 
 
 def load(path, walk=None, update=None, tree=None):
-    walk = walk or Walker()
-    update = update or Updater()
+    walk = walk or make_walk()
+    update = update or make_update()
     tree = tree or Tree()
     for f in walk(path):
         ext = os.path.splitext(f)[1]
@@ -22,14 +22,9 @@ def load(path, walk=None, update=None, tree=None):
     return tree
 
 
-class Walker(object):
+def make_walk(env=''):
 
-    def __init__(self, env=''):
-        self.env = env
-
-    def __call__(self, path, env=None):
-        if env is None:
-            env = self.env
+    def walk(path, env=env):
         if '.' in env:
             env_name, tail = env.split('.', 1)
         else:
@@ -65,21 +60,21 @@ class Walker(object):
         for f in sorted(files):
             yield f
         for d in sorted(dirs):
-            for f in self(d, env):
+            for f in walk(d, env):
                 yield f
         for f in sorted(env_files):
             yield f
         for d in sorted(env_dirs):
-            for f in self(d, tail):
+            for f in walk(d, tail):
                 yield f
 
+    return walk
 
-class Updater(object):
 
-    def __init__(self, namespace=None):
-        self.namespace = namespace or {}
+def make_update(namespace=None):
+    namespace = namespace or {}
 
-    def __call__(self, tree, key, value):
+    def update(tree, key, value):
         if key.endswith('?'):
             key = key[:-1]
             if key in tree:
@@ -101,7 +96,9 @@ class Updater(object):
                 value = value[4:]  # Remove prefix
                 local = {'self': tree, 'branch': branch}
                 if prefix == '>>> ':
-                    value = eval(value, self.namespace, local)
+                    value = eval(value, namespace, local)
                 else:
                     value = value.format(**local)
         set_value(key, value)
+
+    return update

@@ -2,7 +2,7 @@ import math
 import os
 from nose import tools
 
-from configtree.loader import load, Walker, Updater
+from configtree.loader import load, make_walk, make_update
 from configtree.tree import Tree
 
 
@@ -11,7 +11,7 @@ data_dir = os.path.join(data_dir, 'data', 'loader')
 
 
 def walk_test():
-    walk = Walker()
+    walk = make_walk()
     files = [os.path.relpath(f, data_dir) for f in walk(data_dir)]
     tools.eq_(files, [
         os.path.join('default', 'a.json'),
@@ -20,7 +20,7 @@ def walk_test():
         os.path.join('default', 'subsystem', 'b.yaml'),
     ])
 
-    walk = Walker(env='y')
+    walk = make_walk(env='y')
     files = [os.path.relpath(f, data_dir) for f in walk(data_dir)]
     tools.eq_(files, [
         os.path.join('default', 'a.json'),
@@ -30,7 +30,7 @@ def walk_test():
         'env-y.yaml',
     ])
 
-    walk = Walker(env='x')
+    walk = make_walk(env='x')
     files = [os.path.relpath(f, data_dir) for f in walk(data_dir)]
     tools.eq_(files, [
         os.path.join('default', 'a.json'),
@@ -40,7 +40,7 @@ def walk_test():
         os.path.join('env-x', 'a.yaml'),
     ])
 
-    walk = Walker(env='x.xx')
+    walk = make_walk(env='x.xx')
     files = [os.path.relpath(f, data_dir) for f in walk(data_dir)]
     tools.eq_(files, [
         os.path.join('default', 'a.json'),
@@ -55,7 +55,7 @@ def walk_test():
 def update_test():
     tree = Tree({'a.b.x': 1})
 
-    update = Updater()
+    update = make_update()
     update(tree, 'a.b.y', 2)
     tools.eq_(tree['a.b.y'], 2)
 
@@ -74,13 +74,13 @@ def update_test():
     update(tree, 'a.b.c', '$>> x = {self[a.b.x]}, y = {branch[y]}')
     tools.eq_(tree['a.b.c'], 'x = 1, y = 2')
 
-    update = Updater(namespace={'floor': math.floor})
+    update = make_update(namespace={'floor': math.floor})
     update(tree, 'z', '>>> int(floor(3.8))')
     tools.eq_(tree['z'], 3)
 
 
 def load_test():
-    update = Updater(namespace={'floor': math.floor})
+    update = make_update(namespace={'floor': math.floor})
     result = load(data_dir, update=update)
     tools.eq_(result, {
         'a.x': 1,
@@ -93,7 +93,7 @@ def load_test():
         'subsystem.b.y': 120,
     })
 
-    walk = Walker(env='y')
+    walk = make_walk(env='y')
     result = load(data_dir, walk=walk, update=update)
     tools.eq_(result, {
         'a.x': 1,
