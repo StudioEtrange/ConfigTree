@@ -12,15 +12,15 @@ from . import conv
 from .loader import load
 
 
-def main(argv=None):
-    if argv is None:
-        argv = sys.argv[1:]
+def main(argv=None, stdout=None):
+    argv = argv or sys.argv[1:]
+    stdout = stdout or sys.stdout
 
     parser = argparse.ArgumentParser(
         description='Load and convert configuration tree'
     )
     parser.add_argument(
-        'path', nargs='?', default=os.getcwdu(),
+        'path', nargs='?', default=os.getcwd(),
         help='path to configuration tree (default: current directory)'
     )
     parser.add_argument(
@@ -45,8 +45,10 @@ def main(argv=None):
         args.path,
         walk=conf.get('walk'),
         update=conf.get('update'),
+        postprocess=conf.get('postprocess'),
         tree=conf.get('tree')
     )
     if args.branch is not None:
         tree = tree[args.branch]
-    print(conv.map[args.format](tree))
+    stdout.write(conv.map[args.format](tree).encode('utf-8'))
+    stdout.write('\n'.encode('utf-8'))
