@@ -194,7 +194,9 @@ def make_update(namespace=None):
                 return
         if '#' in key:
             key, method = key.split('#')
-            set_value = lambda k, v: getattr(tree[k], method)(v)
+
+            def set_value(k, v):
+                getattr(tree[k], method)(v)
         else:
             set_value = tree.__setitem__
         if isinstance(value, string):
