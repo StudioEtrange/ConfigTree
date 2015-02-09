@@ -113,3 +113,23 @@ def load_test():
         'path': os.path.join(data_dir, 'somepath'),
         'here': os.path.join(data_dir, 'env-y.yaml'),
     })
+
+
+def postprocess_test():
+
+    def postprocess(tree):
+        for key, value in tree.items():
+            tree[key] = value + 1000
+
+    update = make_update(namespace={'floor': math.floor})
+    result = load(data_dir, update=update, postprocess=postprocess)
+    tools.eq_(result, {
+        'a.x': 1001,
+        'a.y': 1002,
+        'b.x': 1010,
+        'b.y': 1020,
+        'subsystem.a.x': 1101,
+        'subsystem.a.y': 1102,
+        'subsystem.b.x': 1110,
+        'subsystem.b.y': 1120,
+    })

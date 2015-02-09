@@ -8,7 +8,7 @@ from .compat import string
 from .tree import Tree, flatten
 
 
-def load(path, walk=None, update=None, tree=None):
+def load(path, walk=None, update=None, postprocess=None, tree=None):
     """
     Loads :class:`configtree.tree.Tree` object from files.
 
@@ -22,6 +22,11 @@ def load(path, walk=None, update=None, tree=None):
     arguments `tree`, `key`, `value` and performs update of `tree` using
     `key` and `value` pair.  By default, a function constructed by
     :func:`make_update` is used.
+
+    A `postprocess` argument, if provided should be a callable, which accepts
+    single argument `tree`.  The loaded `tree` will be passed here.
+    By default no post processing is done.  However, it's a good place
+    to validate result tree.
 
     A `tree` argument, if provided should be a tree-like object, which will
     be updated during the load process.  By default, an empty instance of
@@ -41,6 +46,8 @@ def load(path, walk=None, update=None, tree=None):
                 update(tree, key, value)
             del tree['__file__']
             del tree['__dir__']
+    if postprocess is not None:
+        postprocess(tree)
     return tree
 
 
