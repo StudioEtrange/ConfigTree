@@ -1,0 +1,7 @@
+database:
+    driver: mysql
+    user: root
+    password: qwerty
+    name: devdb
+http:
+    host: localhost

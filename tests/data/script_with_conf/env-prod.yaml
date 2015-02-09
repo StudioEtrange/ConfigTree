@@ -1,0 +1,5 @@
+database:
+    driver: mysql
+    user: user
+    password: pa$$w0rd
+    name: proddb
