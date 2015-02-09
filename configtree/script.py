@@ -50,5 +50,5 @@ def main(argv=None, stdout=None):
     )
     if args.branch is not None:
         tree = tree[args.branch]
-    stdout.write(conv.map[args.format](tree).encode('utf-8'))
-    stdout.write('\n'.encode('utf-8'))
+    stdout.write(conv.map[args.format](tree))
+    stdout.write(os.linesep)

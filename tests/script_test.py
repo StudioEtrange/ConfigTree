@@ -1,6 +1,9 @@
 import sys
 import os
-from io import BytesIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 from nose import tools
 
@@ -25,12 +28,19 @@ def teardown_func():
 
 
 @tools.with_setup(teardown=teardown_func)
+def stdout_test():
+    argv = [data_dir_without_conf]
+    main(argv)
+    # Should not raise any exception
+
+
+@tools.with_setup(teardown=teardown_func)
 def without_conf_test():
     argv = [data_dir_without_conf]
-    stdout = BytesIO()
+    stdout = StringIO()
     main(argv, stdout)
     stdout.seek(0)
-    result = stdout.read().decode('utf-8')
+    result = stdout.read()
     result = [line.rstrip() for line in result.split(os.linesep)]
     tools.eq_(result, [
         '{',
@@ -48,10 +58,10 @@ def without_conf_test():
 @tools.with_setup(teardown=teardown_func)
 def with_conf_test():
     argv = [data_dir_with_conf]
-    stdout = BytesIO()
+    stdout = StringIO()
     main(argv, stdout)
     stdout.seek(0)
-    result = stdout.read().decode('utf-8')
+    result = stdout.read()
     result = [line.rstrip() for line in result.split(os.linesep)]
     tools.eq_(result, [
         '{',
@@ -69,10 +79,10 @@ def with_conf_test():
 @tools.with_setup(teardown=teardown_func)
 def branch_test():
     argv = ['--branch=http', data_dir_with_conf]
-    stdout = BytesIO()
+    stdout = StringIO()
     main(argv, stdout)
     stdout.seek(0)
-    result = stdout.read().decode('utf-8')
+    result = stdout.read()
     result = [line.rstrip() for line in result.split(os.linesep)]
     tools.eq_(result, [
         '{',
@@ -86,10 +96,10 @@ def branch_test():
 @tools.with_setup(teardown=teardown_func)
 def format_test():
     argv = ['--format=shell', data_dir_with_conf]
-    stdout = BytesIO()
+    stdout = StringIO()
     main(argv, stdout)
     stdout.seek(0)
-    result = stdout.read().decode('utf-8')
+    result = stdout.read()
     result = [line.rstrip() for line in result.split(os.linesep)]
     tools.eq_(result, [
         "DATABASE_DRIVER='mysql'",
