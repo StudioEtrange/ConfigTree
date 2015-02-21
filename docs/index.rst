@@ -31,27 +31,11 @@ be easily extended.  Command-line utility builds configuration to JSON and
 Shell-script format, and can be extended in the same way.
 
 
-Installation
-------------
-
-There is nothing unusual, just use Pip:
-
-..  code-block:: bash
-
-    $ pip install configtree
-
-...or easy_install:
-
-..  code-block:: bash
-
-    $ easy_install configtree
-
-
 .. toctree::
    :maxdepth: 2
 
+   getting_started
    api
-
 
 Indices and tables
 ==================
