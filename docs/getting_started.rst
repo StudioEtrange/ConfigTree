@@ -404,7 +404,7 @@ Using Within Shell Scripts
 By default ``configtree`` command outputs the whole configuration in JSON
 format.  You can specify ``--branch`` or ``-b`` option, to get only portion
 of the configuration.  You can also specify an output format using ``--format``
-or ``-f`` option.  For instance, to get only database settings in shell-script
+or ``-f`` option.  For instance, to get only database settings in shell script
 format, use the following command:
 
 ..  code-block:: bash

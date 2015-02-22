@@ -92,7 +92,7 @@ Extending Supported Output Formats
 ----------------------------------
 
 Outputting is done by converters from :mod:`configtree.conv` module.  Out of
-the box JSON and Shell-script formats are available.  If you want to add
+the box JSON and shell script formats are available.  If you want to add
 support of another format, you should implement function that accepts
 :class:`configtree.tree.Tree` object and returns string.  For instance:
 
