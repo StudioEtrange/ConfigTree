@@ -21,12 +21,12 @@ __all__ = ['map']
 
 
 def from_yaml(data):
-    """ Load data from YAML file into ``collections.OrderedDict`` """
+    """ Load data from YAML file into :class:`collections.OrderedDict` """
     return yaml.load(data, Loader=OrderedDictYAMLLoader)
 
 
 def from_json(data):
-    """ Load data from JSON file into ``collections.OrderedDict`` """
+    """ Load data from JSON file into :class:`collections.OrderedDict` """
     return json.load(data, object_pairs_hook=OrderedDict)
 
 
