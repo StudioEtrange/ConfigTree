@@ -1,5 +1,7 @@
-database:
-    user: demo-user
-    password: 0384wtr703fh13
-http:
-    host: example.com
+api:
+    host: api.example.com
+    db:
+        user: demo_user
+        password: pa$$w0rd
+frontend:
+    host: www.example.com

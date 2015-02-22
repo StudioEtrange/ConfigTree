@@ -1,8 +1,0 @@
-database:
-    driver: sqlite
-    user: johndoe
-    password: pas$
-http:
-    host: localhost
-    port: 8080
-logging: debug

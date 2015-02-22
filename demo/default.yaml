@@ -1,9 +1,0 @@
-database:
-    driver: mysql
-    user: null
-    password: null
-    name: demo-db
-http:
-    host: null
-    port: 80
-logging: error

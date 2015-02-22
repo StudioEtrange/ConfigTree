@@ -1,0 +1,4 @@
+api.endpoints:
+    index: "$>> http://{self[api.host]}:{self[api.port]}"
+    login: "$>> {branch[index]}/login"
+    logout: "$>> {branch[index]}/logout"

@@ -1,0 +1,10 @@
+api:
+    host: localhost
+    port: 5001
+    db:
+        user: root
+        password: qwerty
+    secret: secret
+frontend:
+    host: localhost
+    port: 5000

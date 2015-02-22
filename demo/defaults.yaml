@@ -1,0 +1,25 @@
+root: ">>> os.path.dirname(self['__dir__'])"
+api:
+    host: null
+    port: 80
+    db:
+        driver: mysql
+        user: null
+        password: null
+        name: demo_db
+    secret: null
+    logging: error
+frontend:
+    host: null
+    port: 80
+    js:
+        merge: yes
+        minify: yes
+    css:
+        merge: yes
+        minify: yes
+    templates:
+        reload: no
+        cache: yes
+    logging: error
+    assets: ">>> os.path.join(self['root'], 'frontend', 'assets')"
