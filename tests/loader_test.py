@@ -18,6 +18,8 @@ def walk_test():
         os.path.join('default', 'b.yaml'),
         os.path.join('default', 'subsystem', 'a.yaml'),
         os.path.join('default', 'subsystem', 'b.yaml'),
+        os.path.join('final-common', 'c.yaml'),
+        'final-common.yaml',
     ])
 
     walk = make_walk(env='y')
@@ -28,6 +30,8 @@ def walk_test():
         os.path.join('default', 'subsystem', 'a.yaml'),
         os.path.join('default', 'subsystem', 'b.yaml'),
         'env-y.yaml',
+        os.path.join('final-common', 'c.yaml'),
+        'final-common.yaml',
     ])
 
     walk = make_walk(env='x')
@@ -38,6 +42,8 @@ def walk_test():
         os.path.join('default', 'subsystem', 'a.yaml'),
         os.path.join('default', 'subsystem', 'b.yaml'),
         os.path.join('env-x', 'a.yaml'),
+        os.path.join('final-common', 'c.yaml'),
+        'final-common.yaml',
     ])
 
     walk = make_walk(env='x.xx')
@@ -49,6 +55,8 @@ def walk_test():
         os.path.join('default', 'subsystem', 'b.yaml'),
         os.path.join('env-x', 'a.yaml'),
         os.path.join('env-x', 'env-xx', 'b.yaml'),
+        os.path.join('final-common', 'c.yaml'),
+        'final-common.yaml',
     ])
 
 
@@ -91,6 +99,9 @@ def load_test():
         'subsystem.a.y': 102,
         'subsystem.b.x': 110,
         'subsystem.b.y': 120,
+        'c.x': 10,
+        'c.y': 20,
+        'c.z': 30,
     })
 
     walk = make_walk(env='y')
@@ -112,6 +123,9 @@ def load_test():
         'z': 3,
         'path': os.path.join(data_dir, 'somepath'),
         'here': os.path.join(data_dir, 'env-y.yaml'),
+        'c.x': 10,
+        'c.y': 20,
+        'c.z': 30,
     })
 
 
@@ -132,4 +146,7 @@ def postprocess_test():
         'subsystem.a.y': 1102,
         'subsystem.b.x': 1110,
         'subsystem.b.y': 1120,
+        'c.x': 1010,
+        'c.y': 1020,
+        'c.z': 1030,
     })

@@ -60,7 +60,8 @@ def make_walk(env=''):
 
         *   file, if its extension is not contained in the map of
             :mod:`configtree.source`.
-        *   file or directory, if its name starts with "_" underscore char;
+        *   file or directory, if its name starts with "_" underscore or
+            "." dot char (hidden one);
         *   file or directory, if its name starts with "env-" and the rest
             part of the name does not match environment name specified by
             the `env` argument.
@@ -71,6 +72,8 @@ def make_walk(env=''):
         2.  Common files contained in the nested directories.
         3.  Environment specific files.
         4.  Files contained in the environment specific directories.
+        5.  Files contained in the directories prefixed by "final-".
+        6.  Top level files prefixed by "final-".
 
     All files are also sorted using natural sort within their groups.
 
@@ -113,8 +116,10 @@ def make_walk(env=''):
         dirs = []
         env_files = []
         env_dirs = []
+        final_files = []
+        final_dirs = []
         for name in os.listdir(path):
-            if name.startswith('_'):
+            if name.startswith('_') or name.startswith('.'):
                 continue
             fullname = os.path.join(path, name)
             if os.path.isdir(fullname):
@@ -122,6 +127,8 @@ def make_walk(env=''):
                     if name != env_name:
                         continue
                     target = env_dirs
+                elif name.startswith('final-'):
+                    target = final_dirs
                 else:
                     target = dirs
                 target.append(fullname)
@@ -133,6 +140,8 @@ def make_walk(env=''):
                     if basename != env_name:
                         continue
                     target = env_files
+                elif name.startswith('final-'):
+                    target = final_files
                 else:
                     target = files
                 target.append(fullname)
@@ -146,6 +155,11 @@ def make_walk(env=''):
         for d in sorted(env_dirs):
             for f in walk(d, tail):
                 yield f
+        for d in sorted(final_dirs):
+            for f in walk(d, env):
+                yield f
+        for f in sorted(final_files):
+            yield f
 
     return walk
 
