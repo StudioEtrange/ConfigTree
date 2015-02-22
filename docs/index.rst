@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to ConfigTree's documentation!
-======================================
+ConfigTree
+==========
 
 Configuration files behave like cancer tumor.  As soon as one is created with
 a handful of parameters, it starts to grow.  And in a couple of month it becomes
@@ -27,16 +27,34 @@ ConfigTree will be useful for you, if you want to:
 *   have templates and automation in your configuration files.
 
 ConfigTree supports out of the box YAML and JSON source files, but it can
-be easily extended.  Command-line utility builds configuration to JSON and
-shell script format, and can be extended in the same way.
+be easily :ref:`extended <extending_source>`.  Command-line utility builds
+configuration to JSON and shell script format, and can be
+:ref:`extended <extending_output>` in the same way.
 
 
-.. toctree::
-   :maxdepth: 2
+..  toctree::
+    :maxdepth: 2
 
-   getting_started
-   advanced_usage
-   internals
+    getting_started
+    advanced_usage
+    internals
+
+
+Contribution And Bug Reports
+----------------------------
+
+The project sources are hosted by BitBucket_ as well, as bug tracker.
+Pull requests, bug reports, and feedback are welcome.
+
+.. _BitBucket: https://bitbucket.org/kr41/configtree
+
+
+License
+-------
+
+The code is licensed under the terms of BSD 2-Clause license. The full text of
+the license can be found at the root of the sources.
+
 
 Indices and tables
 ==================

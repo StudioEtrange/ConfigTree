@@ -51,6 +51,37 @@ So that, following two examples are equal:
     a.y: 2
 
 
+Using Within Python Code
+------------------------
+
+ConfigTree uses instance of :class:`configtree.tree.Tree` to store configuration
+during loading process.  The function :func:`configtree.loader.load` returns
+populated object.  You can get all benefits of the object within Python code,
+i.e. storing subsystem settings in branches.
+
+Example:
+
+..  doctest::
+
+    >>> from configtree import Tree, flatten
+    >>> config = {
+    ...     'db': {
+    ...         'driver': 'mysql',
+    ...         'user': 'root',
+    ...         'password': 'qwerty',
+    ...         'name': 'demo_db',
+    ...     }
+    ... }
+    >>> config = Tree(flatten(config))
+    >>> def get_dsn(db_conf):
+    ...     return '{driver}://{user}:{password}@localhost/{name}'.format(**db_conf)
+    >>> get_dsn(config['db'])   # Passing only ``db`` branch
+    'mysql://root:qwerty@localhost/demo_db'
+
+
+
+..  _extending_source:
+
 Extending Supported Source Formats
 ----------------------------------
 
@@ -87,6 +118,8 @@ into ``loaderconf.py`` file and add it to the ``source.map`` manually:
 
     source.map['.xml'] = from_xml
 
+
+..  _extending_output:
 
 Extending Supported Output Formats
 ----------------------------------
