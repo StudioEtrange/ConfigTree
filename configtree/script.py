@@ -15,6 +15,7 @@ from .loader import load
 def main(argv=None, stdout=None):
     argv = argv or sys.argv[1:]
     stdout = stdout or sys.stdout
+    formats = '|'.join(sorted(conv.map.keys()))
 
     parser = argparse.ArgumentParser(
         description='Load and convert configuration tree'
@@ -24,9 +25,10 @@ def main(argv=None, stdout=None):
         help='path to configuration tree (default: current directory)'
     )
     parser.add_argument(
+        # Do not use ``choices`` to be able to use converters
+        # defined within ``loaderconf.py``
         '-f', '--format', default='json', required=False,
-        choices=list(sorted(conv.map.keys())),
-        help='output format (default: json)'
+        help='output format [%s] (default: json)' % formats
     )
     parser.add_argument(
         '-b', '--branch', required=False,
@@ -41,6 +43,12 @@ def main(argv=None, stdout=None):
     except ImportError:
         conf = {}
 
+    # Fail fast, if invalid format is given
+    try:
+        converter = conv.map[args.format]
+    except KeyError:
+        raise ValueError('Unsupportable output format "%s"' % args.format)
+
     tree = load(
         args.path,
         walk=conf.get('walk'),
@@ -50,5 +58,5 @@ def main(argv=None, stdout=None):
     )
     if args.branch is not None:
         tree = tree[args.branch]
-    stdout.write(conv.map[args.format](tree))
+    stdout.write(converter(tree))
     stdout.write(os.linesep)
