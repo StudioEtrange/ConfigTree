@@ -1,5 +1,5 @@
-API
-===
+Internals
+=========
 
 :mod:`configtree.tree`
 ----------------------
