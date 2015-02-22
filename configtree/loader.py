@@ -96,6 +96,8 @@ def make_walk(env=''):
                     stress-test-config.yaml
                 env-staging/
                     staging-server-config.yaml
+            final-common/
+                common-config.yaml
 
     So that, specifying `env` argument as `test.staging`, will emit the
     following files::
@@ -103,6 +105,7 @@ def make_walk(env=''):
         config/common/common-config.yaml
         config/env-test/common-test-config.yaml
         config/env-test/env-staging/staging-server-config.yaml
+        config/final-common/common-config.yaml
 
     """
 
@@ -169,7 +172,7 @@ def make_update(namespace=None):
     Constructs `update` function, which will be used by :func:`load`.
 
     The `update` function adds a pinch of syntactic sugar to loading
-    `configtree.tree.Tree` object from files:
+    :class:`configtree.tree.Tree` object from files:
 
     ..  code-block:: yaml
 
