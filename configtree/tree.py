@@ -6,7 +6,7 @@ __all__ = ['Tree', 'flatten']
 
 class Tree(MutableMapping):
     """
-    A Tree is a dictionary like object, which supports nested keys.
+    Tree is a dictionary like object, which supports nested keys.
 
     Examples:
 
@@ -144,7 +144,7 @@ class Tree(MutableMapping):
 
 class BranchProxy(MutableMapping):
     """
-    A Branch Proxy is a helper object.  This kind of object
+    Branch Proxy is a helper object.  This kind of object
     is created on demand when you expose an intermediate key of
     :class:`Tree` object:
 
@@ -199,7 +199,7 @@ class BranchProxy(MutableMapping):
 
 def flatten(d):
     """
-    A generator which flattens out passed nested mapping objects.
+    Generator which flattens out passed nested mapping objects.
 
     It's useful in combination with :class:`Tree` constructor
     or :meth:`Tree.update`:

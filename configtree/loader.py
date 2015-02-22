@@ -12,23 +12,23 @@ def load(path, walk=None, update=None, postprocess=None, tree=None):
     """
     Loads :class:`configtree.tree.Tree` object from files.
 
-    A `path` argument should be a path to directory containing files to load.
+    A ``path`` argument should be a path to directory containing files to load.
 
-    A `walk` argument, if provided should be callable, which accepts `path`
+    A ``walk`` argument, if provided should be callable, which accepts ``path``
     argument and returns an iterator over the files to load.  By default,
     a function constructed by :func:`make_walk` is used.
 
-    An `update` argument, if provided should be a callable, which accepts three
-    arguments `tree`, `key`, `value` and performs update of `tree` using
-    `key` and `value` pair.  By default, a function constructed by
-    :func:`make_update` is used.
+    An ``update`` argument, if provided should be a callable, which accepts
+    three arguments ``tree``, ``key``, ``value`` and performs update of
+    ``tree`` using ``key`` and ``value`` pair.  By default, a function
+    constructed by :func:`make_update` is used.
 
-    A `postprocess` argument, if provided should be a callable, which accepts
-    single argument `tree`.  The loaded `tree` will be passed here.
+    A ``postprocess`` argument, if provided should be a callable, which accepts
+    single argument ``tree``.  The loaded ``tree`` will be passed here.
     By default no post processing is done.  However, it's a good place
     to validate result tree.
 
-    A `tree` argument, if provided should be a tree-like object, which will
+    A ``tree`` argument, if provided should be a tree-like object, which will
     be updated during the load process.  By default, an empty instance of
     :class:`configtree.tree.Tree` is used.  It is a right place to put
     some initial data or use derived class of :class:`configtree.tree.Tree`.
@@ -53,9 +53,9 @@ def load(path, walk=None, update=None, postprocess=None, tree=None):
 
 def make_walk(env=''):
     """
-    Constructs `walk` function, which will be used by :func:`load` one.
+    Constructs ``walk`` function, which will be used by :func:`load` one.
 
-    The `walk` function recursively iterates over the directory and yields
+    The ``walk`` function recursively iterates over the directory and yields
     files to load.  It will skip:
 
         *   file, if its extension is not contained in the map of
@@ -64,7 +64,7 @@ def make_walk(env=''):
             "." dot char (hidden one);
         *   file or directory, if its name starts with "env-" and the rest
             part of the name does not match environment name specified by
-            the `env` argument.
+            the ``env`` argument.
 
     The files are emitted in the following order:
 
@@ -77,11 +77,12 @@ def make_walk(env=''):
 
     All files are also sorted using natural sort within their groups.
 
-    The environment is specified by `env` argument.  It supports tree-like
+    The environment is specified by ``env`` argument.  It supports tree-like
     environment configuration.  For instance, you have the following
-    environments: `dev` (developer's one), `test.staging` (for staging server),
-    `test.stress` (for stress testing), and `prod` (for production usage).
-    Configuration files may be organized in the following way::
+    environments: ``dev`` (developer's one), ``test.staging``
+    (for staging server), ``test.stress`` (for stress testing),
+    and ``prod`` (for production usage).  Configuration files may be organized
+    in the following way::
 
         config/
             common/
@@ -99,7 +100,7 @@ def make_walk(env=''):
             final-common/
                 common-config.yaml
 
-    So that, specifying `env` argument as `test.staging`, will emit the
+    So that, specifying ``env`` argument as ``test.staging``, will emit the
     following files::
 
         config/common/common-config.yaml
@@ -169,9 +170,9 @@ def make_walk(env=''):
 
 def make_update(namespace=None):
     """
-    Constructs `update` function, which will be used by :func:`load`.
+    Constructs ``update`` function, which will be used by :func:`load`.
 
-    The `update` function adds a pinch of syntactic sugar to loading
+    The ``update`` function adds a pinch of syntactic sugar to loading
     :class:`configtree.tree.Tree` object from files:
 
     ..  code-block:: yaml
