@@ -1,6 +1,8 @@
 Internals
 =========
 
+The section provides per module documentation generated from doc-strings.
+
 :mod:`configtree.tree`
 ----------------------
 

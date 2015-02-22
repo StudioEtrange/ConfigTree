@@ -35,7 +35,8 @@ Shell-script format, and can be extended in the same way.
    :maxdepth: 2
 
    getting_started
-   api
+   advanced_usage
+   internals
 
 Indices and tables
 ==================

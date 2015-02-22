@@ -398,8 +398,8 @@ Of course, you can implement your own ``update`` function to add your own
 syntax sugar.
 
 
-Command Line Arguments
-----------------------
+Using Within Shell Scripts
+--------------------------
 
 By default ``configtree`` command outputs the whole configuration in JSON
 format.  You can specify ``--branch`` or ``-b`` option, to get only portion
