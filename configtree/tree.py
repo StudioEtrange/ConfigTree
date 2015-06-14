@@ -51,9 +51,10 @@ class Tree(MutableMapping):
         >>> 'x.y' in tree
         False
 
-    The Tree object doesn't perform any implicit type inspection and conversion.
-    It means what you put into the tree is what you will get from one later.
-    Even when you put one branch to another, the Tree won't create a copy:
+    The Tree object doesn't perform any implicit type inspection and
+    conversion.  It means what you put into the tree is what you will get
+    from one later.  Even when you put one branch to another, the Tree won't
+    create a copy:
 
     ..  code-block:: pycon
 
