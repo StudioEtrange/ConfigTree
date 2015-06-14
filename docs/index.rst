@@ -20,7 +20,7 @@ overkill for small projects.  It can be used in two ways:
 
 ConfigTree will be useful for you, if you want to:
 
-*   keep default configuration options and environment-specific separated
+*   keep default configuration options and environment-specific ones separated
     (even for complex tree-like structure of environments);
 *   keep subsystem settings separated;
 *   validate configuration;
@@ -43,7 +43,7 @@ configuration to JSON and shell script format, and can be
 Contribution And Bug Reports
 ----------------------------
 
-The project sources are hosted by BitBucket_ as well, as bug tracker.
+The project sources are hosted by BitBucket_ as well, as its bug tracker.
 Pull requests, bug reports, and feedback are welcome.
 
 .. _BitBucket: https://bitbucket.org/kr41/configtree

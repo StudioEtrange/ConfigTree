@@ -1,10 +1,10 @@
 """
 The module provides loaders from YAML and JSON files, which load data
 into :class:`collections.OrderedDict` objects.  The loaders are available
-via global variable ``map`` in format ``{'.ext': loader}``.  The map is filled
-on scaning entry points ``configtree.source``.  So if you want to extend this
-module, you can define this entry point in your own package.  The loader
-map is used by :mod:`configtree.loader` module to fill
+via global variable ``map`` in the format ``{'.ext': loader}``.  The map is
+filled on scaning entry points ``configtree.source``.  So if you want
+to extend this module, you can define this entry point in your own package.
+The loader map is used by :mod:`configtree.loader` module to fill
 :class:`configtree.tree.Tree` objects from files.
 
 """
@@ -21,12 +21,12 @@ __all__ = ['map']
 
 
 def from_yaml(data):
-    """ Load data from YAML file into :class:`collections.OrderedDict` """
+    """ Loads data from YAML file into :class:`collections.OrderedDict` """
     return yaml.load(data, Loader=OrderedDictYAMLLoader)
 
 
 def from_json(data):
-    """ Load data from JSON file into :class:`collections.OrderedDict` """
+    """ Loads data from JSON file into :class:`collections.OrderedDict` """
     return json.load(data, object_pairs_hook=OrderedDict)
 
 

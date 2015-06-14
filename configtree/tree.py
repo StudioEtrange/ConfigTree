@@ -24,7 +24,7 @@ class Tree(MutableMapping):
         >>> tree['a.b'] == {'c': 1, 'd': 2}
         True
 
-    Tree object is unable to create an empty branch on demand:
+    The Tree object is unable to create an empty branch on demand:
 
     ..  code-block:: pycon
 
@@ -34,7 +34,7 @@ class Tree(MutableMapping):
         KeyError: 'x.y'
 
     Use :meth:`branch` for this purposes.  It explicitly creates
-    a :class:`BranchProxy` object tied to specified key:
+    a :class:`BranchProxy` object tied to the specified key:
 
     ..  code-block:: pycon
 
@@ -43,7 +43,7 @@ class Tree(MutableMapping):
         >>> tree == {'a.b.c': 1, 'a.b.d': 2, 'x.y.z': 3}
         True
 
-    An empty branch automatically collapses from Tree:
+    An empty branch automatically collapses from the Tree:
 
     ..  code-block:: pycon
 
@@ -51,9 +51,9 @@ class Tree(MutableMapping):
         >>> 'x.y' in tree
         False
 
-    Tree object doesn't perform any implicit type inspection and conversion.
-    It means what you put into tree is what you will get from one later.
-    Even when you put one branch to another, Tree won't create a copy:
+    The Tree object doesn't perform any implicit type inspection and conversion.
+    It means what you put into the tree is what you will get from one later.
+    Even when you put one branch to another, the Tree won't create a copy:
 
     ..  code-block:: pycon
 
@@ -146,7 +146,7 @@ class BranchProxy(MutableMapping):
     """
     Branch Proxy is a helper object.  This kind of object
     is created on demand when you expose an intermediate key of
-    :class:`Tree` object:
+    the :class:`Tree` object:
 
     ..  code-block:: pycon
 
@@ -193,7 +193,7 @@ class BranchProxy(MutableMapping):
         return self._owner.branch(self._itemkey(key))
 
     def as_tree(self):
-        """ Converts Branch into separate :class:`Tree` object """
+        """ Converts Branch into a separate :class:`Tree` object """
         return self._owner.__class__(self)
 
 

@@ -10,7 +10,7 @@ however more detailed explanation will be given in the next section.
 Installation
 ------------
 
-There is nothing unusual, just use Pip:
+There is nothing unusual, just use Pip_:
 
 ..  code-block:: bash
 
@@ -21,6 +21,9 @@ There is nothing unusual, just use Pip:
 ..  code-block:: bash
 
     $ easy_install configtree
+
+
+.. _Pip: https://pip.pypa.io/en/stable/installing.html
 
 
 Simple Usage In Several Environments
@@ -37,7 +40,7 @@ Create a separate directory for configuration files:
     $ mkdir config
     $ cd config
 
-...and file with default settings ``defaults.yaml``:
+...and a file with default settings ``defaults.yaml``:
 
 ..  code-block:: yaml
 
@@ -92,9 +95,9 @@ output:
     }
 
 Let's create production and development configuration files that will override
-some of default settings.
+some of the default settings.
 
-Production one in the file ``env-prod.yaml``:
+Here are the production settings ``env-prod.yaml``:
 
 ..  code-block:: yaml
 
@@ -106,7 +109,7 @@ Production one in the file ``env-prod.yaml``:
     frontend:
         host: www.example.com
 
-And development one in the file ``env-dev.yaml``:
+...and the development ones ``env-dev.yaml``:
 
 ..  code-block:: yaml
 
@@ -120,9 +123,11 @@ And development one in the file ``env-dev.yaml``:
         host: localhost
         port: 5000
 
-If you run ``configtree`` command, you will get the same output as before.
-It happens, because we have not provided environment name to loader yet.
-So let's do that.  Create ``loaderconf.py`` file with the following contents:
+But it is not enough.  We also should tell ``configtree`` how to load
+these files.  In other words, we should provide an environment name.
+Using an environment variable is a good option.  So let's name it ``ENV_NAME``.
+To make ``configtree`` use this variable, we should create its own configuration
+file ``loaderconf.py``.  It is a simple python module:
 
 ..  code-block:: python
 
@@ -133,7 +138,7 @@ So let's do that.  Create ``loaderconf.py`` file with the following contents:
 
 Here we make ``walk`` function, which will be used by loader to get list of
 files to load.  We use :func:`configtree.loader.make_walk` factory function,
-that accepts environment name from shell variable ``ENV_NAME``.  So now, we
+that accepts an environment name from variable ``ENV_NAME``.  So now, we
 can load configuration using the following command:
 
 ..  code-block:: bash
@@ -168,9 +173,10 @@ Tree-like Environments
 
 Let's go deeper in the example.  Since our imaginable project consists
 of two applications, our team will be divided into two sub-teams.  First one
-will work on backend API, and the second one will work on frontend.  And they
-will definitely need slightly different configurations.  For instance,
-debug level of logging should be set up.
+will work on the backend API, and the second one will work on the frontend.
+And they will definitely need slightly different configurations.  For instance,
+backend team will want to set up debug level of logging on the backend,
+but not on the frontend, and vice versa.
 
 Make a directory for development environment settings:
 
@@ -178,13 +184,14 @@ Make a directory for development environment settings:
 
     $ mkdir env-dev
 
-Move ``env-dev.yaml`` file into the directory:
+Move ``env-dev.yaml`` file into the directory and rename it to ``common.yaml``.
+It will store common development settings for both teams:
 
 ..  code-block:: bash
 
     $ mv env-dev.yaml dev-env/common.yaml
 
-And create two files ``env-frontend.yaml`` and ``env-api.yaml`` with the
+Then create two files ``env-frontend.yaml`` and ``env-api.yaml`` with the
 following contents:
 
 ..  code-block:: yaml
@@ -231,6 +238,8 @@ Now run the following command:
         "frontend.templates.reload": false
     }
 
+And the result will contain development settings for the backend team.
+
 As you can see, environments can be organized in tree-like structure
 with common settings at the root, and more specific ones at the leafs.
 
@@ -242,7 +251,9 @@ When we create the first file with default settings, there was a lot of ``null``
 values.  Null itself is useless value in the configuration, but it can be
 used as a remainder---environment configuration should override the value.
 Let's make them required and raise errors, when result configuration contains
-``null`` value.  Add the following code into ``loaderconf.py``:
+``null`` value.
+
+Add the following code into ``loaderconf.py``:
 
 ..  code-block:: python
 
@@ -275,14 +286,14 @@ Obviously, the feature strongly depends of loading order.  ConfigTree preserves
 order of settings within single file.  In other words, it behaves exactly as
 a regular program---all values defined before template is available in it.
 Loading order of files depends on ``walk`` function.  See description
-of :func:`configtree.loader.make_walk` for details of built-in `walk` loading
+of :func:`configtree.loader.make_walk` for details of built-in ``walk`` loading
 order.
 
 Let's add some templates to our example.  For instance, URL map of API methods,
 where each URL should include host name and port.  The map should be defined
 in the default settings, because it does not depend on environment.  But it
 should be defined when environment specific files have been already loaded,
-because host name and port are override within the files.  Standard ``walk``
+because host name and port are overridden within the files.  Standard ``walk``
 function provide special case for such purposes.  We should prefix our file
 by ``final-`` prefix, so that it will be processed after ``env-`` prefixed
 files.
@@ -324,29 +335,30 @@ And run the following command:
         "frontend.templates.reload": false
     }
 
-As you can see, string values prefixed by ``$>>`` (with trailing space) are
+As you can see, string values prefixed by ``$>>`` (with the trailing space) are
 handled as templates.  Templates work using standard Python :meth:`str.format`
 method.  There are two values available in template: ``self`` and ``branch``.
 The first one is whole configuration tree object, the second one is a branch,
 where the template is defined.
 
 However, template sometimes is not enough.  For more complex cases, you can
-use expressions.  Let's add path to project root directory, i.e. the directory
-where ``configs`` is placed (it can be useful to calculate path to frontend
-assets, for instance).  ConfigTree loader add special keys for each file it is
-processing: ``__file__`` and ``__dir__``.  The first one is full path to current
-file, the second one is for current directory.  So that, to get root directory
-we can use :func:`os.path.dirname` function from standard Python library.
-To be able to use it, we should provide it to loader.
+use expressions.  Let's add a path to the project root directory, i.e. the
+directory where ``configs`` is placed (it can be useful to calculate path to
+the frontend assets, for instance).  ConfigTree loader add special keys for each
+file it is processing: ``__file__`` and ``__dir__``.  The first one is full path
+to the current file, the second one is for the current directory.  So that, to
+get the root directory we can use :func:`os.path.dirname` function from
+Python standard library.
 
-Edit your ``loaderconf.py`` file:
+To be able to use it, we should provide it to the loader.  Edit your
+``loaderconf.py`` file:
 
 ..  code-block:: python
 
     import os
     from configtree import make_walk, make_update
 
-    update = make_update(namespace={'os': os})      # Now we can use ``os`` within expression
+    update = make_update(namespace={'os': os})      # Now we can use ``os`` within expressions
     walk = make_walk(env=os.environ['ENV_NAME'])
 
     def postprocess(tree):
@@ -360,7 +372,7 @@ Edit your ``loaderconf.py`` file:
 
     root: ">>> os.path.dirname(self['__dir__'])"
 
-Test it:
+And test it:
 
 ..  code-block:: bash
 
@@ -402,7 +414,7 @@ Using Within Shell Scripts
 --------------------------
 
 By default ``configtree`` command outputs the whole configuration in JSON
-format.  You can specify ``--branch`` or ``-b`` option, to get only portion
+format.  You can specify ``--branch`` or ``-b`` option, to get only a portion
 of the configuration.  You can also specify an output format using ``--format``
 or ``-f`` option.  For instance, to get only database settings in shell script
 format, use the following command:
@@ -415,7 +427,7 @@ format, use the following command:
     PASSWORD='qwerty'
     USER='root'
 
-Such format can be used within shell script in the following way:
+Such format can be used within a shell script in the following way:
 
 ..  code-block:: bash
 
@@ -430,3 +442,39 @@ Such format can be used within shell script in the following way:
     then
         mysqldump --user="$USER" --password="$PASSWORD" "$NAME" > dump.sql
     fi
+
+
+Using With non-Python Programs
+------------------------------
+
+Since JSON parsers available for almost all programming languages, you can
+use ``configtree`` command-line utility to build configuration as a part of
+your build or/and deploy routine.
+
+..  code-block:: bash
+
+    # Setup environment
+    ENV_NAME=dev
+
+    # Build configuration
+    configtree /path/to/config_dir > config.json
+
+    # Build application
+    # ...
+
+
+Using Within Python Programs
+----------------------------
+
+If you use Python, you will be able to get all features of :class:`configtree.tree.Tree`
+configuration storage in your code.  You don't have to create ``loaderconf.py``
+module.  Instead, you can use :func:`configtree.loader.load` function directly:
+
+..  code-block:: python
+
+    import os
+    from configtree import load, make_walk
+
+    walk = make_walk(env=os.environ['ENV_NAME'])
+
+    config = load('path/to/config_dir', walk=walk)

@@ -37,7 +37,7 @@ dot-separated keys:
     >>> dict(flatten({'a': {'x': 1, 'y': 2}})) == {'a.x': 1, 'a.y': 2}
     True
 
-So that, following two examples are equal:
+So that, the following two examples are equal:
 
 ..  code-block:: yaml
 
@@ -51,35 +51,6 @@ So that, following two examples are equal:
     a.y: 2
 
 
-Using Within Python Code
-------------------------
-
-ConfigTree uses instance of :class:`configtree.tree.Tree` to store configuration
-during loading process.  The function :func:`configtree.loader.load` returns
-populated object.  You can get all benefits of the object within Python code,
-i.e. storing subsystem settings in branches.
-
-Example:
-
-..  doctest::
-
-    >>> from configtree import Tree, flatten
-    >>> config = {
-    ...     'db': {
-    ...         'driver': 'mysql',
-    ...         'user': 'root',
-    ...         'password': 'qwerty',
-    ...         'name': 'demo_db',
-    ...     }
-    ... }
-    >>> config = Tree(flatten(config))
-    >>> def get_dsn(db_conf):
-    ...     return '{driver}://{user}:{password}@localhost/{name}'.format(**db_conf)
-    >>> get_dsn(config['db'])   # Passing only ``db`` branch
-    'mysql://root:qwerty@localhost/demo_db'
-
-
-
 ..  _extending_source:
 
 Extending Supported Source Formats
@@ -87,7 +58,7 @@ Extending Supported Source Formats
 
 Loading file itself is done by loaders from :mod:`configtree.source` module.
 Out of the box YAML and JSON loaders are available.  If you want to add
-support of another format, you should implement function that accepts
+support of another format, you should implement a function that accepts
 file object and returns :class:`collections.OrderedDict`.  For instance:
 
 ..  code-block:: python
@@ -99,7 +70,7 @@ file object and returns :class:`collections.OrderedDict`.  For instance:
         # Do something with ``data`` file
         return OrderedDict(...)
 
-If you want to distribute this function as ConfigTree plugin, use entry points
+If you want to distribute this function as a ConfigTree plugin, use entry points
 mechanism, i.e. add to your ``setup.py`` file something like this:
 
 ..  code-block:: python
@@ -126,13 +97,13 @@ Extending Supported Output Formats
 
 Outputting is done by converters from :mod:`configtree.conv` module.  Out of
 the box JSON and shell script formats are available.  If you want to add
-support of another format, you should implement function that accepts
-:class:`configtree.tree.Tree` object and returns string.  For instance:
+support of another format, you should implement a function that accepts
+:class:`configtree.tree.Tree` object and returns a string.  For instance:
 
     def to_xml(tree):
         pass
 
-If you want to distribute this function as ConfigTree plugin, use entry points
+If you want to distribute this function as a ConfigTree plugin, use entry points
 mechanism, i.e. add to your ``setup.py`` file something like this:
 
 ..  code-block:: python

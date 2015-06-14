@@ -12,11 +12,12 @@ def load(path, walk=None, update=None, postprocess=None, tree=None):
     """
     Loads :class:`configtree.tree.Tree` object from files.
 
-    A ``path`` argument should be a path to directory containing files to load.
+    A ``path`` argument should be a path to the directory containing files
+    to load.
 
-    A ``walk`` argument, if provided should be callable, which accepts ``path``
-    argument and returns an iterator over the files to load.  By default,
-    a function constructed by :func:`make_walk` is used.
+    A ``walk`` argument, if provided should be a callable, which accepts
+    ``path`` argument and returns an iterator over the files to load.
+    By default, a function constructed by :func:`make_walk` is used.
 
     An ``update`` argument, if provided should be a callable, which accepts
     three arguments ``tree``, ``key``, ``value`` and performs update of
@@ -26,7 +27,7 @@ def load(path, walk=None, update=None, postprocess=None, tree=None):
     A ``postprocess`` argument, if provided should be a callable, which accepts
     single argument ``tree``.  The loaded ``tree`` will be passed here.
     By default no post processing is done.  However, it's a good place
-    to validate result tree.
+    to validate a result tree.
 
     A ``tree`` argument, if provided should be a tree-like object, which will
     be updated during the load process.  By default, an empty instance of
@@ -81,8 +82,8 @@ def make_walk(env=''):
     environment configuration.  For instance, you have the following
     environments: ``dev`` (developer's one), ``test.staging``
     (for staging server), ``test.stress`` (for stress testing),
-    and ``prod`` (for production usage).  Configuration files may be organized
-    in the following way::
+    and ``prod`` (for production usage).  The configuration files may be
+    organized in the following way::
 
         config/
             common/
@@ -101,7 +102,7 @@ def make_walk(env=''):
                 common-config.yaml
 
     So that, specifying ``env`` argument as ``test.staging``, will emit the
-    following files::
+    following files in the exact order::
 
         config/common/common-config.yaml
         config/env-test/common-test-config.yaml
@@ -170,7 +171,7 @@ def make_walk(env=''):
 
 def make_update(namespace=None):
     """
-    Constructs ``update`` function, which will be used by :func:`load`.
+    Constructs ``update`` function, which will be used by :func:`load` one.
 
     The ``update`` function adds a pinch of syntactic sugar to loading
     :class:`configtree.tree.Tree` object from files:
@@ -183,19 +184,20 @@ def make_update(namespace=None):
         y:
             b: 3
 
-            # If string value starts with ">>> ", it will be evaluated
-            # as Python expression. Where `branch` name refers to the current
-            # tree branch, `tree` name refers to the whole tree object.
-            # Additionally, names passed via `namespace` argument can be
-            # used within expression.
+            # If a string value starts with ">>> ", it will be evaluated
+            # as a Python expression. Where ``branch`` name refers to
+            # the current tree branch, ``tree`` name refers to the whole
+            # tree object.  Additionally, names passed via ``namespace``
+            # argument can be used within the expression.
             c: ">>> tree['x.a'] + branch['b']"               # c == 4
 
-            # If string value starts with "$>> ", it will be used as a template
-            # string.  It will be formatted used standard `format` method.
-            # Only `branch` and `tree` names are available within formatting.
+            # If a string value starts with "$>> ", it will be used as
+            # a template string.  It will be formatted used standard ``format``
+            # method.  Only ``branch`` and ``tree`` names are available
+            # within formatting.
             d: "$>> {tree[x.a]} + {branch[b]} = {branch[c]}" # d == "1 + 3 = 4"
 
-            # If key ends with "?", the corresponding value will be set
+            # If a key ends with "?", the corresponding value will be set
             # only if the key does not exists in the tree.  It is useful
             # to set default values, which could be already set within
             # another file.
@@ -203,8 +205,8 @@ def make_update(namespace=None):
             e?: []                                           # e == [1, 2]
             f?: []                                           # f == []
 
-            # If key contains "#", the part after that char will be used
-            # as method name.  This method will be called using the value.
+            # If a key contains "#", the part after that char will be used
+            # as a method name.  This method will be called using the value.
             e#append: 3                                      # e == [1, 2, 3]
 
 
