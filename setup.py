@@ -3,9 +3,10 @@ from sys import version_info
 from setuptools import setup
 
 
-readme = ''.join(open(path.join(path.dirname(__file__), 'README.rst')))
-requirements = ['pyyaml']
+with open(path.join(path.dirname(__file__), 'README.rst')) as f:
+    readme = f.read()
 
+requirements = ['pyyaml']
 if version_info[0] == 2 and version_info[1] < 7:
     requirements.extend(['ordereddict', 'simplejson', 'argparse'])
 
@@ -13,7 +14,7 @@ if version_info[0] == 2 and version_info[1] < 7:
 setup(
     name='ConfigTree',
     version='0.1',
-    description="",
+    description='Is a configuration management tool',
     long_description=readme,
     classifiers=[
         'License :: OSI Approved :: BSD License',
@@ -21,9 +22,16 @@ setup(
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Software Development :: Libraries :: Python Modules',
+        'Intended Audience :: Developers',
+        'Intended Audience :: System Administrators',
     ],
-    keywords='',
+    keywords='configuration config settings tree',
     author='Dmitry Vakhrushev',
     author_email='self@kr41.net',
     url='https://bitbucket.org/kr41/configtree',
