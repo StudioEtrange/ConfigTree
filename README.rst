@@ -1,3 +1,4 @@
+
 ConfigTree
 ==========
 
@@ -15,7 +16,7 @@ overkill for small projects.  It can be used in two ways:
 
 ConfigTree will be useful for you, if you want to:
 
-*   keep default configuration options and environment-specific separated
+*   keep default configuration options and environment-specific ones separated
     (even for complex tree-like structure of environments);
 *   keep subsystem settings separated;
 *   validate configuration;
