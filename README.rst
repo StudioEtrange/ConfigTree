@@ -21,3 +21,8 @@ ConfigTree will be useful for you, if you want to:
 *   keep subsystem settings separated;
 *   validate configuration;
 *   have templates and automation in your configuration files.
+
+The full documentation is available at `Read the Docs`_.
+
+
+.. _Read the Docs: http://configtree.readthedocs.org/en/latest/
