@@ -15,6 +15,7 @@ The section provides per module documentation generated from doc-strings.
     :members:
 
 ..  autofunction:: flatten
+..  autofunction:: rarefy
 
 
 :mod:`configtree.loader`

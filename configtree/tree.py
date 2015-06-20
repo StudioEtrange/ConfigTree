@@ -318,9 +318,9 @@ def flatten(d):
 
 def rarefy(tree):
     """
-    Converts a :class:`Tree` object into a nested dictionary.
+    Converts passed :class:`Tree` object into a nested dictionary.
 
-    The convertation is opposite to :func:`flatten`.
+    It works oppositely to :func:`flatten`.
 
     ..  code-block:: pycon
 

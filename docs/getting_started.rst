@@ -6,6 +6,10 @@ utility program ``configtree``.  It covers all features, but does not explain
 them in details.  It is enough to start using ConfigTree within your project,
 however more detailed explanation will be given in the next section.
 
+The following example available at ``demo`` directory of `the sources`_.
+
+.. _the sources: https://bitbucket.org/kr41/configtree/src
+
 
 Installation
 ------------
@@ -466,35 +470,73 @@ There are two JSON converters available.  A condensed one is default converter
 that is used by ``configtree`` program.  It returns flat structure as you can
 see in the examples above:
 
-..  code-block:: json
+..  code-block:: bash
 
+    $ ENV_NAME=dev.frontend configtree
     {
-        "db.driver": "mysql",
-        "db.host": "localhost",
-        "db.name": "test_db",
-        "logging.level": "info"
+        "api.db.driver": "mysql",
+        "api.db.name": "demo_db",
+        "api.db.password": "qwerty",
+        "api.db.user": "root",
+        "api.endpoints.index": "http://localhost:5001",
+        "api.endpoints.login": "http://localhost:5001/login",
+        "api.endpoints.logout": "http://localhost:5001/logout",
+        "api.host": "localhost",
+        "api.logging": "error",
+        "api.port": 5001,
+        "api.secret": "secret",
+        "frontend.css.merge": true,
+        "frontend.css.minify": true,
+        "frontend.host": "localhost",
+        "frontend.js.merge": true,
+        "frontend.js.minify": true,
+        "frontend.logging": "debug",
+        "frontend.port": 5000,
+        "frontend.templates.cache": true,
+        "frontend.templates.reload": false
     }
 
 A rare JSON converter returns the same structure as:
 
-..  code-block:: json
-
-    {
-        "db": {
-            "driver": "mysql",
-            "host": "localhost",
-            "name": "test_db"
-        },
-        "logging": {
-            "level": "info"
-        }
-    }
-
-To use it specify ``-f`` or ``--format`` argument:
-
 ..  code-block:: bash
 
-    $ configtree -f rare_json
+    $ ENV_NAME=dev.frontend configtree --format=rare_json
+    {
+        "api": {
+            "db": {
+                "driver": "mysql",
+                "name": "demo_db",
+                "password": "qwerty",
+                "user": "root"
+            },
+            "endpoints": {
+                "index": "http://localhost:5001",
+                "login": "http://localhost:5001/login",
+                "logout": "http://localhost:5001/logout"
+            },
+            "host": "localhost",
+            "logging": "error",
+            "port": 5001,
+            "secret": "secret"
+        },
+        "frontend": {
+            "css": {
+                "merge": true,
+                "minify": true
+            },
+            "host": "localhost",
+            "js": {
+                "merge": true,
+                "minify": true
+            },
+            "logging": "debug",
+            "port": 5000,
+            "templates": {
+                "cache": true,
+                "reload": false
+            }
+        }
+    }
 
 
 Using Within Python Programs
