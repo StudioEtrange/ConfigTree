@@ -1,6 +1,6 @@
 from nose import tools
 
-from configtree.tree import Tree, flatten
+from configtree.tree import Tree, flatten, rarefy
 
 
 td = Tree()
@@ -91,6 +91,16 @@ def iter_and_keys_test():
                                                    'a.b.5', 'a.b.6'])
     tools.eq_(sorted(list(iter(td['a']))), ['2', 'b.3', 'b.4', 'b.5', 'b.6'])
     tools.eq_(sorted(list(iter(td['a.b']))), ['3', '4', '5', '6'])
+
+
+def rare_iterators_test():
+    tools.eq_(list(td.rare_keys()), ['a', '1'])
+    tools.eq_(list(td.rare_values()), [td['a'], 1])
+    tools.eq_(list(td.rare_items()), [('a', td['a']), ('1', 1)])
+
+    tools.eq_(list(td['a'].rare_keys()), ['b', '2'])
+    tools.eq_(list(td['a'].rare_values()), [td['a.b'], 2])
+    tools.eq_(list(td['a'].rare_items()), [('b', td['a.b']), ('2', 2)])
 
 
 def repr_test():
@@ -192,3 +202,8 @@ def delete_key_error_test():
 def flatten_test():
     fd = dict(flatten({'a': {'b': {'c': {1: 1, 2: 2}}}}))
     tools.eq_(fd, {'a.b.c.1': 1, 'a.b.c.2': 2})
+
+
+def rarefy_test():
+    td = Tree({'a.b.c': 1, 'x.y.z': 1})
+    tools.eq_(rarefy(td), {'a': {'b': {'c': 1}}, 'x': {'y': {'z': 1}}})

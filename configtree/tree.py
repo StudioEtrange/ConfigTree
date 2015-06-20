@@ -1,7 +1,7 @@
 from collections import defaultdict, Mapping, MutableMapping
 
 
-__all__ = ['Tree', 'flatten']
+__all__ = ['Tree', 'flatten', 'rarefy']
 
 
 class Tree(MutableMapping):
@@ -138,6 +138,44 @@ class Tree(MutableMapping):
     def __repr__(self):
         return '{0}({1!r})'.format(self.__class__.__name__, self._items)
 
+    def rare_keys(self):
+        """
+        Returns an iterator over the first level keys.
+
+        ..  code-block:: pycon
+
+            >>> tree = Tree({'a.b.c': 1, 'k': 2, 'x.y.z': 3})
+            >>> sorted(list(tree.rare_keys())) == ['a', 'k', 'x']
+            True
+
+        """
+        for key in self._branches:
+            if '.' not in key:
+                yield key
+        for key in self._items:
+            if '.' not in key and key not in self._branches:
+                yield key
+
+    def rare_values(self):
+        """
+        Returns an iterator over the first level values.
+
+        See :meth:`Tree.rare_keys`.
+
+        """
+        for key in self.rare_keys():
+            yield self[key]
+
+    def rare_items(self):
+        """
+        Returns an iterator over the first level items.
+
+        See :meth:`Tree.rare_keys`.
+
+        """
+        for key in self.rare_keys():
+            yield key, self[key]
+
     def branch(self, key):
         """ Returns a :class:`BranchProxy` object for specified ``key`` """
         return BranchProxy(key, self)
@@ -200,6 +238,47 @@ class BranchProxy(MutableMapping):
             dict(self),
         )
 
+    def rare_keys(self):
+        """
+        Returns an iterator over the first level keys.
+
+        ..  code-block:: pycon
+
+            >>> tree = Tree({'x.a.b': 1, 'x.k': 2, 'x.y.z': 3})
+            >>> sorted(list(tree['x'].rare_keys())) == ['a', 'k', 'y']
+            True
+
+        """
+        for key in self._owner._branches:
+            if not key.startswith(self._key) or key == self._key:
+                continue
+            key = key[len(self._key) + 1:]
+            if '.' not in key:
+                yield key
+        for key in self._owner._branches[self._key]:
+            if '.' not in key:
+                yield key
+
+    def rare_values(self):
+        """
+        Returns an iterator over the first level values.
+
+        See :meth:`BranchProxy.rare_keys`.
+
+        """
+        for key in self.rare_keys():
+            yield self[key]
+
+    def rare_items(self):
+        """
+        Returns an iterator over the first level items.
+
+        See :meth:`BranchProxy.rare_keys`.
+
+        """
+        for key in self.rare_keys():
+            yield key, self[key]
+
     def branch(self, key):
         """ Returns a :class:`BranchProxy` object for specified ``key`` """
         return self._owner.branch(self._itemkey(key))
@@ -235,3 +314,24 @@ def flatten(d):
                 yield '{0}.{1}'.format(key, subkey), subvalue
         else:
             yield str(key), value
+
+
+def rarefy(tree):
+    """
+    Converts a :class:`Tree` object into a nested dictionary.
+
+    The convertation is opposite to :func:`flatten`.
+
+    ..  code-block:: pycon
+
+        >>> tree = Tree({'a.b.c' : 1})
+        >>> rarefy(tree)
+        {'a': {'b': {'c': 1}}}
+
+    """
+    result = {}
+    for key, value in tree.rare_items():
+        if isinstance(value, (Tree, BranchProxy)):
+            value = rarefy(value)
+        result[key] = value
+    return result
