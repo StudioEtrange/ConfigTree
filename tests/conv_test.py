@@ -27,6 +27,21 @@ def json_test():
     ])
 
 
+def rare_json_test():
+    result = conv.to_rare_json(t)
+    result = [line.rstrip() for line in result.split(linesep)]
+    tools.eq_(result, [
+        '{',
+        '    "a": {',
+        '        "x": 1,',
+        '        "y": "Testing \\"json\\"",',
+        '        "z": "Testing \'shell\'"',
+        '    },',
+        '    "none": null',
+        '}',
+    ])
+
+
 def shell_test():
     result = conv.to_shell(t)
     result = [line.rstrip() for line in result.split(linesep)]
@@ -40,4 +55,5 @@ def shell_test():
 
 def map_test():
     tools.eq_(conv.map['json'], conv.to_json)
+    tools.eq_(conv.map['rare_json'], conv.to_rare_json)
     tools.eq_(conv.map['shell'], conv.to_shell)

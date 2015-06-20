@@ -50,6 +50,7 @@ setup(
 
         [configtree.conv]
         json = configtree.conv:to_json
+        rare_json = configtree.conv:to_rare_json
         shell = configtree.conv:to_shell
 
         [configtree.source]

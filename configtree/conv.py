@@ -12,6 +12,7 @@ configuration tree into other formats.
 from os import linesep
 from pkg_resources import iter_entry_points
 
+from .tree import rarefy
 from .compat import json, unicode
 
 
@@ -32,6 +33,26 @@ def to_json(tree):
 
     """
     return json.dumps(dict(tree), indent=4, sort_keys=True)
+
+
+def to_rare_json(tree):
+    """
+    Convert :class:`configtree.tree.Tree` object into JSON fromat:
+
+    ..  code-block:: pycon
+
+        >>> from configtree import Tree
+        >>> print(to_rare_json(Tree({'a.b.c': 1})))
+        {
+            "a": {
+                "b": {
+                    "c": 1
+                }
+            }
+        }
+
+    """
+    return json.dumps(rarefy(tree), indent=4, sort_keys=True)
 
 
 def to_shell(tree):
