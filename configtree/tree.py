@@ -193,6 +193,13 @@ class BranchProxy(MutableMapping):
     def __len__(self):
         return len(self.keys())
 
+    def __repr__(self):
+        return '{0}({1!r}): {2!r}'.format(
+            self.__class__.__name__,
+            self._key,
+            dict(self),
+        )
+
     def branch(self, key):
         """ Returns a :class:`BranchProxy` object for specified ``key`` """
         return self._owner.branch(self._itemkey(key))

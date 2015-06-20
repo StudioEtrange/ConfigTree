@@ -93,6 +93,11 @@ def iter_and_keys_test():
     tools.eq_(sorted(list(iter(td['a.b']))), ['3', '4', '5', '6'])
 
 
+def tree_repr_test():
+    td = Tree({'x': 1})
+    tools.eq_(repr(td), "Tree({'x': 1})")
+
+
 def tree_copy_test():
     new_td = td.copy()
     tools.eq_(new_td, td)
@@ -137,6 +142,11 @@ def get_branch_test():
     tools.ok_('x.y' in td)
     tools.ok_('y.2' in bx)
     tools.ok_('y' in bx)
+
+
+def branch_repr_test():
+    td = Tree({'x.y': 1})
+    tools.eq_(repr(td['x']), "BranchProxy('x'): {'y': 1}")
 
 
 def branch_as_tree_test():
