@@ -1,8 +1,8 @@
 Changes
 =======
 
-0.2 (dev)
----------
+0.2
+---
 
 *   Added ``copy`` method into ``Tree`` and ``BranchProxy`` classes;
 *   Added human readable representation of ``BranchProxy`` class;
