@@ -7,7 +7,7 @@ with open(path.join(path.dirname(__file__), 'README.rst')) as f:
     readme = f.read()
 
 with open(path.join(path.dirname(__file__), 'CHANGES.rst')) as f:
-    readme = '\n\n' + f.read()
+    readme += '\n\n' + f.read()
 
 requirements = ['pyyaml']
 if version_info[0] == 2 and version_info[1] < 7:
