@@ -112,6 +112,13 @@ def format_test():
     ])
 
 
+@tools.raises(ValueError)
+@tools.with_setup(teardown=teardown_func)
+def invalid_format_test():
+    argv = ['--format=invalid', data_dir_with_conf]
+    main(argv)
+
+
 @tools.with_setup(teardown=teardown_func)
 def postprocess_test():
     os.environ['ENV_NAME'] = 'prod'
