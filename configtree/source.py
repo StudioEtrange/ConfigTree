@@ -63,7 +63,7 @@ class OrderedDictYAMLLoader(yaml.Loader):
     def construct_mapping(self, node, deep=False):
         if isinstance(node, yaml.MappingNode):
             self.flatten_mapping(node)
-        else:
+        else:                                                # pragma: nocover
             raise ConstructorError(
                 None, None,
                 'expected a mapping node, but found %s' % node.id,
@@ -75,7 +75,7 @@ class OrderedDictYAMLLoader(yaml.Loader):
             key = self.construct_object(key_node, deep=deep)
             try:
                 hash(key)
-            except TypeError as exc:
+            except TypeError as exc:                         # pragma: nocover
                 raise ConstructorError(
                     'while constructing a mapping', node.start_mark,
                     'found unacceptable key (%s)' % exc,
