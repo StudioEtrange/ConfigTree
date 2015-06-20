@@ -462,6 +462,40 @@ your build or/and deploy routine.
     # Build application
     # ...
 
+There are two JSON converters available.  A condensed one is default converter
+that is used by ``configtree`` program.  It returns flat structure as you can
+see in the examples above:
+
+..  code-block:: json
+
+    {
+        "db.driver": "mysql",
+        "db.host": "localhost",
+        "db.name": "test_db",
+        "logging.level": "info"
+    }
+
+A rare JSON converter returns the same structure as:
+
+..  code-block:: json
+
+    {
+        "db": {
+            "driver": "mysql",
+            "host": "localhost",
+            "name": "test_db"
+        },
+        "logging": {
+            "level": "info"
+        }
+    }
+
+To use it specify ``-f`` or ``--format`` argument:
+
+..  code-block:: bash
+
+    $ configtree -f rare_json
+
 
 Using Within Python Programs
 ----------------------------

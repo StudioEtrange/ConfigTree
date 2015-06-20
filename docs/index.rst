@@ -28,7 +28,7 @@ ConfigTree will be useful for you, if you want to:
 
 ConfigTree supports out of the box YAML and JSON source files, but it can
 be easily :ref:`extended <extending_source>`.  Command-line utility builds
-configuration to JSON and shell script format, and can be
+configuration to JSON (condensed or rare) and shell script format, and can be
 :ref:`extended <extending_output>` in the same way.
 
 
