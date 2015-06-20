@@ -142,6 +142,10 @@ class Tree(MutableMapping):
         """ Returns a :class:`BranchProxy` object for specified ``key`` """
         return BranchProxy(key, self)
 
+    def copy(self):
+        """ Returns a shallow copy of the tree """
+        return self.__class__(self)
+
 
 class BranchProxy(MutableMapping):
     """
@@ -194,8 +198,12 @@ class BranchProxy(MutableMapping):
         return self._owner.branch(self._itemkey(key))
 
     def as_tree(self):
-        """ Converts Branch into a separate :class:`Tree` object """
+        """ Converts the branch into a separate :class:`Tree` object """
         return self._owner.__class__(self)
+
+    def copy(self):
+        """ An alias for :meth:`BranchProxy.as_tree` """
+        return self.as_tree()
 
 
 def flatten(d):

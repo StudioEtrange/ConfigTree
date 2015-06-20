@@ -93,6 +93,13 @@ def iter_and_keys_test():
     tools.eq_(sorted(list(iter(td['a.b']))), ['3', '4', '5', '6'])
 
 
+def tree_copy_test():
+    new_td = td.copy()
+    tools.eq_(new_td, td)
+    tools.ok_(new_td is not td)
+    tools.ok_(isinstance(td, Tree))
+
+
 def override_branch_test():
     td['i.j.1'] = 1
 
@@ -134,6 +141,14 @@ def get_branch_test():
 
 def branch_as_tree_test():
     new_td = td['a.b'].as_tree()
+    new_td['3'] = 33
+    tools.ok_(isinstance(new_td, Tree))
+    tools.eq_(new_td, {'3': 33, '4': 4, '5': 5, '6': 6})
+    tools.eq_(td['a.b'], {'3': 3, '4': 4, '5': 5, '6': 6})
+
+
+def branch_copy_test():
+    new_td = td['a.b'].copy()
     new_td['3'] = 33
     tools.ok_(isinstance(new_td, Tree))
     tools.eq_(new_td, {'3': 33, '4': 4, '5': 5, '6': 6})
