@@ -1,6 +1,15 @@
 Changes
 =======
 
+0.3
+---
+
+*   Dropped Python 3.2 support due to ``coverage`` package.  The code should
+    still work OK, but it will not be tested anymore.
+*   Added ``loaderconf`` function to be able to read loader configuration
+    from ``loaderconf.py`` module in a clean way.
+
+
 0.2
 ---
 
