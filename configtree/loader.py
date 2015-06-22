@@ -1,6 +1,7 @@
 """ The module provides utility functions to load tree object from files """
 
 import os
+import sys
 import re
 
 from . import source
@@ -50,6 +51,32 @@ def load(path, walk=None, update=None, postprocess=None, tree=None):
     if postprocess is not None:
         postprocess(tree)
     return tree
+
+
+def loaderconf(path):
+    """
+    Reads loader configuration from module ``loaderconf``.
+
+    If file of the module does not exists, it will return an empty dictionary.
+    Otherwise, the result will contain ``walk``, ``update``, ``postprocess``,
+    and ``tree`` keys.
+
+    Usage:
+
+    ..  code-block:: python
+
+        config = load(path, **loaderconf(path))
+
+    """
+    if path not in sys.path:
+        sys.path.append(path)
+    try:
+        import loaderconf
+        conf = loaderconf.__dict__
+    except ImportError:
+        conf = {}
+    keys = ('walk', 'update', 'postprocess', 'tree')
+    return dict((k, v) for k, v in conf.items() if k in keys)
 
 
 def make_walk(env=''):

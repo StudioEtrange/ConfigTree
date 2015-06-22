@@ -1,13 +1,25 @@
 import math
 import os
+import sys
 from nose import tools
 
-from configtree.loader import load, make_walk, make_update
+from configtree.loader import load, loaderconf, make_walk, make_update
 from configtree.tree import Tree
 
 
 data_dir = os.path.dirname(os.path.realpath(__file__))
 data_dir = os.path.join(data_dir, 'data', 'loader')
+
+
+def teardown_func():
+    try:
+        sys.path.remove(data_dir)
+    except ValueError:
+        pass
+    try:
+        del sys.modules['loaderconf']
+    except KeyError:
+        pass
 
 
 def walk_test():
@@ -149,4 +161,18 @@ def postprocess_test():
         'c.x': 1010,
         'c.y': 1020,
         'c.z': 1030,
+    })
+
+
+@tools.with_setup(teardown=teardown_func)
+def loader_conf_test():
+    conf = loaderconf(os.path.dirname(data_dir))
+    tools.eq_(conf, {})
+
+    conf = loaderconf(data_dir)
+    tools.eq_(conf, {
+        'walk': 'walk',
+        'update': 'update',
+        'postprocess': 'postprocess',
+        'tree': 'tree',
     })

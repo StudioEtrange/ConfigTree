@@ -9,7 +9,7 @@ import sys
 import argparse
 
 from . import conv
-from .loader import load
+from .loader import load, loaderconf
 
 
 def main(argv=None, stdout=None):
@@ -36,26 +36,14 @@ def main(argv=None, stdout=None):
     )
     args = parser.parse_args(argv)
 
-    sys.path.insert(0, args.path)
-    try:
-        import loaderconf
-        conf = loaderconf.__dict__
-    except ImportError:
-        conf = {}
-
+    loader = loaderconf(args.path)
     # Fail fast, if invalid format is given
     try:
         converter = conv.map[args.format]
     except KeyError:
         raise ValueError('Unsupportable output format "%s"' % args.format)
 
-    tree = load(
-        args.path,
-        walk=conf.get('walk'),
-        update=conf.get('update'),
-        postprocess=conf.get('postprocess'),
-        tree=conf.get('tree')
-    )
+    tree = load(args.path, **loader)
     if args.branch is not None:
         tree = tree[args.branch]
     stdout.write(converter(tree))
