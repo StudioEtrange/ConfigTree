@@ -16,7 +16,6 @@ data_dir_without_conf = os.path.join(data_dir, 'data', 'script_without_conf')
 
 
 def teardown_func():
-    "tear down test fixtures"
     try:
         sys.path.remove(data_dir_with_conf)
     except ValueError:
