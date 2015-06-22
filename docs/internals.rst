@@ -24,6 +24,7 @@ The section provides per module documentation generated from doc-strings.
 ..  automodule:: configtree.loader
 
 ..  autofunction:: load
+..  autofunction:: loaderconf
 ..  autofunction:: make_walk
 ..  autofunction:: make_update
 

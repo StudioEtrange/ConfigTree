@@ -554,3 +554,13 @@ module.  Instead, you can use :func:`configtree.loader.load` function directly:
     walk = make_walk(env=os.environ['ENV_NAME'])
 
     config = load('path/to/config_dir', walk=walk)
+
+However, if you have ``loaderconf.py`` module, you can easily read it using
+:func:`configtree.loader.loaderconf` function:
+
+..  code-block:: python
+
+    from configtree import load, loaderconf
+
+    path = 'path/to/config_dir'
+    config = load(path, **loaderconf(path))
