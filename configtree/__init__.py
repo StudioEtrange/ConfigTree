@@ -6,6 +6,6 @@ __all__ = [
     'Tree', 'flatten', 'rarefy',
     'load', 'loaderconf', 'make_walk', 'make_update',
 ]
-__version__ = '0.3'
+__version__ = '0.4'
 __author__ = 'Dmitry Vakhrushev <self@kr41.net>'
 __license__ = 'BSD'

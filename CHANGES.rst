@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.4
+---
+
+*   In Progress
+
+
 0.3
 ---
 
@@ -18,6 +24,7 @@ Changes
 *   Added rare iterators into ``Tree`` and ``BranchProxy`` classes.
 *   Added ``rarefy`` function.
 *   Added rare JSON converter.
+
 
 0.1
 ---

@@ -16,7 +16,7 @@ if version_info[0] == 2 and version_info[1] < 7:
 
 setup(
     name='ConfigTree',
-    version='0.3',
+    version='0.4',
     description='Is a configuration management tool',
     long_description=readme,
     classifiers=[
