@@ -190,12 +190,16 @@ def pipeline_test():
         def first(self):
             pass
 
-        @worker(2)
+        @worker(2, enabled=False)
         def second(self):
             pass
 
+        @worker(3)
+        def third(self):
+            pass
+
     t = Test()
-    tools.eq_(t.__pipeline__, [t.first, t.second])
+    tools.eq_(t.__pipeline__, [t.first, t.third])
 
 
 def updater_format_value_test():

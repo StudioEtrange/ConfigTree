@@ -271,10 +271,10 @@ def make_update(namespace=None):
     return update
 
 
-def worker(priority):
+def worker(priority, enabled=True):
 
     def decorator(f):
-        f.__worker__ = True
+        f.__worker__ = enabled
         f.__priority__ = priority
         return f
 
