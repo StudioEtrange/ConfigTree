@@ -4,17 +4,6 @@
 
 from sys import version_info
 
-try:
-    # Python 2.7, Python 3.x
-    from collections import OrderedDict
-except ImportError:                                         # pragma: nocover
-    # Python 2.6
-    from ordereddict import OrderedDict
-
-if version_info[0] == 2 and version_info[1] < 7:            # pragma: nocover
-    import simplejson as json
-else:                                                       # pragma: nocover
-    import json
 
 if version_info[0] == 2:                                    # pragma: nocover
     string = basestring

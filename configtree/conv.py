@@ -9,11 +9,12 @@ configuration tree into other formats.
 
 """
 
+import json
 from os import linesep
 from pkg_resources import iter_entry_points
 
 from .tree import rarefy
-from .compat import json, unicode
+from .compat import unicode
 
 
 __all__ = ['map']

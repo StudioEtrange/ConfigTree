@@ -10,11 +10,11 @@ The loader map is used by :mod:`configtree.loader` module to fill
 """
 
 import pkg_resources
+import json
+from collections import OrderedDict
 
 import yaml
 from yaml.constructor import ConstructorError
-
-from .compat import OrderedDict, json
 
 
 __all__ = ['map']

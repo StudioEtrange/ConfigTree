@@ -1,5 +1,4 @@
 from os import path
-from sys import version_info
 from setuptools import setup
 
 
@@ -8,10 +7,6 @@ with open(path.join(path.dirname(__file__), 'README.rst')) as f:
 
 with open(path.join(path.dirname(__file__), 'CHANGES.rst')) as f:
     readme += '\n\n' + f.read()
-
-requirements = ['pyyaml']
-if version_info[0] == 2 and version_info[1] < 7:
-    requirements.extend(['ordereddict', 'simplejson', 'argparse'])
 
 
 setup(
@@ -22,7 +17,6 @@ setup(
     classifiers=[
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
@@ -40,7 +34,7 @@ setup(
     download_url='https://bitbucket.org/kr41/configtree/downloads',
     license='BSD',
     packages=['configtree'],
-    install_requires=requirements,
+    install_requires=['pyyaml'],
     include_package_data=True,
     zip_safe=True,
     entry_points="""\
