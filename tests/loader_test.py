@@ -7,6 +7,7 @@ from configtree.loader import (
     load, loaderconf, make_walk, make_update,
     Pipeline, worker,
     Updater, UpdateAction, Promise, ResolverProxy, resolve,
+    PostProcessor,
 )
 from configtree.tree import Tree
 
@@ -323,3 +324,13 @@ def resolver_proxy_test():
     tools.eq_(tree['foo'], 42)
     tools.eq_(tree['bar'], 'baz')
     tools.eq_(set(tree.keys()), set(['foo', 'bar']))
+
+
+def postprocessor_resolve_promise_test():
+    tree = Tree({
+        'foo': Promise(lambda: 42),
+        'bar': 'baz',
+    })
+    postprocess = PostProcessor()
+    postprocess(tree)
+    tools.eq_(tree, {'foo': 42, 'bar': 'baz'})

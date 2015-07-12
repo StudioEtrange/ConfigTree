@@ -452,3 +452,16 @@ class ResolverProxy(object):
 
     def __getattr__(self, attr):
         return getattr(self.__tree, attr)
+
+
+class PostProcessor(Pipeline):
+
+    def __call__(self, tree):
+        for key, value in tree.items():
+            for modifier in self.__pipeline__:
+                modifier(tree, key, value)
+
+    @worker(30)
+    def resolve_promise(self, tree, key, value):
+        if isinstance(value, Promise):
+            tree[key] = value()
