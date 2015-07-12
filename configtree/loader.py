@@ -383,6 +383,13 @@ class Updater(Pipeline):
             )
         )
 
+    @worker(70)
+    def required_value(self, action):
+        if not isinstance(action.value, string) or \
+           not action.value.startswith('!!!'):
+            return
+        action.value = Required(action.key, action.value[3:].strip())
+
 
 class UpdateAction(object):
 
@@ -454,14 +461,39 @@ class ResolverProxy(object):
         return getattr(self.__tree, attr)
 
 
+class Required(object):
+
+    def __init__(self, key, comment):
+        self.key = key
+        self.comment = comment
+
+    def __repr__(self):
+        return 'Required(key={0.key!r}, comment={0.comment!r})'.format(self)
+
+
 class PostProcessor(Pipeline):
 
     def __call__(self, tree):
+        errors = []
         for key, value in tree.items():
             for modifier in self.__pipeline__:
-                modifier(tree, key, value)
+                error = modifier(tree, key, value)
+                if error is not None:
+                    errors.append(error)
+        if errors:
+            errors.sort(key=lambda e: str(e))
+            raise ProcessingError(errors)
 
     @worker(30)
     def resolve_promise(self, tree, key, value):
         if isinstance(value, Promise):
             tree[key] = value()
+
+    @worker(50)
+    def check_required(self, tree, key, value):
+        if isinstance(value, Required):
+            return value
+
+
+class ProcessingError(Exception):
+    pass

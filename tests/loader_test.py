@@ -6,8 +6,8 @@ from nose import tools
 from configtree.loader import (
     load, loaderconf, make_walk, make_update,
     Pipeline, worker,
-    Updater, UpdateAction, Promise, ResolverProxy, resolve,
-    PostProcessor,
+    Updater, UpdateAction, Promise, ResolverProxy, resolve, Required,
+    PostProcessor, ProcessingError
 )
 from configtree.tree import Tree
 
@@ -203,6 +203,31 @@ def pipeline_test():
     tools.eq_(t.__pipeline__, [t.first, t.third])
 
 
+def updater_set_default_test():
+    tree = Tree({'foo': 'bar'})
+    update = Updater()
+    update(tree, 'foo?', 'baz', '/test/source.yaml')
+    tools.eq_(tree, {'foo': 'bar'})
+
+    update(tree, 'bar?', 'baz', '/test/source.yaml')
+    tools.eq_(tree, {'foo': 'bar', 'bar': 'baz'})
+
+
+def updater_call_method_test():
+    tree = Tree({'foo': []})
+    update = Updater()
+    update(tree, 'foo#append', 1, '/test/source.yaml')
+    tools.eq_(tree['foo'], [1])
+
+    update(tree, 'foo#append', '>>> 2', '/test/source.yaml')
+    tools.ok_(isinstance(tree['foo'], Promise))
+    tools.ok_(tree['foo'](), [1, 2])
+
+    update(tree, 'foo#append', 3, '/test/source.yaml')
+    tools.ok_(isinstance(tree['foo'], Promise))
+    tools.ok_(tree['foo'](), [1, 2, 3])
+
+
 def updater_format_value_test():
     tree = Tree({'x.a': 1, 'x.b': 2})
     update = Updater()
@@ -239,29 +264,16 @@ def updater_eval_value_test():
     tools.ok_(tree['x.c'](), 3.0)
 
 
-def updater_set_default_test():
-    tree = Tree({'foo': 'bar'})
+def updater_required_valeue_test():
+    tree = Tree()
     update = Updater()
-    update(tree, 'foo?', 'baz', '/test/source.yaml')
-    tools.eq_(tree, {'foo': 'bar'})
+    update(tree, 'foo', '!!!', '/test/source.yaml')
+    update(tree, 'bar', '!!! Update me', '/test/source.yaml')
 
-    update(tree, 'bar?', 'baz', '/test/source.yaml')
-    tools.eq_(tree, {'foo': 'bar', 'bar': 'baz'})
-
-
-def updater_call_method_test():
-    tree = Tree({'foo': []})
-    update = Updater()
-    update(tree, 'foo#append', 1, '/test/source.yaml')
-    tools.eq_(tree['foo'], [1])
-
-    update(tree, 'foo#append', '>>> 2', '/test/source.yaml')
-    tools.ok_(isinstance(tree['foo'], Promise))
-    tools.ok_(tree['foo'](), [1, 2])
-
-    update(tree, 'foo#append', 3, '/test/source.yaml')
-    tools.ok_(isinstance(tree['foo'], Promise))
-    tools.ok_(tree['foo'](), [1, 2, 3])
+    tools.ok_(isinstance(tree['foo'], Required))
+    tools.eq_(repr(tree['foo']), "Required(key='foo', comment='')")
+    tools.ok_(isinstance(tree['bar'], Required))
+    tools.eq_(repr(tree['bar']), "Required(key='bar', comment='Update me')")
 
 
 def update_action_repr_test():
@@ -334,3 +346,16 @@ def postprocessor_resolve_promise_test():
     postprocess = PostProcessor()
     postprocess(tree)
     tools.eq_(tree, {'foo': 42, 'bar': 'baz'})
+
+
+def postprocessor_check_required_test():
+    tree = Tree({
+        'foo': Required('foo', ''),
+        'bar': Required('bar', 'Update me'),
+    })
+    postprocess = PostProcessor()
+
+    with tools.assert_raises(ProcessingError) as context:
+        postprocess(tree)
+
+    tools.eq_(context.exception.args[0], [tree['bar'], tree['foo']])
