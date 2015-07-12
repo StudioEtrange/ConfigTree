@@ -271,62 +271,46 @@ def make_update(namespace=None):
     return update
 
 
-class Updater(object):
+def worker(priority):
 
-    pipeline = [
-        'set_default',
-        'call_method',
-        'format_value',
-        'printf_value',
-        'eval_value',
-    ]
+    def decorator(f):
+        f.__worker__ = True
+        f.__priority__ = priority
+        return f
+
+    return decorator
+
+
+class Pipeline(object):
+
+    @property
+    def __pipeline__(self):
+        if not hasattr(self, '__pipeline'):
+            pipeline = []
+            for worker in dir(self):
+                if worker.startswith('_'):
+                    continue
+                worker = getattr(self, worker)
+                if not getattr(worker, '__worker__', False):
+                    continue
+                pipeline.append(worker)
+            pipeline.sort(key=lambda worker: worker.__priority__)
+            self.__pipeline = pipeline
+        return self.__pipeline
+
+
+class Updater(Pipeline):
 
     def __init__(self, namespace=None):
         self.namespace = namespace or {}
 
     def __call__(self, tree, key, value, source):
         action = UpdateAction(tree, key, value, source)
-        for modifier in self.pipeline:
-            getattr(self, modifier)(action)
+        for modifier in self.__pipeline__:
+            modifier(action)
         action()
 
-    def format_value(self, action):
-        if not isinstance(action.value, string) or \
-           not action.value.startswith('$>> '):
-            return
-        value = action.value[4:]
-        action.value = action.promise(
-            lambda: value.format(
-                self=ResolverProxy(action.tree),
-                branch=ResolverProxy(action.branch),
-            )
-        )
-
-    def printf_value(self, action):
-        if not isinstance(action.value, string) or \
-           not action.value.startswith('%>> '):
-            return
-        value = action.value[4:]
-        action.value = action.promise(
-            lambda: value % ResolverProxy(action.tree)
-        )
-
-    def eval_value(self, action):
-        if not isinstance(action.value, string) or \
-           not action.value.startswith('>>> '):
-            return
-        value = action.value[4:]
-        action.value = action.promise(
-            lambda: eval(
-                value,
-                self.namespace,
-                {
-                    'self': ResolverProxy(action.tree),
-                    'branch': ResolverProxy(action.branch),
-                }
-            )
-        )
-
+    @worker(30)
     def set_default(self, action):
         if not action.key.endswith('?'):
             return
@@ -337,6 +321,7 @@ class Updater(object):
 
         action.update = update
 
+    @worker(30)
     def call_method(self, action):
         if '#' not in action.key:
             return
@@ -357,6 +342,46 @@ class Updater(object):
                 getattr(old_value, method)(action.value)
 
         action.update = update
+
+    @worker(50)
+    def format_value(self, action):
+        if not isinstance(action.value, string) or \
+           not action.value.startswith('$>> '):
+            return
+        value = action.value[4:]
+        action.value = action.promise(
+            lambda: value.format(
+                self=ResolverProxy(action.tree),
+                branch=ResolverProxy(action.branch),
+            )
+        )
+
+    @worker(50)
+    def printf_value(self, action):
+        if not isinstance(action.value, string) or \
+           not action.value.startswith('%>> '):
+            return
+        value = action.value[4:]
+        action.value = action.promise(
+            lambda: value % ResolverProxy(action.tree)
+        )
+
+    @worker(50)
+    def eval_value(self, action):
+        if not isinstance(action.value, string) or \
+           not action.value.startswith('>>> '):
+            return
+        value = action.value[4:]
+        action.value = action.promise(
+            lambda: eval(
+                value,
+                self.namespace,
+                {
+                    'self': ResolverProxy(action.tree),
+                    'branch': ResolverProxy(action.branch),
+                }
+            )
+        )
 
 
 class UpdateAction(object):

@@ -5,6 +5,7 @@ from nose import tools
 
 from configtree.loader import (
     load, loaderconf, make_walk, make_update,
+    Pipeline, worker,
     Updater, UpdateAction, Promise, ResolverProxy, resolve,
 )
 from configtree.tree import Tree
@@ -179,6 +180,22 @@ def loader_conf_test():
         'postprocess': 'postprocess',
         'tree': 'tree',
     })
+
+
+def pipeline_test():
+
+    class Test(Pipeline):
+
+        @worker(1)
+        def first(self):
+            pass
+
+        @worker(2)
+        def second(self):
+            pass
+
+    t = Test()
+    tools.eq_(t.__pipeline__, [t.first, t.second])
 
 
 def updater_format_value_test():
