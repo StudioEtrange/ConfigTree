@@ -45,7 +45,7 @@ def load(path, walk=None, update=None, postprocess=None, tree=None):
             tree['__file__'] = f
             tree['__dir__'] = os.path.dirname(f)
             for key, value in flatten(source.map[ext](data)):
-                update(tree, key, value)
+                update(tree, key, value, f)
             del tree['__file__']
             del tree['__dir__']
     if postprocess is not None:
@@ -236,12 +236,10 @@ def make_update(namespace=None):
             # as a method name.  This method will be called using the value.
             e#append: 3                                      # e == [1, 2, 3]
 
-
     """
-
     namespace = namespace or {}
 
-    def update(tree, key, value):
+    def update(tree, key, value, source=None):
         if key.endswith('?'):
             key = key[:-1]
             if key in tree:
@@ -271,3 +269,161 @@ def make_update(namespace=None):
         set_value(key, value)
 
     return update
+
+
+class Updater(object):
+
+    pipeline = [
+        'set_default',
+        'call_method',
+        'format_value',
+        'printf_value',
+        'eval_value',
+    ]
+
+    def __init__(self, namespace=None):
+        self.namespace = namespace or {}
+
+    def __call__(self, tree, key, value, source):
+        action = UpdateAction(tree, key, value, source)
+        for modifier in self.pipeline:
+            getattr(self, modifier)(action)
+        action()
+
+    def format_value(self, action):
+        if not isinstance(action.value, string) or \
+           not action.value.startswith('$>> '):
+            return
+        value = action.value[4:]
+        action.value = action.promise(
+            lambda: value.format(
+                self=ResolverProxy(action.tree),
+                branch=ResolverProxy(action.branch),
+            )
+        )
+
+    def printf_value(self, action):
+        if not isinstance(action.value, string) or \
+           not action.value.startswith('%>> '):
+            return
+        value = action.value[4:]
+        action.value = action.promise(
+            lambda: value % ResolverProxy(action.tree)
+        )
+
+    def eval_value(self, action):
+        if not isinstance(action.value, string) or \
+           not action.value.startswith('>>> '):
+            return
+        value = action.value[4:]
+        action.value = action.promise(
+            lambda: eval(
+                value,
+                self.namespace,
+                {
+                    'self': ResolverProxy(action.tree),
+                    'branch': ResolverProxy(action.branch),
+                }
+            )
+        )
+
+    def set_default(self, action):
+        if not action.key.endswith('?'):
+            return
+        action.key = action.key[:-1]
+
+        def update(action):
+            action.tree.setdefault(action.key, action.value)
+
+        action.update = update
+
+    def call_method(self, action):
+        if '#' not in action.key:
+            return
+        action.key, method = action.key.split('#')
+
+        def update(action):
+            old_value = action.tree[action.key]
+            if isinstance(old_value, Promise) or \
+               isinstance(action.value, Promise):
+
+                def deferred():
+                    new_value = resolve(old_value)
+                    getattr(new_value, method)(resolve(action.value))
+                    return new_value
+
+                action.tree[action.key] = action.promise(deferred)
+            else:
+                getattr(old_value, method)(action.value)
+
+        action.update = update
+
+
+class UpdateAction(object):
+
+    def __init__(self, tree, key, value, source):
+        self.tree = tree
+        self.key = key
+        self.value = value
+        self.update = self.default_update
+
+        # Debug info
+        self._key = key
+        self._value = value
+        self._source = source
+
+    @property
+    def branch(self):
+        if self.tree._key_sep not in self.key:
+            return self.tree
+        key = self.key.rsplit(self.tree._key_sep, 1)[0]
+        return self.tree.branch(key)
+
+    def promise(self, action):
+        def wrapper():
+            try:
+                return action()
+            except Exception as e:
+                raise e.__class__(self, *e.args)
+        return Promise(wrapper)
+
+    def __repr__(self):
+        return '<{key!r}: {value!r}> from {source}'.format(
+            key=self._key,
+            value=self._value,
+            source=self._source,
+        )
+
+    @staticmethod
+    def default_update(action):
+        action.tree[action.key] = action.value
+
+    def __call__(self):
+        self.update(self)
+
+
+class Promise(object):
+
+    def __init__(self, action):
+        self.action = action
+
+    def __call__(self):
+        return self.action()
+
+
+def resolve(value):
+    if isinstance(value, Promise):
+        return value()
+    return value
+
+
+class ResolverProxy(object):
+
+    def __init__(self, tree):
+        self.__tree = tree
+
+    def __getitem__(self, key):
+        return resolve(self.__tree[key])
+
+    def __getattr__(self, attr):
+        return getattr(self.__tree, attr)

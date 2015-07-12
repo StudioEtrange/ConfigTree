@@ -3,7 +3,10 @@ import os
 import sys
 from nose import tools
 
-from configtree.loader import load, loaderconf, make_walk, make_update
+from configtree.loader import (
+    load, loaderconf, make_walk, make_update,
+    Updater, UpdateAction, Promise, ResolverProxy, resolve,
+)
 from configtree.tree import Tree
 
 
@@ -176,3 +179,126 @@ def loader_conf_test():
         'postprocess': 'postprocess',
         'tree': 'tree',
     })
+
+
+def updater_format_value_test():
+    tree = Tree({'x.a': 1, 'x.b': 2})
+    update = Updater()
+    update(tree, 'x.c', '$>> {self[x.a]} {branch[b]}', '/test/source.yaml')
+    tools.ok_(isinstance(tree['x.c'], Promise))
+    tools.ok_(tree['x.c'](), '1 2')
+    tree['x.a'] = 'foo'
+    tree['x.b'] = 'bar'
+    tools.ok_(tree['x.c'](), 'foo bar')
+
+
+def updater_printf_value_test():
+    tree = Tree({'x.a': 1, 'x.b': 2})
+    update = Updater()
+    update(tree, 'x.c', '%>> %(x.a)s %(x.b)r', '/test/source.yaml')
+    tools.ok_(isinstance(tree['x.c'], Promise))
+    tools.ok_(tree['x.c'](), '1 2')
+    tree['x.a'] = 'foo'
+    tree['x.b'] = 'bar'
+    tools.ok_(tree['x.c'](), "foo 'bar'")
+
+
+def updater_eval_value_test():
+    tree = Tree({'x.a': 5.0, 'x.b': 2})
+    update = Updater(namespace={'floor': math.floor})
+    update(
+        tree, 'x.c', '>>> floor(self["x.a"] / branch["b"])',
+        '/test/source.yaml',
+    )
+    tools.ok_(isinstance(tree['x.c'], Promise))
+    tools.ok_(tree['x.c'](), 2.0)
+    tree['x.a'] = 10.0
+    tree['x.b'] = 3
+    tools.ok_(tree['x.c'](), 3.0)
+
+
+def updater_set_default_test():
+    tree = Tree({'foo': 'bar'})
+    update = Updater()
+    update(tree, 'foo?', 'baz', '/test/source.yaml')
+    tools.eq_(tree, {'foo': 'bar'})
+
+    update(tree, 'bar?', 'baz', '/test/source.yaml')
+    tools.eq_(tree, {'foo': 'bar', 'bar': 'baz'})
+
+
+def updater_call_method_test():
+    tree = Tree({'foo': []})
+    update = Updater()
+    update(tree, 'foo#append', 1, '/test/source.yaml')
+    tools.eq_(tree['foo'], [1])
+
+    update(tree, 'foo#append', '>>> 2', '/test/source.yaml')
+    tools.ok_(isinstance(tree['foo'], Promise))
+    tools.ok_(tree['foo'](), [1, 2])
+
+    update(tree, 'foo#append', 3, '/test/source.yaml')
+    tools.ok_(isinstance(tree['foo'], Promise))
+    tools.ok_(tree['foo'](), [1, 2, 3])
+
+
+def update_action_repr_test():
+    action = UpdateAction(Tree(), 'foo', 'bar', '/test/source.yaml')
+    tools.eq_(repr(action), "<'foo': 'bar'> from /test/source.yaml")
+
+
+def update_action_promise_test():
+    action = UpdateAction(Tree(), 'foo', 'bar', '/test/source.yaml')
+    promise = action.promise(lambda: int(None))
+    with tools.assert_raises(TypeError) as context:
+        promise()
+    tools.eq_(context.exception.args[0], action)
+
+
+def update_action_branch_test():
+    tree = Tree({'x.a': 1, 'x.b': 2})
+    action = UpdateAction(tree, 'x.c', 3, '/test/source.yaml')
+    tools.eq_(action.branch, action.tree['x'])
+
+    action = UpdateAction(tree, 'y', 3, '/test/source.yaml')
+    tools.eq_(action.branch, action.tree)
+
+
+def update_action_default_update_test():
+    tree = Tree()
+    UpdateAction(tree, 'foo', 'bar', '/test/source.yaml')()
+    tools.eq_(tree, {'foo': 'bar'})
+
+
+def update_action_update_test():
+    tree = Tree()
+    action = UpdateAction(tree, 'foo', 'bar', '/test/source.yaml')
+    action.update = lambda a: a.tree.setdefault(a.key, a.value)
+
+    action()
+    tools.eq_(tree, {'foo': 'bar'})
+
+    action.value = 'baz'
+    action()
+    tools.eq_(tree, {'foo': 'bar'})
+
+
+def promise_test():
+    p = Promise(lambda: 42)
+    tools.eq_(p(), 42)
+
+
+def resolve_test():
+    tools.eq_(resolve(Promise(lambda: 42)), 42)
+    tools.eq_(resolve('foo'), 'foo')
+
+
+def resolver_proxy_test():
+    tree = Tree({
+        'foo': Promise(lambda: 42),
+        'bar': 'baz',
+    })
+    tree = ResolverProxy(tree)
+    tools.eq_(tree['foo'], 42)
+    tools.eq_(tree['bar'], 'baz')
+    tools.eq_(set(tree.keys()), set(['foo', 'bar']))
