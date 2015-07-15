@@ -4,6 +4,8 @@ import os
 import sys
 import re
 
+from cached_property import cached_property
+
 from . import source
 from .compat import string
 from .tree import Tree, flatten
@@ -138,62 +140,64 @@ def make_walk(env=''):
 
     """
 
-    def walk(path, env=env):
-        if '.' in env:
-            env_name, tail = env.split('.', 1)
-        else:
-            env_name, tail = env, ''
-        env_name = 'env-' + env_name
-        files = []
-        dirs = []
-        env_files = []
-        env_dirs = []
-        final_files = []
-        final_dirs = []
-        for name in os.listdir(path):
-            if name.startswith('_') or name.startswith('.'):
-                continue
-            fullname = os.path.join(path, name)
-            if os.path.isdir(fullname):
-                if name.startswith('env-'):
-                    if name != env_name:
-                        continue
-                    target = env_dirs
-                elif name.startswith('final-'):
-                    target = final_dirs
-                else:
-                    target = dirs
-                target.append(fullname)
-            elif os.path.isfile(fullname):
-                basename, ext = os.path.splitext(name)
-                if ext not in source.map:
-                    continue
-                if basename.startswith('env-'):
-                    if basename != env_name:
-                        continue
-                    target = env_files
-                elif name.startswith('final-'):
-                    target = final_files
-                else:
-                    target = files
-                target.append(fullname)
-        for f in sorted(files):
-            yield f
-        for d in sorted(dirs):
-            for f in walk(d, env):
-                yield f
-        for f in sorted(env_files):
-            yield f
-        for d in sorted(env_dirs):
-            for f in walk(d, tail):
-                yield f
-        for d in sorted(final_dirs):
-            for f in walk(d, env):
-                yield f
-        for f in sorted(final_files):
-            yield f
+    return Walker(env=env)
 
-    return walk
+    # def walk(path, env=env):
+    #     if '.' in env:
+    #         env_name, tail = env.split('.', 1)
+    #     else:
+    #         env_name, tail = env, ''
+    #     env_name = 'env-' + env_name
+    #     files = []
+    #     dirs = []
+    #     env_files = []
+    #     env_dirs = []
+    #     final_files = []
+    #     final_dirs = []
+    #     for name in os.listdir(path):
+    #         if name.startswith('_') or name.startswith('.'):
+    #             continue
+    #         fullname = os.path.join(path, name)
+    #         if os.path.isdir(fullname):
+    #             if name.startswith('env-'):
+    #                 if name != env_name:
+    #                     continue
+    #                 target = env_dirs
+    #             elif name.startswith('final-'):
+    #                 target = final_dirs
+    #             else:
+    #                 target = dirs
+    #             target.append(fullname)
+    #         elif os.path.isfile(fullname):
+    #             basename, ext = os.path.splitext(name)
+    #             if ext not in source.map:
+    #                 continue
+    #             if basename.startswith('env-'):
+    #                 if basename != env_name:
+    #                     continue
+    #                 target = env_files
+    #             elif name.startswith('final-'):
+    #                 target = final_files
+    #             else:
+    #                 target = files
+    #             target.append(fullname)
+    #     for f in sorted(files):
+    #         yield f
+    #     for d in sorted(dirs):
+    #         for f in walk(d, env):
+    #             yield f
+    #     for f in sorted(env_files):
+    #         yield f
+    #     for d in sorted(env_dirs):
+    #         for f in walk(d, tail):
+    #             yield f
+    #     for d in sorted(final_dirs):
+    #         for f in walk(d, env):
+    #             yield f
+    #     for f in sorted(final_files):
+    #         yield f
+
+    # return walk
 
 
 def make_update(namespace=None):
@@ -283,20 +287,111 @@ def worker(priority, enabled=True):
 
 class Pipeline(object):
 
-    @property
+    @cached_property
     def __pipeline__(self):
-        if not hasattr(self, '__pipeline'):
-            pipeline = []
-            for worker in dir(self):
-                if worker.startswith('_'):
+        pipeline = []
+        for worker in dir(self):
+            if worker.startswith('_'):
+                continue
+            worker = getattr(self, worker)
+            if not getattr(worker, '__worker__', False):
+                continue
+            pipeline.append(worker)
+        pipeline.sort(key=lambda worker: worker.__priority__)
+        return pipeline
+
+
+class Walker(Pipeline):
+
+    def __init__(self, **params):
+        self.params = params
+
+    def __call__(self, path):
+        fileobj = File(
+            os.path.dirname(path),
+            os.path.basename(path),
+            self.params,
+        )
+        for f in self.walk(fileobj):
+            yield f.fullpath
+
+    def walk(self, parent):
+        if parent.isfile:
+            yield parent
+        elif parent.isdir:
+            files = []
+            for name in os.listdir(parent.fullpath):
+                fileobj = File(parent.fullpath, name, parent.params)
+                print(fileobj.fullpath)
+                priority = None
+                for modifier in self.__pipeline__:
+                    priority = modifier(fileobj)
+                    if priority is not None:
+                        break
+                if priority < 0:
                     continue
-                worker = getattr(self, worker)
-                if not getattr(worker, '__worker__', False):
-                    continue
-                pipeline.append(worker)
-            pipeline.sort(key=lambda worker: worker.__priority__)
-            self.__pipeline = pipeline
-        return self.__pipeline
+                files.append((priority, fileobj))
+            for _, fileobj in sorted(files):
+                for f in self.walk(fileobj):
+                    yield f
+
+    @worker(10)
+    def ignored(self, fileobj):
+        if fileobj.name.startswith('_') or fileobj.name.startswith('.'):
+            return -1
+        if fileobj.isfile and fileobj.ext not in source.map:
+            return -1
+
+    @worker(30)
+    def final(self, fileobj):
+        if not fileobj.name.startswith('final'):
+            return None
+        return 100 if fileobj.isdir else 101
+
+    @worker(50)
+    def environment(self, fileobj):
+        if not fileobj.name.startswith('env-'):
+            return None
+        env = fileobj.cleanname.split('-', 1)[1]
+        if not fileobj.params['env'].startswith(env):
+            return -1
+        fileobj.params['env'] = fileobj.params['env'][len(env) + 1:]
+        return 51 if fileobj.isdir else 50
+
+    @worker(1000)
+    def regular(self, fileobj):
+        return 31 if fileobj.isdir else 30
+
+
+class File(object):
+
+    def __init__(self, path, name, params):
+        self.path = path
+        self.name = name
+        self.params = params.copy()
+
+    def __lt__(self, other):
+        return self.name < other.name
+
+    @cached_property
+    def fullpath(self):
+        return os.path.join(self.path, self.name)
+
+    @cached_property
+    def isfile(self):
+        return os.path.isfile(self.fullpath)
+
+    @cached_property
+    def isdir(self):
+        return os.path.isdir(self.fullpath)
+
+    @cached_property
+    def ext(self):
+        return os.path.splitext(self.name)[1]
+
+    @cached_property
+    def cleanname(self):
+        return os.path.splitext(self.name)[0]
 
 
 class Updater(Pipeline):

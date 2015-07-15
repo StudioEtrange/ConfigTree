@@ -34,7 +34,7 @@ setup(
     download_url='https://bitbucket.org/kr41/configtree/downloads',
     license='BSD',
     packages=['configtree'],
-    install_requires=['pyyaml'],
+    install_requires=['pyyaml', 'cached-property'],
     include_package_data=True,
     zip_safe=True,
     entry_points="""\
