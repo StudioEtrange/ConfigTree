@@ -89,7 +89,7 @@ class Walker(Pipeline):
         if not fileobj.name.startswith('env-'):
             return None
         env = fileobj.cleanname.split('-', 1)[1]
-        if not fileobj.params['env'].startswith(env):
+        if not fileobj.params.get('env', '').startswith(env):
             return -1
         fileobj.params['env'] = fileobj.params['env'][len(env) + 1:]
         return 51 if fileobj.isdir else 50

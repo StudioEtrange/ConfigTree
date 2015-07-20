@@ -48,14 +48,54 @@ def pipeline_test():
     tools.eq_(t.__pipeline__, [t.first, t.third])
 
 
-def updater_set_default_test():
-    tree = Tree({'foo': 'bar'})
-    update = Updater()
-    update(tree, 'foo?', 'baz', '/test/source.yaml')
-    tools.eq_(tree, {'foo': 'bar'})
+def walker_test():
+    walk = Walker()
+    files = [os.path.relpath(f, data_dir) for f in walk(data_dir)]
+    tools.eq_(files, [
+        os.path.join('default', 'a.json'),
+        os.path.join('default', 'b.yaml'),
+        os.path.join('default', 'subsystem', 'a.yaml'),
+        os.path.join('default', 'subsystem', 'b.yaml'),
+        os.path.join('final-common', 'c.yaml'),
+        'final-common.yaml',
+    ])
 
-    update(tree, 'bar?', 'baz', '/test/source.yaml')
-    tools.eq_(tree, {'foo': 'bar', 'bar': 'baz'})
+    walk = Walker(env='y')
+    files = [os.path.relpath(f, data_dir) for f in walk(data_dir)]
+    tools.eq_(files, [
+        os.path.join('default', 'a.json'),
+        os.path.join('default', 'b.yaml'),
+        os.path.join('default', 'subsystem', 'a.yaml'),
+        os.path.join('default', 'subsystem', 'b.yaml'),
+        'env-y.yaml',
+        os.path.join('final-common', 'c.yaml'),
+        'final-common.yaml',
+    ])
+
+    walk = Walker(env='x')
+    files = [os.path.relpath(f, data_dir) for f in walk(data_dir)]
+    tools.eq_(files, [
+        os.path.join('default', 'a.json'),
+        os.path.join('default', 'b.yaml'),
+        os.path.join('default', 'subsystem', 'a.yaml'),
+        os.path.join('default', 'subsystem', 'b.yaml'),
+        os.path.join('env-x', 'a.yaml'),
+        os.path.join('final-common', 'c.yaml'),
+        'final-common.yaml',
+    ])
+
+    walk = Walker(env='x.xx')
+    files = [os.path.relpath(f, data_dir) for f in walk(data_dir)]
+    tools.eq_(files, [
+        os.path.join('default', 'a.json'),
+        os.path.join('default', 'b.yaml'),
+        os.path.join('default', 'subsystem', 'a.yaml'),
+        os.path.join('default', 'subsystem', 'b.yaml'),
+        os.path.join('env-x', 'a.yaml'),
+        os.path.join('env-x', 'env-xx', 'b.yaml'),
+        os.path.join('final-common', 'c.yaml'),
+        'final-common.yaml',
+    ])
 
 
 def file_test():
@@ -80,6 +120,16 @@ def file_test():
     f1 = File(data_dir, 'env-y.yaml', {})
     f2 = File(data_dir, 'final-common.yaml', {})
     tools.eq_(f1 < f2, True)
+
+
+def updater_set_default_test():
+    tree = Tree({'foo': 'bar'})
+    update = Updater()
+    update(tree, 'foo?', 'baz', '/test/source.yaml')
+    tools.eq_(tree, {'foo': 'bar'})
+
+    update(tree, 'bar?', 'baz', '/test/source.yaml')
+    tools.eq_(tree, {'foo': 'bar', 'bar': 'baz'})
 
 
 def updater_call_method_test():
