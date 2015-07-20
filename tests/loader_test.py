@@ -54,6 +54,7 @@ def walker_test():
     tools.eq_(files, [
         os.path.join('default', 'a.json'),
         os.path.join('default', 'b.yaml'),
+        os.path.join('default', 'empty.yaml'),
         os.path.join('default', 'subsystem', 'a.yaml'),
         os.path.join('default', 'subsystem', 'b.yaml'),
         os.path.join('final-common', 'c.yaml'),
@@ -65,6 +66,7 @@ def walker_test():
     tools.eq_(files, [
         os.path.join('default', 'a.json'),
         os.path.join('default', 'b.yaml'),
+        os.path.join('default', 'empty.yaml'),
         os.path.join('default', 'subsystem', 'a.yaml'),
         os.path.join('default', 'subsystem', 'b.yaml'),
         'env-y.yaml',
@@ -77,6 +79,7 @@ def walker_test():
     tools.eq_(files, [
         os.path.join('default', 'a.json'),
         os.path.join('default', 'b.yaml'),
+        os.path.join('default', 'empty.yaml'),
         os.path.join('default', 'subsystem', 'a.yaml'),
         os.path.join('default', 'subsystem', 'b.yaml'),
         os.path.join('env-x', 'a.yaml'),
@@ -89,6 +92,7 @@ def walker_test():
     tools.eq_(files, [
         os.path.join('default', 'a.json'),
         os.path.join('default', 'b.yaml'),
+        os.path.join('default', 'empty.yaml'),
         os.path.join('default', 'subsystem', 'a.yaml'),
         os.path.join('default', 'subsystem', 'b.yaml'),
         os.path.join('env-x', 'a.yaml'),
@@ -291,6 +295,7 @@ def walk_test():
     tools.eq_(files, [
         os.path.join('default', 'a.json'),
         os.path.join('default', 'b.yaml'),
+        os.path.join('default', 'empty.yaml'),
         os.path.join('default', 'subsystem', 'a.yaml'),
         os.path.join('default', 'subsystem', 'b.yaml'),
         os.path.join('final-common', 'c.yaml'),
@@ -302,6 +307,7 @@ def walk_test():
     tools.eq_(files, [
         os.path.join('default', 'a.json'),
         os.path.join('default', 'b.yaml'),
+        os.path.join('default', 'empty.yaml'),
         os.path.join('default', 'subsystem', 'a.yaml'),
         os.path.join('default', 'subsystem', 'b.yaml'),
         'env-y.yaml',
@@ -314,6 +320,7 @@ def walk_test():
     tools.eq_(files, [
         os.path.join('default', 'a.json'),
         os.path.join('default', 'b.yaml'),
+        os.path.join('default', 'empty.yaml'),
         os.path.join('default', 'subsystem', 'a.yaml'),
         os.path.join('default', 'subsystem', 'b.yaml'),
         os.path.join('env-x', 'a.yaml'),
@@ -326,6 +333,7 @@ def walk_test():
     tools.eq_(files, [
         os.path.join('default', 'a.json'),
         os.path.join('default', 'b.yaml'),
+        os.path.join('default', 'empty.yaml'),
         os.path.join('default', 'subsystem', 'a.yaml'),
         os.path.join('default', 'subsystem', 'b.yaml'),
         os.path.join('env-x', 'a.yaml'),

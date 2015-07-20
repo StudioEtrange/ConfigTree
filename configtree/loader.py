@@ -368,9 +368,12 @@ def load(path, walk=None, update=None, postprocess=None, tree=None):
     for f in walk(path):
         ext = os.path.splitext(f)[1]
         with open(f) as data:
+            data = source.map[ext](data)
+            if not data:
+                continue
             tree['__file__'] = f
             tree['__dir__'] = os.path.dirname(f)
-            for key, value in flatten(source.map[ext](data)):
+            for key, value in flatten(data):
                 update(tree, key, value, f)
             del tree['__file__']
             del tree['__dir__']
