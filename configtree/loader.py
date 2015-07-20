@@ -11,6 +11,42 @@ from .compat import string
 from .tree import Tree, flatten
 
 
+class Loader(object):
+
+    def __init__(self, walk=None, update=None, postprocess=None, tree=None):
+        self.walk = walk or Walker()
+        self.update = update or Updater()
+        self.postprocess = postprocess or PostProcessor()
+        self.tree = tree or Tree()
+
+    @classmethod
+    def fromconf(cls, path):
+        """ Creates loader using configuration module ``loaderconf`` """
+        if path not in sys.path:
+            sys.path.append(path)
+        try:
+            import loaderconf
+            conf = loaderconf.__dict__
+        except ImportError:
+            conf = {}
+        keys = ('walk', 'update', 'postprocess', 'tree')
+        conf = dict((k, v) for k, v in conf.items() if k in keys)
+        return cls(**conf)
+
+    def __call__(self, path):
+        for f in self.walk(path):
+            ext = os.path.splitext(f)[1]
+            with open(f) as data:
+                data = source.map[ext](data)
+                if not data:
+                    continue
+                for key, value in flatten(data):
+                    self.update(self.tree, key, value, f)
+        if self.postprocess is not None:
+            self.postprocess(self.tree)
+        return self.tree
+
+
 def worker(priority, enabled=True):
 
     def decorator(f):
@@ -182,7 +218,7 @@ class Updater(Pipeline):
         value = action.value[4:]
         action.value = action.promise(
             lambda: value.format(
-                self=ResolverProxy(action.tree),
+                self=ResolverProxy(action.tree, action.source),
                 branch=ResolverProxy(action.branch),
             )
         )
@@ -194,7 +230,7 @@ class Updater(Pipeline):
             return
         value = action.value[4:]
         action.value = action.promise(
-            lambda: value % ResolverProxy(action.tree)
+            lambda: value % ResolverProxy(action.tree, action.source)
         )
 
     @worker(50)
@@ -208,7 +244,7 @@ class Updater(Pipeline):
                 value,
                 self.namespace,
                 {
-                    'self': ResolverProxy(action.tree),
+                    'self': ResolverProxy(action.tree, action.source),
                     'branch': ResolverProxy(action.branch),
                 }
             )
@@ -233,7 +269,7 @@ class UpdateAction(object):
         # Debug info
         self._key = key
         self._value = value
-        self._source = source
+        self.source = source
 
     @property
     def branch(self):
@@ -254,7 +290,7 @@ class UpdateAction(object):
         return '<{key!r}: {value!r}> from {source}'.format(
             key=self._key,
             value=self._value,
-            source=self._source,
+            source=self.source,
         )
 
     @staticmethod
@@ -282,11 +318,20 @@ def resolve(value):
 
 class ResolverProxy(object):
 
-    def __init__(self, tree):
+    def __init__(self, tree, source=None):
         self.__tree = tree
+        self.__source = source
 
     def __getitem__(self, key):
-        return resolve(self.__tree[key])
+        try:
+            return resolve(self.__tree[key])
+        except KeyError:
+            if self.__source is not None:
+                if key == '__file__':
+                    return self.__source
+                elif key == '__dir__':
+                    return os.path.dirname(self.__source)
+            raise
 
     def __getattr__(self, attr):
         return getattr(self.__tree, attr)
@@ -374,7 +419,7 @@ def load(path, walk=None, update=None, postprocess=None, tree=None):
             tree['__file__'] = f
             tree['__dir__'] = os.path.dirname(f)
             for key, value in flatten(data):
-                update(tree, key, value, f)
+                update(tree, key, value)
             del tree['__file__']
             del tree['__dir__']
     if postprocess is not None:
@@ -568,7 +613,7 @@ def make_update(namespace=None):
     """
     namespace = namespace or {}
 
-    def update(tree, key, value, source=None):
+    def update(tree, key, value):
         if key.endswith('?'):
             key = key[:-1]
             if key in tree:

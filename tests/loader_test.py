@@ -5,6 +5,7 @@ from nose import tools
 
 from configtree.loader import (
     load, loaderconf, make_walk, make_update,
+    Loader,
     Pipeline, worker,
     Walker, File,
     Updater, UpdateAction, Promise, ResolverProxy, resolve, Required,
@@ -26,6 +27,65 @@ def teardown_func():
         del sys.modules['loaderconf']
     except KeyError:
         pass
+
+
+def loader_test():
+    update = Updater(namespace={'floor': math.floor})
+    load = Loader(update=update)
+    result = load(data_dir)
+    tools.eq_(result, {
+        'a.x': 1,
+        'a.y': 2,
+        'b.x': 10,
+        'b.y': 20,
+        'subsystem.a.x': 101,
+        'subsystem.a.y': 102,
+        'subsystem.b.x': 110,
+        'subsystem.b.y': 120,
+        'c.x': 10,
+        'c.y': 20,
+        'c.z': 30,
+    })
+
+    walk = Walker(env='y')
+    load = Loader(walk=walk, update=update)
+    result = load(data_dir)
+    tools.eq_(result, {
+        'a.x': 1,
+        'a.y': 2,
+        'b.x': 10,
+        'b.y': 20,
+        'subsystem.a.x': 101,
+        'subsystem.a.y': 102,
+        'subsystem.b.x': 110,
+        'subsystem.b.y': 120,
+        'a.b.x': 1,
+        'a.b.y': 2,
+        'a.b.z': 3,
+        'a.b.c': 'x = 1, y = 2',
+        'a.b.l': [4, 5, 6],
+        'z': 3,
+        'path': os.path.join(data_dir, 'somepath'),
+        'here': os.path.join(data_dir, 'env-y.yaml'),
+        'c.x': 10,
+        'c.y': 20,
+        'c.z': 30,
+    })
+
+
+@tools.with_setup(teardown=teardown_func)
+def loader_fromconf_test():
+    load = Loader.fromconf(os.path.dirname(data_dir))
+    tools.ok_(isinstance(load.walk, Walker))
+    tools.ok_(isinstance(load.update, Updater))
+    tools.ok_(isinstance(load.postprocess, PostProcessor))
+    tools.ok_(isinstance(load.tree, Tree))
+
+    load = Loader.fromconf(data_dir)
+    tools.eq_(load.walk, 'walk')
+    tools.eq_(load.update, 'update')
+    tools.eq_(load.postprocess, 'postprocess')
+    tools.eq_(load.tree, 'tree')
 
 
 def pipeline_test():
@@ -255,10 +315,15 @@ def resolver_proxy_test():
         'foo': Promise(lambda: 42),
         'bar': 'baz',
     })
-    tree = ResolverProxy(tree)
+    tree = ResolverProxy(tree, '/test/source.yaml')
     tools.eq_(tree['foo'], 42)
     tools.eq_(tree['bar'], 'baz')
+    tools.eq_(tree['__file__'], '/test/source.yaml')
+    tools.eq_(tree['__dir__'], '/test')
     tools.eq_(set(tree.keys()), set(['foo', 'bar']))
+
+    with tools.assert_raises(KeyError):
+        tree['baz']
 
 
 def postprocessor_resolve_promise_test():
