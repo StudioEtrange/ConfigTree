@@ -23,6 +23,59 @@ The section provides per module documentation generated from doc-strings.
 
 ..  automodule:: configtree.loader
 
+..  autoclass:: Loader
+    :members:
+
+Utilities
+~~~~~~~~~
+
+..  autofunction:: worker
+..  autoclass:: Pipeline
+
+Walker
+~~~~~~
+
+..  autoclass:: Walker
+    :members:
+
+..  autoclass:: File
+    :members:
+
+Updater
+~~~~~~~
+
+..  autoclass:: Updater
+
+    ..  automethod:: __call__
+    ..  automethod:: set_default
+    ..  automethod:: call_method
+    ..  automethod:: format_value
+    ..  automethod:: printf_value
+    ..  automethod:: eval_value
+    ..  automethod:: required_value
+
+..  autoclass:: UpdateAction
+    :members:
+
+..  autoclass:: Promise
+..  autofunction:: resolve
+..  autoclass:: ResolverProxy
+..  autoclass:: Required
+
+Post processor
+~~~~~~~~~~~~~~
+
+..  autoclass:: PostProcessor
+
+    ..  automethod:: __call__
+    ..  automethod:: resolve_promise
+    ..  automethod:: check_required
+
+..  autoclass:: ProcessingError
+
+Deprecated features
+~~~~~~~~~~~~~~~~~~~
+
 ..  autofunction:: load
 ..  autofunction:: loaderconf
 ..  autofunction:: make_walk

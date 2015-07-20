@@ -47,7 +47,19 @@ class Loader(object):
         return self.tree
 
 
+###############################################################################
+# Utilities
+##
+
+
 def worker(priority, enabled=True):
+    """
+    Decorator that marks :class:`Pipeline` method as a worker
+
+    :param int priority: Priority of the worker
+    :param bool enabled: Whether worker is active or not
+
+    """
 
     def decorator(f):
         f.__worker__ = enabled
@@ -58,6 +70,16 @@ def worker(priority, enabled=True):
 
 
 class Pipeline(object):
+    """
+    Utility class that helps to build pipelines
+
+    ..  attribute:: __pipeline__
+
+        List of workers that includes each method of the class that marked
+        by :func:`worker` decorator.  The list is sorted by worker priority.
+        Inactive workers are not included in the list.
+
+    """
 
     @cached_property
     def __pipeline__(self):
@@ -71,6 +93,11 @@ class Pipeline(object):
             pipeline.append(worker)
         pipeline.sort(key=lambda worker: worker.__priority__)
         return pipeline
+
+
+###############################################################################
+# Walker
+##
 
 
 class Walker(Pipeline):
@@ -135,6 +162,38 @@ class Walker(Pipeline):
 
 
 class File(object):
+    """
+    Represents current traversing file within :class:`Walker` routine
+
+    ..  attribute:: path
+
+        Path of parent directory containing the file
+
+    ..  attribute:: name
+
+        File name itself
+
+    ..  attribute:: fullpath
+
+        Full path to the file
+
+    ..  attribute:: isdir
+
+        Whether the file is directory
+
+    ..  attribute:: isfile
+
+        Whether the file is regular file
+
+    ..  attribute:: ext
+
+        Extension of the file (with leading dot char)
+
+    ..  attribute:: cleanname
+
+        Name of the file without its extension
+
+    """
 
     def __init__(self, path, name, params):
         self.path = path
@@ -165,12 +224,46 @@ class File(object):
         return os.path.splitext(self.name)[0]
 
 
+###############################################################################
+# Updater
+##
+
+
 class Updater(Pipeline):
+    """
+    Updater factory
+
+    :param dict namespace: See :attr:`namespace`.
+
+    ..  attribute:: namespace
+
+        A dictionary that is passed into evaluated expressions as ``globals``
+        parameter.  The namespace may contain some non-built-in functions,
+        that could be used within expression.
+
+    ..  attribute:: __pipeline__
+
+        [:meth:`set_default`, :meth:`call_method`, :meth:`format_value`,
+        :meth:`printf_value`, :meth:`eval_value`, :meth:`required_value`]
+
+    """
 
     def __init__(self, namespace=None):
         self.namespace = namespace or {}
 
     def __call__(self, tree, key, value, source):
+        """
+        Updates tree
+
+        It creates :class:`UpdateAction` object.  Then pass the object through
+        :attr:`__pipeline__`.  And finally calls the action object.
+
+        :param Tree tree: Updating tree object
+        :param str key: Setting up key
+        :param value: Setting up value
+        :param str source: Full path to a source file
+
+        """
         action = UpdateAction(tree, key, value, source)
         for modifier in self.__pipeline__:
             modifier(action)
@@ -178,6 +271,26 @@ class Updater(Pipeline):
 
     @worker(30)
     def set_default(self, action):
+        """
+        Worker that changes default update action if key ends with "?" char.
+
+        It strips the last char of the key.  It will set passed value,
+        if the result key is not exist in updating tree.
+
+        :param UpdateAction action: Current update action object
+
+        ..  attribute:: __priority__ = 30
+
+        Example:
+
+            ..  code-block:: yaml
+
+                x: 1
+                x?: 2           # x == 1
+                y?: 3           # y == 3
+
+
+        """
         if not action.key.endswith('?'):
             return
         action.key = action.key[:-1]
@@ -189,6 +302,30 @@ class Updater(Pipeline):
 
     @worker(30)
     def call_method(self, action):
+        """
+        Worker that changes default update action if key contains "#" char.
+
+        It splits key by the char.  The left part is used as key itself.
+        The right part is used as a method name.  It gets a value from
+        updating tree by the new key and call the method using passed value
+        as an argument.  If the value contains :class:`Promise`, it will
+        wrap the action by another :class:`Promise` object.
+        See :meth:`PostProcessor.resolve_promise`.
+
+        :param UpdateAction action: Current update action object
+
+        ..  attribute:: __priority__ = 30
+
+        Example:
+
+            ..  code-block:: yaml
+
+                foo: [1, 2]
+                bar: ">>> self['foo'][:]"        # Get copy of the latest `foo`
+                bar#extend: [5, 6]               # bar == [1, 2, 3, 4, 5, 6]
+                foo#extend: [3, 4]               # foo == [1, 2, 3, 4]
+
+        """
         if '#' not in action.key:
             return
         action.key, method = action.key.split('#')
@@ -211,6 +348,29 @@ class Updater(Pipeline):
 
     @worker(50)
     def format_value(self, action):
+        """
+        Worker that transform string value that starts with ``"$>> "``
+        (with trailing space char) into formatting expression and wraps it
+        into :class:`Promise`.  See :meth:`PostProcessor.resolve_promise`.
+
+        The expression uses :meth:`str.format`.  Current tree and current
+        branch are passed as ``self`` and ``branch`` names into template.
+
+        :param UpdateAction action: Current update action object
+
+        ..  attribute:: __priority__ = 50
+
+        Example:
+
+            ..  code-block:: yaml
+
+                a: "foo"
+                b:
+                    x: "bar"
+                    y: "a = {self[a]!r}, b.x = {branch[x]!r}"
+                       # == "a = 'foo', b.x = 'bar'"
+
+        """
         if not isinstance(action.value, string) or \
            not action.value.startswith('$>> '):
             return
@@ -224,6 +384,26 @@ class Updater(Pipeline):
 
     @worker(50)
     def printf_value(self, action):
+        """
+        Worker that transform string value that starts with ``"%>> "``
+        (with trailing space char) into formatting expression and wraps it
+        into :class:`Promise`.  See :meth:`PostProcessor.resolve_promise`.
+
+        The expression uses printf style, i.e. ``%`` operator.  Current tree
+        is used as formatting value.
+
+        :param UpdateAction action: Current update action object
+
+        ..  attribute:: __priority__ = 50
+
+        Example:
+
+            ..  code-block:: yaml
+
+                name: "World"
+                hello: "%>> Hello %(name)s"     # == "Hello World"
+
+        """
         if not isinstance(action.value, string) or \
            not action.value.startswith('%>> '):
             return
@@ -234,6 +414,30 @@ class Updater(Pipeline):
 
     @worker(50)
     def eval_value(self, action):
+        """
+        Worker that transform string value that starts with ``">>> "``
+        (with trailing space char) into expression and wraps it
+        into :class:`Promise`.  See :meth:`PostProcessor.resolve_promise`.
+
+        The expression uses built-in function :func:`eval`.
+        :attr:`namespace` is passed as ``gloabls`` argument of ``eval``.
+        Current tree is passed as ``self`` and current branch is passed as
+        ``branch`` names via ``locals`` argument of ``eval``.
+
+        :param UpdateAction action: Current update action object
+
+        ..  attribute:: __priority__ = 50
+
+        Example:
+
+            ..  code-block:: yaml
+
+                a: ">>> 1 + 2"                         # == 3
+                b:
+                    x: 3
+                    y: ">>> self['a'] * branch['x']"   # == 9
+
+        """
         if not isinstance(action.value, string) or \
            not action.value.startswith('>>> '):
             return
@@ -251,6 +455,23 @@ class Updater(Pipeline):
 
     @worker(70)
     def required_value(self, action):
+        """
+        Worker that transform string value that starts with ``"!!!"`` into
+        an instance of :class:`Required`.
+        See :meth:`PostProcessor.check_required`.
+
+        :param UpdateAction action: Current update action object
+
+        ..  attribute:: __priority__ = 70
+
+        Example:
+
+            ..  code-block:: yaml
+
+                foo: "!!!"                              # without comment
+                bar: "!!! This should be redefined"     # with comment
+
+        """
         if not isinstance(action.value, string) or \
            not action.value.startswith('!!!'):
             return
@@ -346,9 +567,34 @@ class Required(object):
         return 'Required(key={0.key!r}, comment={0.comment!r})'.format(self)
 
 
+###############################################################################
+# Post Processor
+##
+
+
 class PostProcessor(Pipeline):
+    """
+    Post processor factory
+
+    Post processor iterates over passed :class:`Tree` object and pass its
+    keys and values through :attr:`__pipeline__`.  If any worker of
+    the pipeline returns non ``None`` value, this value will be treated
+    as an error.  Such errors are accumulated and raised within
+    :class:`ProcessingError` exception at the end of processing.
+
+    ..  attribute:: __pipeline__
+
+        [:meth:`resolve_promise`, :meth:`check_required`]
+
+    """
 
     def __call__(self, tree):
+        """
+        Runs post processor
+
+        :param Tree tree: A tree object to process
+
+        """
         errors = []
         for key, value in tree.items():
             for modifier in self.__pipeline__:
@@ -361,17 +607,41 @@ class PostProcessor(Pipeline):
 
     @worker(30)
     def resolve_promise(self, tree, key, value):
+        """
+        Worker that resolves :class:`Promise` objects.
+
+        Any exception raised within promise expression will not be caught.
+
+        :param Tree tree: Current processing tree
+        :param str key: Current traversing key
+        :param value: Current traversing value
+
+        ..  attribute:: __priority__ = 30
+
+        """
         if isinstance(value, Promise):
             tree[key] = value()
 
     @worker(50)
     def check_required(self, tree, key, value):
+        """
+        Worker that checks tree for raw :class:`Required` values.
+
+        :param Tree tree: Current processing tree
+        :param str key: Current traversing key
+        :param value: Current traversing value
+        :returns: ``None`` if value is not instance of :class:`Required`,
+                  or value itself (that will be treated as an error)
+
+        ..  attribute:: __priority__ = 50
+
+        """
         if isinstance(value, Required):
             return value
 
 
 class ProcessingError(Exception):
-    pass
+    """ Exception that will be raised, if post processor gets any error """
 
 
 ###############################################################################
