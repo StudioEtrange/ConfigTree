@@ -6,6 +6,7 @@ from nose import tools
 from configtree.loader import (
     load, loaderconf, make_walk, make_update,
     Pipeline, worker,
+    Walker, File,
     Updater, UpdateAction, Promise, ResolverProxy, resolve, Required,
     PostProcessor, ProcessingError
 )
@@ -211,6 +212,30 @@ def updater_set_default_test():
 
     update(tree, 'bar?', 'baz', '/test/source.yaml')
     tools.eq_(tree, {'foo': 'bar', 'bar': 'baz'})
+
+
+def file_test():
+    f = File(data_dir, 'default', {})
+    tools.eq_(f.path, data_dir)
+    tools.eq_(f.name, 'default')
+    tools.eq_(f.fullpath, os.path.join(data_dir, 'default'))
+    tools.eq_(f.isdir, True)
+    tools.eq_(f.isfile, False)
+    tools.eq_(f.cleanname, 'default')
+    tools.eq_(f.ext, '')
+
+    f = File(data_dir, 'env-y.yaml', {})
+    tools.eq_(f.path, data_dir)
+    tools.eq_(f.name, 'env-y.yaml')
+    tools.eq_(f.fullpath, os.path.join(data_dir, 'env-y.yaml'))
+    tools.eq_(f.isdir, False)
+    tools.eq_(f.isfile, True)
+    tools.eq_(f.cleanname, 'env-y')
+    tools.eq_(f.ext, '.yaml')
+
+    f1 = File(data_dir, 'env-y.yaml', {})
+    f2 = File(data_dir, 'final-common.yaml', {})
+    tools.eq_(f1 < f2, True)
 
 
 def updater_call_method_test():
