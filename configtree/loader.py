@@ -94,7 +94,6 @@ class Walker(Pipeline):
             files = []
             for name in os.listdir(parent.fullpath):
                 fileobj = File(parent.fullpath, name, parent.params)
-                print(fileobj.fullpath)
                 priority = None
                 for modifier in self.__pipeline__:
                     priority = modifier(fileobj)
