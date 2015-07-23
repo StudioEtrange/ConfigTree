@@ -24,7 +24,9 @@ The section provides per module documentation generated from doc-strings.
 ..  automodule:: configtree.loader
 
 ..  autoclass:: Loader
-    :members:
+
+    ..  automethod:: fromconf
+    ..  automethod:: __call__
 
 Utilities
 ~~~~~~~~~
@@ -36,10 +38,15 @@ Walker
 ~~~~~~
 
 ..  autoclass:: Walker
-    :members:
+
+    ..  automethod:: __call__
+    ..  automethod:: walk
+    ..  automethod:: ignored
+    ..  automethod:: final
+    ..  automethod:: environment
+    ..  automethod:: regular
 
 ..  autoclass:: File
-    :members:
 
 Updater
 ~~~~~~~
@@ -55,9 +62,15 @@ Updater
     ..  automethod:: required_value
 
 ..  autoclass:: UpdateAction
-    :members:
+
+    ..  automethod:: __call__
+    ..  automethod:: promise
+    ..  automethod:: default_update
 
 ..  autoclass:: Promise
+
+    ..  automethod:: __call__
+
 ..  autofunction:: resolve
 ..  autoclass:: ResolverProxy
 ..  autoclass:: Required
