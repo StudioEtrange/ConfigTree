@@ -1005,9 +1005,10 @@ def load(path, walk=None, update=None, postprocess=None, tree=None):
             tree['__file__'] = f
             tree['__dir__'] = os.path.dirname(f)
             for key, value in flatten(data):
-                update(tree, key, value)
+                update(tree, key, value, f)
             del tree['__file__']
             del tree['__dir__']
+    PostProcessor()(tree)
     if postprocess is not None:
         postprocess(tree)
     return tree
@@ -1199,7 +1200,7 @@ def make_update(namespace=None):
     """
     namespace = namespace or {}
 
-    def update(tree, key, value):
+    def update(tree, key, value, source=None):
         if key.endswith('?'):
             key = key[:-1]
             if key in tree:
