@@ -40,11 +40,16 @@ setup(
     entry_points="""\
         [console_scripts]
         configtree = configtree.script:main
+        ctdump = configtree.script:ctdump
 
         [configtree.conv]
         json = configtree.conv:to_json
         rare_json = configtree.conv:to_rare_json
         shell = configtree.conv:to_shell
+
+        [configtree.formatter]
+        json = configtree.formatter:to_json
+        shell = configtree.formatter:to_shell
 
         [configtree.source]
         .json = configtree.source:from_json

@@ -1,16 +1,17 @@
 root: ">>> os.path.dirname(self['__dir__'])"
+tags: ["demo"]
 api:
-    host: null
+    host: "!!!"
     port: 80
     db:
         driver: mysql
-        user: null
-        password: null
+        user: "!!!"
+        password: "!!!"
         name: demo_db
-    secret: null
+    secret: "!!!"
     logging: error
 frontend:
-    host: null
+    host: "!!!"
     port: 80
     js:
         merge: yes

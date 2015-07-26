@@ -1,3 +1,4 @@
+tags#append: 'dev'
 api:
     host: localhost
     port: 5001

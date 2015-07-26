@@ -1,3 +1,4 @@
+tags#append: 'prod'
 api:
     host: api.example.com
     db:
