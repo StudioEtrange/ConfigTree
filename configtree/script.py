@@ -121,8 +121,9 @@ def ctdump(argv=None, stdout=None):
         '-h', '--help', action='help',
         help='show this help message and exit'
     )
+    from . import __version__
     info_options.add_argument(
-        '--version', action='version', version='%(prog)s 0.4'
+        '--version', action='version', version=__version__
     )
     parser.usage += '{} --help'.format(prog)
     parser.usage += '{} --version'.format(prog)
