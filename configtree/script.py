@@ -9,6 +9,7 @@ from __future__ import print_function
 import os
 import sys
 import argparse
+import textwrap
 
 from . import conv, formatter
 from .loader import Loader, load, loaderconf
@@ -66,7 +67,20 @@ def ctdump(argv=None, stdout=None):
     # Now we create main argument parser, that parses all passed arguments
     # and generates help message.
     parser = argparse.ArgumentParser(
-        description='Load and convert configuration tree',
+        description=textwrap.dedent("""
+        dump configuration tree using specified format
+
+          Configuration tree is loaded from current directory or
+          from the directory specified by <path>.
+
+          If loaderconf.py file exists under the <path> directory,
+          it will be used to constuct the loader.  It is also a good place
+          to define custom formatters and custom readers of source files.
+
+          If branch <key> is specified, only the branch of tree will be dumped.
+
+        """),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
         add_help=False
     )
     # Standard auto-generated usage is a bit messy, so we build our own.
@@ -87,12 +101,12 @@ def ctdump(argv=None, stdout=None):
 
     common_options = parser.add_argument_group(title='common options')
     common_options.add_argument(
-        '-k', '--key', required=False, metavar='<key>',
-        help='branch of tree to be converted'
+        '-b', '--branch', required=False, metavar='<key>',
+        help='branch of tree to be dumped'
     )
     common_options.add_argument(
         '-p', '--path', required=False, default=default_path, metavar='<path>',
-        help='path to load (default: current directory)'
+        help='path to configuration tree'
     )
 
     parser.usage += '{} {} {} <formatter options>'.format(
@@ -131,8 +145,8 @@ def ctdump(argv=None, stdout=None):
     # Parse arguments and load tree
     args = vars(parser.parse_args(argv))
     tree = load(args['path'])
-    if args['key'] is not None:
-        tree = tree[args['key']]
+    if args['branch'] is not None:
+        tree = tree[args['branch']]
 
     # Exract formatter specific arguments from parsed ones.
     formatter_args = {}

@@ -32,7 +32,10 @@ def to_json(tree, rare=False, indent=None, sort=False):
     return json.dumps(tree, indent=indent, sort_keys=sort)
 
 
-@option('prefix', default='', metavar='<prefix>', help='key prefix')
+@option(
+    'prefix', default='', metavar='<prefix>',
+    help='key prefix (default: empty string)',
+)
 @option(
     'seq_sep', default=' ', metavar='<sep>',
     help='sequence item separator (default: space char)'
