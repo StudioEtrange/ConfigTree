@@ -125,6 +125,7 @@ def ctdump(argv=None, stdout=None):
                 '%s formatter options' % name
             )
             for option, params in formatter.map[name].__options__:
+                # Option name is prefixed by formatter name
                 option = '--{}-{}'.format(name, option.replace('_', '-'))
                 formatter_options[name].add_argument(option, **params)
             parser.usage += ' ' + format_usage(formatter_options[name])
@@ -148,11 +149,13 @@ def ctdump(argv=None, stdout=None):
     if args['branch'] is not None:
         tree = tree[args['branch']]
 
-    # Exract formatter specific arguments from parsed ones.
+    # Exract formatter specific arguments from parsed ones
     formatter_args = {}
     if args['format'] in formatter_options:
+        prefix_len = len(args['format']) + 1
         formatter_args = dict(
-            (option.dest[len(args['format']) + 1:], args[option.dest])
+            # Strip formatter name prefix from argument name
+            (option.dest[prefix_len:], args[option.dest])
             for option in formatter_options[args['format']]._group_actions
         )
 
