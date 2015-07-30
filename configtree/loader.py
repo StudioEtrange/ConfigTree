@@ -81,23 +81,6 @@ class Loader(object):
 ##
 
 
-def worker(priority, enabled=True):
-    """
-    Decorator that marks :class:`Pipeline` method as a worker
-
-    :param int priority: Priority of the worker
-    :param bool enabled: Whether worker is active or not
-
-    """
-
-    def decorator(f):
-        f.__worker__ = enabled
-        f.__priority__ = priority
-        return f
-
-    return decorator
-
-
 class Pipeline(object):
     """
     Utility class that helps to build pipelines
@@ -105,7 +88,7 @@ class Pipeline(object):
     ..  attribute:: __pipeline__
 
         List of workers that includes each method of the class that marked
-        by :func:`worker` decorator.  The list is sorted by worker priority.
+        by :meth:`worker` decorator.  The list is sorted by worker priority.
         Inactive workers are not included in the list.
 
     """
@@ -122,6 +105,23 @@ class Pipeline(object):
             pipeline.append(worker)
         pipeline.sort(key=lambda worker: worker.__priority__)
         return pipeline
+
+    @staticmethod
+    def worker(priority, enabled=True):
+        """
+        Decorator that marks method as a worker
+
+        :param int priority: Priority of the worker
+        :param bool enabled: Whether worker is active or not
+
+        """
+
+        def decorator(f):
+            f.__worker__ = enabled
+            f.__priority__ = priority
+            return f
+
+        return decorator
 
 
 ###############################################################################
@@ -213,7 +213,7 @@ class Walker(Pipeline):
                 for f in self.walk(fileobj):
                     yield f
 
-    @worker(10)
+    @Pipeline.worker(10)
     def ignored(self, fileobj):
         """
         Worker that filters out ignored files and directories
@@ -240,7 +240,7 @@ class Walker(Pipeline):
         if fileobj.isfile and fileobj.ext not in source.map:
             return -1
 
-    @worker(30)
+    @Pipeline.worker(30)
     def final(self, fileobj):
         """
         Worker that checks whether current traversing file is final or not.
@@ -269,7 +269,7 @@ class Walker(Pipeline):
             return None
         return 100 if fileobj.isdir else 101
 
-    @worker(50)
+    @Pipeline.worker(50)
     def environment(self, fileobj):
         """
         Worker that checks whether current traversing file is environment
@@ -312,7 +312,7 @@ class Walker(Pipeline):
         fileobj.params['env'] = fileobj.params['env'][len(env) + 1:]
         return 51 if fileobj.isdir else 50
 
-    @worker(1000)
+    @Pipeline.worker(1000)
     def regular(self, fileobj):
         """
         Worker that treats any file as a regular one.  The worker should be
@@ -455,7 +455,7 @@ class Updater(Pipeline):
             modifier(action)
         action()
 
-    @worker(20)
+    @Pipeline.worker(20)
     def set_default(self, action):
         """
         Worker that changes default :attr:`UpdateAction.update` from
@@ -486,7 +486,7 @@ class Updater(Pipeline):
 
         action.update = update
 
-    @worker(30)
+    @Pipeline.worker(30)
     def call_method(self, action):
         """
         Worker that changes default :attr:`UpdateAction.update` if key contains
@@ -534,7 +534,7 @@ class Updater(Pipeline):
 
         action.update = update
 
-    @worker(50)
+    @Pipeline.worker(50)
     def format_value(self, action):
         """
         Worker that transforms :attr:`UpdateAction.value` that starts
@@ -572,7 +572,7 @@ class Updater(Pipeline):
             )
         )
 
-    @worker(60)
+    @Pipeline.worker(60)
     def printf_value(self, action):
         """
         Worker that transform :attr:`UpdateAction.value` that starts
@@ -604,7 +604,7 @@ class Updater(Pipeline):
             lambda: value % ResolverProxy(action.tree, action.source)
         )
 
-    @worker(70)
+    @Pipeline.worker(70)
     def eval_value(self, action):
         """
         Worker that transform :attr:`UpdateAction.value` that starts with
@@ -654,7 +654,7 @@ class Updater(Pipeline):
             )
         )
 
-    @worker(80)
+    @Pipeline.worker(80)
     def required_value(self, action):
         """
         Worker that transform :attr:`UpdateAction.value` that starts with
@@ -935,7 +935,7 @@ class PostProcessor(Pipeline):
             errors.sort(key=lambda e: str(e))
             raise ProcessingError(*errors)
 
-    @worker(30)
+    @Pipeline.worker(30)
     def resolve_promise(self, tree, key, value):
         """
         Worker that resolves :class:`Promise` objects.
@@ -952,7 +952,7 @@ class PostProcessor(Pipeline):
         if isinstance(value, Promise):
             tree[key] = value()
 
-    @worker(50)
+    @Pipeline.worker(50)
     def check_required(self, tree, key, value):
         """
         Worker that checks tree for raw :class:`Required` values.

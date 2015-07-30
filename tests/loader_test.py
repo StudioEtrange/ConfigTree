@@ -8,7 +8,7 @@ from nose import tools
 from configtree.loader import (
     load, loaderconf, make_walk, make_update,
     Loader,
-    Pipeline, worker,
+    Pipeline,
     Walker, File,
     Updater, UpdateAction, Promise, ResolverProxy, resolve, Required,
     PostProcessor, ProcessingError
@@ -97,15 +97,15 @@ def pipeline_test():
 
     class Test(Pipeline):
 
-        @worker(1)
+        @Pipeline.worker(1)
         def first(self):
             pass
 
-        @worker(2, enabled=False)
+        @Pipeline.worker(2, enabled=False)
         def second(self):
             pass
 
-        @worker(3)
+        @Pipeline.worker(3)
         def third(self):
             pass
 

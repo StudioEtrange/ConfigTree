@@ -11,8 +11,10 @@
 Utilities
 ~~~~~~~~~
 
-..  autofunction:: worker
 ..  autoclass:: Pipeline
+
+    ..  automethod:: worker
+
 
 Walker
 ~~~~~~
