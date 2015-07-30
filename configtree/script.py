@@ -134,18 +134,18 @@ def ctdump(argv=None, stdout=None, stderr=None):
     except ProcessingError as e:
         for error in e.args:
             logger.error('%s', error)
-        exit(1)
+        return 1
     except Exception as e:
         if (e.args and isinstance(e.args[-1], UpdateAction)):
             logger.error('%s: %r', e.__class__.__name__, e.args)
-            exit(1)
-        raise
+            return 1
+        raise                                   # pragma: no cover
     if args['branch'] is not None:
         try:
             tree = tree[args['branch']]
         except KeyError as e:
             logger.error('Branch <%s> does not exist', args['branch'])
-            exit(1)
+            return 1
 
     # Extract formatter specific arguments from parsed ones
     formatter_args = {}
@@ -163,22 +163,16 @@ def ctdump(argv=None, stdout=None, stderr=None):
     print(result, file=stdout)
 
 
-def setup_logger(stderr=None):
+def setup_logger(stderr=None):      # pragma: no cover
     from . import logger
     if stderr is False:
         return logger
 
-    handlers = [
-        h for h in logger.handlers
-        if not isinstance(h, logging.NullHandler)
-    ]
-    if not handlers:
-        handler = logging.StreamHandler(stderr)
-        handler.setFormatter(
-            logging.Formatter('%(name)s [%(levelname)s]: %(message)s')
-        )
-        logger.addHandler(handler)
-
+    handler = logging.StreamHandler(stderr)
+    handler.setFormatter(
+        logging.Formatter('%(name)s [%(levelname)s]: %(message)s')
+    )
+    logger.addHandler(handler)
     logger.setLevel(logging.WARNING)
 
     return logger
