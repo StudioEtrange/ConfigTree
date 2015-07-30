@@ -254,9 +254,9 @@ def updater_required_valeue_test():
     update(tree, 'bar', '!!! Update me', '/test/source.yaml')
 
     tools.ok_(isinstance(tree['foo'], Required))
-    tools.eq_(repr(tree['foo']), "Required(key='foo', comment='')")
+    tools.eq_(repr(tree['foo']), 'Undefined required key <foo>')
     tools.ok_(isinstance(tree['bar'], Required))
-    tools.eq_(repr(tree['bar']), "Required(key='bar', comment='Update me')")
+    tools.eq_(repr(tree['bar']), 'Undefined required key <bar>: Update me')
 
 
 def update_action_repr_test():

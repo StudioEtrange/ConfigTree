@@ -877,12 +877,15 @@ class ResolverProxy(object):
 
 class Required(object):
 
-    def __init__(self, key, comment):
+    def __init__(self, key, comment=''):
         self.key = key
         self.comment = comment
 
     def __repr__(self):
-        return 'Required(key={0.key!r}, comment={0.comment!r})'.format(self)
+        result = 'Undefined required key <%s>' % self.key
+        if self.comment:
+            result += ': ' + self.comment
+        return result
 
 
 ###############################################################################
