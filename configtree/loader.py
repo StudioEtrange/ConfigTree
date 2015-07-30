@@ -3,7 +3,6 @@
 import os
 import sys
 import re
-import logging
 
 from cached_property import cached_property
 
