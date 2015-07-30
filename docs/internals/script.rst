@@ -2,3 +2,5 @@
 ------------------------
 
 ..  automodule:: configtree.script
+
+..  autofunction:: ctdump

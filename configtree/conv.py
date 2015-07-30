@@ -1,4 +1,6 @@
 """
+..  warning:: Deprecated in favor of :mod:`configtree.formatter`
+
 The module provides converters, which output :class:`configtree.tree.Tree`
 objects into various formats.  The converters are available via global variable
 ``map`` in format ``{'format_name': converter}``.  The map is filled on scaning
@@ -22,6 +24,8 @@ __all__ = ['map']
 
 def to_json(tree):
     """
+    ..  warning:: Deprecated in favor of :func:`configtree.formatter.to_json`
+
     Convert :class:`configtree.tree.Tree` object into JSON fromat:
 
     ..  code-block:: pycon
@@ -38,6 +42,8 @@ def to_json(tree):
 
 def to_rare_json(tree):
     """
+    ..  warning:: Deprecated in favor of :func:`configtree.formatter.to_json`
+
     Convert :class:`configtree.tree.Tree` object into JSON fromat:
 
     ..  code-block:: pycon
@@ -58,6 +64,8 @@ def to_rare_json(tree):
 
 def to_shell(tree):
     """
+    ..  warning:: Deprecated in favor of :func:`configtree.formatter.to_shell`
+
     Convert :class:`configtree.tree.Tree` object into shell script fromat:
 
     ..  code-block:: pycon
