@@ -13,7 +13,7 @@ import textwrap
 import logging
 
 from . import conv, formatter
-from .loader import Loader, ProcessingError, load, loaderconf
+from .loader import Loader, ProcessingError, UpdateAction, load, loaderconf
 
 
 def main(argv=None, stdout=None, stderr=None):
@@ -65,7 +65,13 @@ def ctdump(argv=None, stdout=None, stderr=None):
     path_parser = argparse.ArgumentParser(add_help=False)
     path_parser.add_argument('-p', '--path', default=default_path)
     args, _ = path_parser.parse_known_args(argv)
-    load = Loader.fromconf(args.path)
+
+    loader_error = None
+    try:
+        load = Loader.fromconf(args.path)
+    except Exception as e:
+        logger.error('Failed to create loader.  Check your loaderconf.py')
+        loader_error = e
 
     # Now we create main argument parser, that parses all passed arguments
     # and generates help message.
@@ -152,16 +158,30 @@ def ctdump(argv=None, stdout=None, stderr=None):
 
     # Parse arguments and load tree
     args = vars(parser.parse_args(argv))
+
+    if loader_error:
+        raise loader_error
     if args['verbose']:
         logger.setLevel(logging.INFO)
+
+    logger.info('Loading tree')
     try:
         tree = load(args['path'])
     except ProcessingError as e:
         for error in e.args[0]:
             logger.error('%s', error)
         exit(1)
+    except Exception as e:
+        if (e.args and isinstance(e.args[-1], UpdateAction)):
+            logger.error('%s: %r', e.__class__.__name__, e.args)
+            exit(1)
+        raise
     if args['branch'] is not None:
-        tree = tree[args['branch']]
+        try:
+            tree = tree[args['branch']]
+        except KeyError as e:
+            logger.error('Branch <%s> does not exist', args['branch'])
+            exit(1)
 
     # Exract formatter specific arguments from parsed ones
     formatter_args = {}
@@ -174,6 +194,7 @@ def ctdump(argv=None, stdout=None, stderr=None):
         )
 
     # Format tree and print result
+    logger.info('Formatting result')
     result = formatter.map[args['format']](tree, **formatter_args)
     print(result, file=stdout)
 
