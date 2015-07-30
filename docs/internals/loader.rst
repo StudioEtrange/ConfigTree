@@ -52,8 +52,8 @@ Updater
 ..  autoclass:: Promise
 
     ..  automethod:: __call__
+    ..  automethod:: resolve
 
-..  autofunction:: resolve
 ..  autoclass:: ResolverProxy
 ..  autoclass:: Required
 

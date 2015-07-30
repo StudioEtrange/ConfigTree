@@ -10,7 +10,7 @@ from configtree.loader import (
     Loader,
     Pipeline,
     Walker, File,
-    Updater, UpdateAction, Promise, ResolverProxy, resolve, Required,
+    Updater, UpdateAction, Promise, ResolverProxy, Required,
     PostProcessor, ProcessingError
 )
 from configtree.tree import Tree
@@ -313,9 +313,9 @@ def promise_test():
     tools.eq_(p(), 42)
 
 
-def resolve_test():
-    tools.eq_(resolve(Promise(lambda: 42)), 42)
-    tools.eq_(resolve('foo'), 'foo')
+def promise_resolve_test():
+    tools.eq_(Promise.resolve(Promise(lambda: 42)), 42)
+    tools.eq_(Promise.resolve('foo'), 'foo')
 
 
 def resolver_proxy_test():

@@ -524,8 +524,8 @@ class Updater(Pipeline):
                isinstance(action.value, Promise):
 
                 def deferred():
-                    new_value = resolve(old_value)
-                    getattr(new_value, method)(resolve(action.value))
+                    new_value = Promise.resolve(old_value)
+                    getattr(new_value, method)(Promise.resolve(action.value))
                     return new_value
 
                 action.tree[action.key] = action.promise(deferred)
@@ -804,26 +804,26 @@ class Promise(object):
         """ Resolves deferred value, i.e. calls it and returns its result """
         return self.deferred()
 
+    @staticmethod
+    def resolve(value):
+        """
+        Helper method that resolves passed promises and returns their results.
+        Other values are returned as is.
 
-def resolve(value):
-    """
-    Helper function that resolves passed :class:`Promise` values and returns
-    its result.  Other values are returned as is.
+        :param value: Value to resolve
+        :returns: Resolved promise or value as it is.
 
-    :param value: Value to resolve
-    :returns: Resolved promise or value as it is.
+        ..  code-block:: pycon
 
-    ..  code-block:: pycon
+            >>> Promise.resolve(Promise(lambda: 1))
+            1
+            >>> Promise.resolve(2)
+            2
 
-        >>> resolve(Promise(lambda: 1))
-        1
-        >>> resolve(2)
-        2
-
-    """
-    if isinstance(value, Promise):
-        return value()
-    return value
+        """
+        if isinstance(value, Promise):
+            return value()
+        return value
 
 
 class ResolverProxy(object):
@@ -862,7 +862,7 @@ class ResolverProxy(object):
 
     def __getitem__(self, key):
         try:
-            return resolve(self.__tree[key])
+            return Promise.resolve(self.__tree[key])
         except KeyError:
             if self.__source is not None:
                 if key == '__file__':
