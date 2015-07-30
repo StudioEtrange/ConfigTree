@@ -28,10 +28,12 @@ import sys, os
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
-    #'sphinx.ext.intersphinx'
+    'sphinx.ext.intersphinx'
 ]
 
-intersphinx_mapping = {'python': ('http://docs.python.org/3.4', None)}
+intersphinx_mapping = {
+    'python': ('http://docs.python.org/3', 'python3.inv'),
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
