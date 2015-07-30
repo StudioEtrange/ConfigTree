@@ -926,7 +926,7 @@ class PostProcessor(Pipeline):
                     errors.append(error)
         if errors:
             errors.sort(key=lambda e: str(e))
-            raise ProcessingError(errors)
+            raise ProcessingError(*errors)
 
     @worker(30)
     def resolve_promise(self, tree, key, value):

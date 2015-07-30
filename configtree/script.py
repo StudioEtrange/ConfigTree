@@ -132,7 +132,7 @@ def ctdump(argv=None, stdout=None, stderr=None):
     try:
         tree = load(args['path'])
     except ProcessingError as e:
-        for error in e.args[0]:
+        for error in e.args:
             logger.error('%s', error)
         exit(1)
     except Exception as e:

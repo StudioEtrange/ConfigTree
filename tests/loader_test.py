@@ -354,7 +354,7 @@ def postprocessor_check_required_test():
     with tools.assert_raises(ProcessingError) as context:
         postprocess(tree)
 
-    tools.eq_(context.exception.args[0], [tree['bar'], tree['foo']])
+    tools.eq_(context.exception.args, (tree['bar'], tree['foo']))
 
 
 ###############################################################################
