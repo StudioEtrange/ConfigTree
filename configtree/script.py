@@ -70,6 +70,8 @@ def ctdump(argv=None, stdout=None, stderr=None):
     try:
         load = Loader.fromconf(args.path)
     except Exception as e:
+        # We should not crash here, because a user might ask to print help
+        # or version number.
         logger.error('Failed to create loader.  Check your loaderconf.py')
         loader_error = e
 
@@ -183,7 +185,7 @@ def ctdump(argv=None, stdout=None, stderr=None):
             logger.error('Branch <%s> does not exist', args['branch'])
             exit(1)
 
-    # Exract formatter specific arguments from parsed ones
+    # Extract formatter specific arguments from parsed ones
     formatter_args = {}
     if args['format'] in formatter_options:
         prefix_len = len(args['format']) + 1
