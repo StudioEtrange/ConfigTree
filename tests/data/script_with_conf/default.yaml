@@ -1,8 +1,8 @@
 database:
     driver: mysql
-    user: null
-    password: null
-    name: null
+    user: "!!!"
+    password: "!!!"
+    name: "!!!"
 http:
-    host: null
+    host: "!!!"
     port: 80

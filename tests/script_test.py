@@ -8,6 +8,7 @@ except ImportError:
 
 from nose import tools
 
+from configtree.loader import ProcessingError
 from configtree.script import main
 
 
@@ -126,8 +127,6 @@ def invalid_format_test():
 def postprocess_test():
     os.environ['ENV_NAME'] = 'prod'
     argv = [data_dir_with_conf]
-    try:
+    with tools.assert_raises(ProcessingError) as context:
         main(argv, stderr=False)
-        assert False
-    except ValueError as e:
-        tools.eq_(e.args, ('Required key http.host is missing',))
+    tools.eq_(context.exception.args[0].key, 'http.host')
