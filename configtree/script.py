@@ -16,49 +16,6 @@ from . import conv, formatter
 from .loader import Loader, ProcessingError, UpdateAction, load, loaderconf
 
 
-def main(argv=None, stdout=None, stderr=None):
-    logger = setup_logger(stderr)
-    logger.warning(
-        '``configtree`` command is deprecated in favor of ``ctdump``'
-    )
-
-    argv = argv or sys.argv[1:]
-    stdout = stdout or sys.stdout
-    formats = '|'.join(sorted(conv.map.keys()))
-
-    parser = argparse.ArgumentParser(
-        description='Load and convert configuration tree'
-    )
-    parser.add_argument(
-        'path', nargs='?', default=os.getcwd(),
-        help='path to configuration tree (default: current directory)'
-    )
-    parser.add_argument(
-        # Do not use ``choices`` to be able to use converters
-        # defined within ``loaderconf.py``
-        '-f', '--format', default='json', required=False,
-        help='output format [%s] (default: json)' % formats
-    )
-    parser.add_argument(
-        '-b', '--branch', required=False,
-        help='branch of tree, which should be converted'
-    )
-    args = parser.parse_args(argv)
-
-    loader = loaderconf(args.path)
-    # Fail fast, if invalid format is given
-    try:
-        converter = conv.map[args.format]
-    except KeyError:
-        raise ValueError('Unsupportable output format "%s"' % args.format)
-
-    tree = load(args.path, **loader)
-    if args.branch is not None:
-        tree = tree[args.branch]
-    stdout.write(converter(tree))
-    stdout.write(os.linesep)
-
-
 def ctdump(argv=None, stdout=None, stderr=None):
     logger = setup_logger(stderr)
 
@@ -225,3 +182,51 @@ def setup_logger(stderr=None):
     logger.setLevel(logging.WARNING)
 
     return logger
+
+
+###############################################################################
+# Deprecated features
+##
+
+
+def main(argv=None, stdout=None, stderr=None):
+    logger = setup_logger(stderr)
+    logger.warning(
+        '``configtree`` command is deprecated in favor of ``ctdump``'
+    )
+
+    argv = argv or sys.argv[1:]
+    stdout = stdout or sys.stdout
+    formats = '|'.join(sorted(conv.map.keys()))
+
+    parser = argparse.ArgumentParser(
+        description='Load and convert configuration tree'
+    )
+    parser.add_argument(
+        'path', nargs='?', default=os.getcwd(),
+        help='path to configuration tree (default: current directory)'
+    )
+    parser.add_argument(
+        # Do not use ``choices`` to be able to use converters
+        # defined within ``loaderconf.py``
+        '-f', '--format', default='json', required=False,
+        help='output format [%s] (default: json)' % formats
+    )
+    parser.add_argument(
+        '-b', '--branch', required=False,
+        help='branch of tree, which should be converted'
+    )
+    args = parser.parse_args(argv)
+
+    loader = loaderconf(args.path)
+    # Fail fast, if invalid format is given
+    try:
+        converter = conv.map[args.format]
+    except KeyError:
+        raise ValueError('Unsupportable output format "%s"' % args.format)
+
+    tree = load(args.path, **loader)
+    if args.branch is not None:
+        tree = tree[args.branch]
+    stdout.write(converter(tree))
+    stdout.write(os.linesep)
