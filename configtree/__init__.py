@@ -1,8 +1,3 @@
-import warnings
-
-warnings.simplefilter('default')
-
-
 import logging
 
 from .tree import Tree, flatten, rarefy
