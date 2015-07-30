@@ -3,6 +3,7 @@
 import os
 import sys
 import re
+import logging
 
 from cached_property import cached_property
 
@@ -58,7 +59,11 @@ class Loader(object):
         :rtype: Tree
 
         """
+        from . import logger
+        logger.info('Walking over "%s"', path)
         for f in self.walk(path):
+            relpath = os.path.relpath(f, path)
+            logger.info('Loading "%s"', relpath)
             ext = os.path.splitext(f)[1]
             with open(f) as data:
                 data = source.map[ext](data)
@@ -66,8 +71,8 @@ class Loader(object):
                     continue
                 for key, value in flatten(data):
                     self.update(self.tree, key, value, f)
-        if self.postprocess is not None:
-            self.postprocess(self.tree)
+        logger.info('Post-processing')
+        self.postprocess(self.tree)
         return self.tree
 
 

@@ -10,12 +10,13 @@ import os
 import sys
 import argparse
 import textwrap
+import logging
 
 from . import conv, formatter
-from .loader import Loader, load, loaderconf
+from .loader import Loader, ProcessingError, load, loaderconf
 
 
-def main(argv=None, stdout=None):
+def main(argv=None, stdout=None, stderr=None):
     argv = argv or sys.argv[1:]
     stdout = stdout or sys.stdout
     formats = '|'.join(sorted(conv.map.keys()))
@@ -53,7 +54,9 @@ def main(argv=None, stdout=None):
     stdout.write(os.linesep)
 
 
-def ctdump(argv=None, stdout=None):
+def ctdump(argv=None, stdout=None, stderr=None):
+    logger = setup_logger(stderr)
+
     # At first we need to import ``loaderconf.py`` if it exists,
     # because there might be a custom formatter defined.
     # So we need to parse ``-p`` or ``--path`` argument.
@@ -101,12 +104,16 @@ def ctdump(argv=None, stdout=None):
 
     common_options = parser.add_argument_group(title='common options')
     common_options.add_argument(
-        '-b', '--branch', required=False, metavar='<key>',
+        '-b', '--branch', metavar='<key>',
         help='branch of tree to be dumped'
     )
     common_options.add_argument(
-        '-p', '--path', required=False, default=default_path, metavar='<path>',
+        '-p', '--path', default=default_path, metavar='<path>',
         help='path to configuration tree'
+    )
+    common_options.add_argument(
+        '-v', '--verbose', action='store_true',
+        help='print debug output'
     )
 
     parser.usage += '{} {} {} <formatter options>'.format(
@@ -145,7 +152,14 @@ def ctdump(argv=None, stdout=None):
 
     # Parse arguments and load tree
     args = vars(parser.parse_args(argv))
-    tree = load(args['path'])
+    if args['verbose']:
+        logger.setLevel(logging.INFO)
+    try:
+        tree = load(args['path'])
+    except ProcessingError as e:
+        for error in e.args[0]:
+            logger.error('%s', error)
+        exit(1)
     if args['branch'] is not None:
         tree = tree[args['branch']]
 
@@ -160,4 +174,25 @@ def ctdump(argv=None, stdout=None):
         )
 
     # Format tree and print result
-    print(formatter.map[args['format']](tree, **formatter_args), file=stdout)
+    result = formatter.map[args['format']](tree, **formatter_args)
+    print(result, file=stdout)
+
+
+def setup_logger(stderr=None):
+    from . import logger
+
+    handlers = [
+        h for h in logger.handlers
+        if not isinstance(h, logging.NullHandler)
+    ]
+    if not handlers:
+        handler = logging.StreamHandler(stderr)
+        handler.setFormatter(
+            logging.Formatter('%(name)s [%(levelname)s]: %(message)s')
+        )
+        logger.addHandler(handler)
+
+    logger.setLevel(logging.WARNING)
+    logging.captureWarnings(True)
+
+    return logger
