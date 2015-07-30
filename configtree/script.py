@@ -1,9 +1,3 @@
-"""
-The module provides a shell script which loads configuration tree
-and convert it into various formats.
-
-"""
-
 from __future__ import print_function
 
 import os
@@ -17,6 +11,16 @@ from .loader import Loader, ProcessingError, UpdateAction, load, loaderconf
 
 
 def ctdump(argv=None, stdout=None, stderr=None):
+    """
+    Shell script to load and format :class:`configtree.tree.Tree` objects.
+
+    Run the command bellow in your console to get help.
+
+    ..  code-block:: bash
+
+        $ ctdump --help
+
+    """
     logger = setup_logger(stderr)
 
     # At first we need to import ``loaderconf.py`` if it exists,
@@ -164,6 +168,10 @@ def ctdump(argv=None, stdout=None, stderr=None):
 
 
 def setup_logger(stderr=None):      # pragma: no cover
+    """
+    Helper function that sets up a logger for :func:`ctdump` and :func:`main`
+
+    """
     from . import logger
     if stderr is False:
         return logger
@@ -184,6 +192,18 @@ def setup_logger(stderr=None):      # pragma: no cover
 
 
 def main(argv=None, stdout=None, stderr=None):
+    """
+    ..  warning:: Deprecated in favor of :func:`ctdump`
+
+    Shell script to load and format :class:`configtree.tree.Tree` objects.
+
+    Run the command bellow in your console to get help.
+
+    ..  code-block:: bash
+
+        $ configtree --help
+
+    """
     logger = setup_logger(stderr)
     logger.warning(
         '``configtree`` command is deprecated in favor of ``ctdump``'
