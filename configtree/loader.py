@@ -876,6 +876,13 @@ class ResolverProxy(object):
 
 
 class Required(object):
+    """
+    Helper object that indicates undefined required key.
+
+    Values of the type are set up by :meth:`Updater.required_value`
+    and treated as error by :meth:`PostProcessor.check_required`.
+
+    """
 
     def __init__(self, key, comment=''):
         self.key = key
@@ -975,6 +982,8 @@ class ProcessingError(Exception):
 
 def load(path, walk=None, update=None, postprocess=None, tree=None):
     """
+    ..  warning:: Deprecated in favor of :class:`Loader`.
+
     Loads :class:`configtree.tree.Tree` object from files.
 
     A ``path`` argument should be a path to the directory containing files
@@ -1027,6 +1036,8 @@ def load(path, walk=None, update=None, postprocess=None, tree=None):
 
 def loaderconf(path):
     """
+    ..  warning:: Deprecated in favor of :meth:`Loader.fromconf`.
+
     Reads loader configuration from module ``loaderconf``.
 
     If file of the module does not exists, it will return an empty dictionary.
@@ -1057,6 +1068,8 @@ def loaderconf(path):
 
 def make_walk(env=''):
     """
+    ..  warning:: Deprecated in favor of :class:`Walker`.
+
     Constructs ``walk`` function, which will be used by :func:`load` one.
 
     The ``walk`` function recursively iterates over the directory and yields
@@ -1178,6 +1191,8 @@ def make_walk(env=''):
 
 def make_update(namespace=None):
     """
+    ..  warning:: Deprecated in favor of :class:`Updater`.
+
     Constructs ``update`` function, which will be used by :func:`load` one.
 
     The ``update`` function adds a pinch of syntactic sugar to loading
