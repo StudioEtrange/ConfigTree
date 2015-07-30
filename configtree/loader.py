@@ -714,7 +714,7 @@ class UpdateAction(object):
         ..  code-block:: pycon
 
             >>> UpdateAction(Tree(), 'foo', 'bar', '/path/to/src.yaml')
-            <'foo': 'bar'> from /path/to/src.yaml
+            <tree['foo'] = 'bar' from '/path/to/src.yaml'>
 
 
     ..  attribute:: update
@@ -747,10 +747,8 @@ class UpdateAction(object):
         self.update(self)
 
     def __repr__(self):
-        return '<{key!r}: {value!r}> from {source}'.format(
-            key=self._key,
-            value=self._value,
-            source=self.source,
+        return (
+            '<tree[{0._key!r}] = {0._value!r} from {0.source!r}>'.format(self)
         )
 
     def promise(self, deferred):
@@ -768,7 +766,8 @@ class UpdateAction(object):
             try:
                 return deferred()
             except Exception as e:
-                raise e.__class__(self, *e.args)
+                args = e.args + (self,)
+                raise e.__class__(*args)
         return Promise(wrapper)
 
     @staticmethod

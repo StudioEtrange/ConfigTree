@@ -261,7 +261,10 @@ def updater_required_valeue_test():
 
 def update_action_repr_test():
     action = UpdateAction(Tree(), 'foo', 'bar', '/test/source.yaml')
-    tools.eq_(repr(action), "<'foo': 'bar'> from /test/source.yaml")
+    tools.eq_(
+        repr(action),
+        "<tree['foo'] = 'bar' from '/test/source.yaml'>"
+    )
 
 
 def update_action_promise_test():
@@ -269,7 +272,7 @@ def update_action_promise_test():
     promise = action.promise(lambda: int(None))
     with tools.assert_raises(TypeError) as context:
         promise()
-    tools.eq_(context.exception.args[0], action)
+    tools.eq_(context.exception.args[-1], action)
 
 
 def update_action_branch_test():
