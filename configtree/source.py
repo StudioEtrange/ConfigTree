@@ -1,11 +1,19 @@
 """
 The module provides loaders from YAML and JSON files, which load data
-into :class:`collections.OrderedDict` objects.  The loaders are available
-via global variable ``map`` in the format ``{'.ext': loader}``.  The map is
-filled on scaning entry points ``configtree.source``.  So if you want
-to extend this module, you can define this entry point in your own package.
-The loader map is used by :mod:`configtree.loader` module to fill
-:class:`configtree.tree.Tree` objects from files.
+into :class:`collections.OrderedDict` objects.
+
+..  data:: map
+
+    Dictionary that stores map of loaders.  It is filled using
+    `entry points`_ named ``configtree.source``.  But can be also modified
+    within ``loaderconf.py`` module to add ad hoc loader.
+
+    The map is used by :class:`configtree.loader.Walker` to determine
+    supportable files and :class:`configtree.loader.Loader` to load
+    data from the files.
+
+.. _entry points: https://pythonhosted.org/setuptools/setuptools.html
+                  #dynamic-discovery-of-services-and-plugins
 
 """
 

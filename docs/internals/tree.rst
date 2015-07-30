@@ -7,7 +7,6 @@
     :members:
 
 ..  autoclass:: BranchProxy
-    :members:
 
 ..  autofunction:: flatten
 ..  autofunction:: rarefy
