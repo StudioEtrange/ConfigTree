@@ -3,6 +3,7 @@
 import os
 import sys
 import re
+from warnings import warn
 
 from cached_property import cached_property
 
@@ -999,6 +1000,10 @@ def load(path, walk=None, update=None, postprocess=None, tree=None):
     some initial data or use derived class of :class:`configtree.tree.Tree`.
 
     """
+    warn(
+        'Function ``load`` is deprected in favor of class ``Loader``',
+        DeprecationWarning,
+    )
     walk = walk or make_walk()
     update = update or make_update()
     tree = tree or Tree()
@@ -1035,6 +1040,10 @@ def loaderconf(path):
         config = load(path, **loaderconf(path))
 
     """
+    warn(
+        'Function ``loaderconf`` is deprected in favor of class ``Loader``',
+        DeprecationWarning,
+    )
     if path not in sys.path:
         sys.path.append(path)
     try:
@@ -1104,6 +1113,10 @@ def make_walk(env=''):
         config/final-common/common-config.yaml
 
     """
+    warn(
+        'Function ``make_walk`` is deprected in favor of class ``Walker``',
+        DeprecationWarning,
+    )
 
     def walk(path, env=env):
         if '.' in env:
@@ -1204,6 +1217,10 @@ def make_update(namespace=None):
             e#append: 3                                      # e == [1, 2, 3]
 
     """
+    warn(
+        'Function ``make_update`` is deprected in favor of class ``Updater``',
+        DeprecationWarning,
+    )
     namespace = namespace or {}
 
     def update(tree, key, value, source=None):

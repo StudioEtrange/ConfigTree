@@ -1,6 +1,8 @@
 import math
 import os
 import sys
+import warnings
+
 from nose import tools
 
 from configtree.loader import (
@@ -12,6 +14,9 @@ from configtree.loader import (
     PostProcessor, ProcessingError
 )
 from configtree.tree import Tree
+
+
+warnings.filterwarnings('ignore', module='configtree.loader')
 
 
 data_dir = os.path.dirname(os.path.realpath(__file__))

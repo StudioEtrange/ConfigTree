@@ -17,6 +17,11 @@ from .loader import Loader, ProcessingError, UpdateAction, load, loaderconf
 
 
 def main(argv=None, stdout=None, stderr=None):
+    logger = setup_logger(stderr)
+    logger.warning(
+        '``configtree`` command is deprecated in favor of ``ctdump``'
+    )
+
     argv = argv or sys.argv[1:]
     stdout = stdout or sys.stdout
     formats = '|'.join(sorted(conv.map.keys()))
@@ -203,6 +208,8 @@ def ctdump(argv=None, stdout=None, stderr=None):
 
 def setup_logger(stderr=None):
     from . import logger
+    if stderr is False:
+        return logger
 
     handlers = [
         h for h in logger.handlers
@@ -216,6 +223,5 @@ def setup_logger(stderr=None):
         logger.addHandler(handler)
 
     logger.setLevel(logging.WARNING)
-    logging.captureWarnings(True)
 
     return logger

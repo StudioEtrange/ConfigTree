@@ -10,27 +10,29 @@ data_dir = os.path.join(data_dir, 'data', 'source')
 
 
 def json_test():
-    result = source.from_json(open(os.path.join(data_dir, 'test.json')))
-    result = list(flatten(result))
-    tools.eq_(result, [
-        ('a', 1),
-        ('b', 2),
-        ('c.x', 1),
-        ('c.y', 2),
-        ('c.z', 3),
-    ])
+    with open(os.path.join(data_dir, 'test.json')) as f:
+        result = source.from_json(f)
+        result = list(flatten(result))
+        tools.eq_(result, [
+            ('a', 1),
+            ('b', 2),
+            ('c.x', 1),
+            ('c.y', 2),
+            ('c.z', 3),
+        ])
 
 
 def yaml_test():
-    result = source.from_yaml(open(os.path.join(data_dir, 'test.yaml')))
-    result = list(flatten(result))
-    tools.eq_(result, [
-        ('a', 1),
-        ('b', 2),
-        ('c.x', 1),
-        ('c.y', 2),
-        ('c.z', 3),
-    ])
+    with open(os.path.join(data_dir, 'test.yaml')) as f:
+        result = source.from_yaml(f)
+        result = list(flatten(result))
+        tools.eq_(result, [
+            ('a', 1),
+            ('b', 2),
+            ('c.x', 1),
+            ('c.y', 2),
+            ('c.z', 3),
+        ])
 
 
 def map_test():

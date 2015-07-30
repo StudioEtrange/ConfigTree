@@ -1,5 +1,6 @@
 import sys
 import os
+import warnings
 try:
     from StringIO import StringIO
 except ImportError:
@@ -8,6 +9,9 @@ except ImportError:
 from nose import tools
 
 from configtree.script import main
+
+
+warnings.filterwarnings('ignore', module='configtree.loader')
 
 
 data_dir = os.path.dirname(os.path.realpath(__file__))
@@ -29,7 +33,7 @@ def teardown_func():
 @tools.with_setup(teardown=teardown_func)
 def stdout_test():
     argv = [data_dir_without_conf]
-    main(argv)
+    main(argv, stderr=False)
     # Should not raise any exception
 
 
@@ -37,7 +41,7 @@ def stdout_test():
 def without_conf_test():
     argv = [data_dir_without_conf]
     stdout = StringIO()
-    main(argv, stdout)
+    main(argv, stdout=stdout, stderr=False)
     stdout.seek(0)
     result = stdout.read()
     result = [line.rstrip() for line in result.split(os.linesep)]
@@ -58,7 +62,7 @@ def without_conf_test():
 def with_conf_test():
     argv = [data_dir_with_conf]
     stdout = StringIO()
-    main(argv, stdout)
+    main(argv, stdout=stdout, stderr=False)
     stdout.seek(0)
     result = stdout.read()
     result = [line.rstrip() for line in result.split(os.linesep)]
@@ -79,7 +83,7 @@ def with_conf_test():
 def branch_test():
     argv = ['--branch=http', data_dir_with_conf]
     stdout = StringIO()
-    main(argv, stdout)
+    main(argv, stdout=stdout, stderr=False)
     stdout.seek(0)
     result = stdout.read()
     result = [line.rstrip() for line in result.split(os.linesep)]
@@ -96,7 +100,7 @@ def branch_test():
 def format_test():
     argv = ['--format=shell', data_dir_with_conf]
     stdout = StringIO()
-    main(argv, stdout)
+    main(argv, stdout=stdout, stderr=False)
     stdout.seek(0)
     result = stdout.read()
     result = [line.rstrip() for line in result.split(os.linesep)]
@@ -115,7 +119,7 @@ def format_test():
 @tools.with_setup(teardown=teardown_func)
 def invalid_format_test():
     argv = ['--format=invalid', data_dir_with_conf]
-    main(argv)
+    main(argv, stderr=False)
 
 
 @tools.with_setup(teardown=teardown_func)
@@ -123,7 +127,7 @@ def postprocess_test():
     os.environ['ENV_NAME'] = 'prod'
     argv = [data_dir_with_conf]
     try:
-        main(argv)
+        main(argv, stderr=False)
         assert False
     except ValueError as e:
         tools.eq_(e.args, ('Required key http.host is missing',))
