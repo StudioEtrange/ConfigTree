@@ -1,7 +1,11 @@
+import warnings
+
 from nose import tools
 
 from configtree.tree import Tree, flatten, rarefy
 
+
+warnings.filterwarnings('ignore', module='configtree.tree')
 
 td = Tree()
 

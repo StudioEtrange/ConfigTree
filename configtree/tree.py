@@ -1,4 +1,5 @@
 from collections import defaultdict, Mapping, MutableMapping
+from warnings import warn
 
 
 __all__ = ['Tree', 'flatten', 'rarefy']
@@ -24,7 +25,7 @@ class Tree(MutableMapping):
         >>> tree['a.b'] == {'c': 1, 'd': 2}
         True
 
-    The Tree object is unable to create an empty branch on demand:
+    The tree object is unable to create an empty branch on demand:
 
     ..  code-block:: pycon
 
@@ -51,7 +52,7 @@ class Tree(MutableMapping):
         >>> 'x.y' in tree
         False
 
-    The Tree object doesn't perform any implicit type inspection and
+    The tree object doesn't perform any implicit type inspection and
     conversion.  It means what you put into the tree is what you will get
     from one later.  Even when you put one branch to another, the Tree won't
     create a copy:
@@ -181,7 +182,10 @@ class Tree(MutableMapping):
         return BranchProxy(key, self)
 
     def copy(self):
-        """ Returns a shallow copy of the tree """
+        """
+        Returns a shallow copy of the tree.  The result has the same type.
+
+        """
         return self.__class__(self)
 
 
@@ -284,12 +288,23 @@ class BranchProxy(MutableMapping):
         return self._owner.branch(self._itemkey(key))
 
     def as_tree(self):
-        """ Converts the branch into a separate :class:`Tree` object """
-        return self._owner.__class__(self)
+        """
+        ..  warning:: Deprectated in favor of :meth:`copy`
+
+        """
+        warn(
+            'Method ``as_tree`` is deprected in favor of ``copy`` one',
+            DeprecationWarning,
+        )
+        return self.copy()
 
     def copy(self):
-        """ An alias for :meth:`BranchProxy.as_tree` """
-        return self.as_tree()
+        """
+        Returns a shallow copy of the branch.  The result has the same type
+        as the branch owner, i.e. :class:`Tree` or derrived from one.
+
+        """
+        return self._owner.__class__(self)
 
 
 def flatten(d):
