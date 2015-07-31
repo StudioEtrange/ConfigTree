@@ -37,6 +37,7 @@ configuration to JSON (condensed or rare) and shell script format, and can be
 
     getting_started
     advanced_usage
+    migration34
     internals/index
 
 
