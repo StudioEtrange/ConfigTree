@@ -4,7 +4,19 @@ Changes
 0.4
 ---
 
-*   In Progress
+*   Dropped Python 2.6 support.
+*   Completely reworked loading process (see `migration guide`_):
+
+    *   functions ``load``, ``loaderconf`` are deprecated in favor of class ``Loader``;
+    *   function ``make_walk`` is deprecated in favor of ``Walker``;
+    *   function ``make_update`` is deprecated in favor of ``Updater``;
+    *   module ``configtree.conv`` and its plugins (from entry point with
+        the same name) is deprecated in favor or ``configtree.formatter``;
+    *   shell command ``configtree`` is deprecated in favor of ``ctdump``.
+
+
+.. _migration guide: http://configtree.readthedocs.org/en/latest/migration.html
+                     #migration-from-version-0-3-to-0-4
 
 
 0.3
