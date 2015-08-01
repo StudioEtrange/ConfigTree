@@ -4,12 +4,16 @@ api:
     host: "!!! API host name"
     port: 80
     db:
-        driver: mysql
-        user: "!!! Owner of database"
-        password: "!!! User password"
-        name: demo_db
+        driver: "mysql"
+        user: "!!!"
+        password: "!!!"
+        name: "demo_db"
     secret: "!!! Web tokens encryption key"
-    logging: error
+    logging: "error"
+    endpoints:
+        index: "%>> http://%(api.host)s:%(api.port)s"
+        login: "%>> %(api.endpoints.index)s/login"
+        logout: "%>> %(api.endpoints.index)s/logout"
 frontend:
     host: "!!! Frontend host name"
     port: 80
@@ -22,5 +26,5 @@ frontend:
     templates:
         reload: no
         cache: yes
-    logging: error
+    logging: "error"
     assets: ">>> os.path.join(self['root'], 'frontend', 'assets')"
