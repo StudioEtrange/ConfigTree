@@ -4,7 +4,7 @@ Getting Started
 The following tutorial demonstrates basic usage of ConfigTree.
 It covers all features, but does not explain them in details.
 It is enough to start using ConfigTree within your project,
-however more detailed explanation will be given in the :ref`next section <advanced_usage>`.
+however more detailed explanation will be given in the :ref:`next section <advanced_usage>`.
 
 .. _the sources: https://bitbucket.org/kr41/configtree/src
 
@@ -111,10 +111,13 @@ You can see that:
 *   ConfigTree uses :class:`configtree.tree.Tree` to store the result.
     This class provides dictionary interface and can be used wherever
     built-in :class:`dict` is expected.  It also provides ability to get
-    branches, i.e. expose intermediate keys.  This is why it named "Tree".
+    branches, i.e. expose intermediate keys.  That is why it named "Tree".
 
 *   :class:`configtree.loader.Loader` is used to load :class:`configtree.tree.Tree`
     object from files.  The following tutorial is devoted to its features.
+
+*   :ref:`ctdump` can be used to dump tree into JSON, so it can be useful
+    to build configuration for programs written in other programming languages.
 
 Now remove the test file and move on to the real world example.
 
@@ -164,7 +167,7 @@ Create ``default.yaml`` with the following content:
             cache: yes
         logging: "error"
 
-Now let's test test:
+Now let's test it:
 
 ..  code-block:: bash
 
@@ -176,7 +179,7 @@ Now let's test test:
     configtree [ERROR]: Undefined required key <frontend.host>: Frontend host name
 
 As you can see, the loader reports error for each key, marked with "!!!".
-If you run loader programmatically, an exception of :class:`configtree.loader.ProcessionError`
+If you run loader programmatically, an exception of :class:`configtree.loader.ProcessingError`
 will be raised.
 
 Move on and see how to override the values in the environment-specific
@@ -237,9 +240,10 @@ Now let's think about development environments.  Our imaginable project
 consists of two parts: API and frontend.  So our imaginable team should
 consist of two sub-teams: API developers and frontend developers.
 
-The frontend team does not care about backend logs, but they want to debug
-logging level of frontend.  They also work on templates, and want to
-switch off caching and switch on reloading options, and so on.
+The frontend team does not care about backend logs, but they want to have debug
+logging level on frontend.  They also work on templates, and want to
+switch off caching and switch on reloading options, and so on.  While the backend
+team needs slightly different configuration.
 
 So let's create a directory for development configuration with three files::
 
@@ -248,7 +252,8 @@ So let's create a directory for development configuration with three files::
         env-api.yaml            # API team development options
         env-frontend.yaml       # Frontend team development options
 
-Test it:
+And play with ``ENV_NAME``.  Here we use ``--verbose`` option of :ref:`ctdump`
+to get list of loaded files:
 
 ..  code-block:: bash
 
@@ -308,5 +313,8 @@ In the result production configuration it will look like this:
 
 Such expressions are calculated after whole configuration has been loaded.
 So you can use values that are defined after the expression, or even defined
-in another file.  See :ref:`updater` and :ref:`postprocessor` sections of
-the manual for details.
+in another file.
+
+You can also use expressions similar to standard Python console.  And even
+add your own syntactic sugar.  See :ref:`updater` and :ref:`postprocessor`
+sections of the manual for details.

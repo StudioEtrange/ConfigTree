@@ -80,25 +80,27 @@ This is how we can get files of different environments:
 
     >>> walk = Walker(env='prod')       # Production configuration
     >>> for path in walk('./configs'): print(path)
-    ./configs/defaults.yaml
-    ./configs/env-prod.yaml
+    /full/path/to/configs/defaults.yaml
+    /full/path/to/configs/env-prod.yaml
 
     >>> walk = Walker(env='dev')        # Default developing configuration
     >>> for path in walk('./configs'): print(path)
-    ./configs/defaults.yaml
-    ./configs/env-dev/defaults.yaml
+    /full/path/to/configs/defaults.yaml
+    /full/path/to/configs/env-dev/defaults.yaml
 
     >>> walk = Walker(env='dev.john')   # John's personal developing configuration
     >>> for path in walk('./configs'): print(path)
-    ./configs/defaults.yaml
-    ./configs/env-dev/defaults.yaml
-    ./configs/env-dev/env-john.yaml
+    /full/path/to/configs/defaults.yaml
+    /full/path/to/configs/env-dev/defaults.yaml
+    /full/path/to/configs/env-dev/env-john.yaml
 
+
+.. _walker-final-files:
 
 Final files
 ~~~~~~~~~~~
 
-If name of file (or directory) starts with ``final`` sting, the file will be
+If name of a file (or directory) starts with ``final`` sting, the file will be
 placed at the end of result list of files.
 
 
@@ -118,7 +120,7 @@ The result list of files is sorted in the following order:
 
 Additionally, files are alphabetically sorted within their groups.
 
-For example::
+For example, we got this configuration directory::
 
     configs/
         defaults.yaml
@@ -143,9 +145,9 @@ returned in the following order::
     defaults.yaml           # Regular file
     common/bar.yaml         # Regular directory.  Regular file bar.yaml goes before foo.yaml,
     common/foo.yaml         # because of alphabetical sort.
-    env-dev.yaml            # Environment specific file
-    env-dev/defaults.yaml   # Regular file from environment specific directory
-    env-dev/env-jane.yaml   # Environment specific file the same directory
+    env-dev.yaml            # Environment file
+    env-dev/defaults.yaml   # Regular file from environment directory
+    env-dev/env-jane.yaml   # Environment file the same directory
     final/bar.yaml          # Regular file from final directory
     final/foo.yaml
     final-bar.yaml          # Final file
@@ -164,8 +166,8 @@ worker passes the file to the next worker.  ``-1`` value means, that the
 file must be skipped.  Other means priority and is used to sort files in
 the result list.
 
-For example, let's add support of initial files as opposite of final ones,
-that should be at the beginning of the result list.  See :ref:`walker-order-of-files` section.
+For example, let's add support of initial files as opposite of :ref:`final ones <walker-final-files>`,
+that should be at the beginning of the result list.
 
 ..  code-block:: python
 
@@ -187,10 +189,11 @@ Source
 
 Loading data from files is done by :mod:`configtree.source` module.  The module
 provides :data:`configtree.source.map` that stores map of file extensions to
-loaders.  The following formats are supported out of the box:
+loaders.  The map is used by :class:`configtree.loader.Loader` to load data
+from files.  The following formats are supported out of the box:
 
 *   YAML with extensions ``.yaml`` and ``.yml`` by :func:`configtree.source.from_yaml`;
-*   JSON with extension ``.json`` by :func:`configtree.source.from_yaml`.
+*   JSON with extension ``.json`` by :func:`configtree.source.from_json`.
 
 The map is filled scanning `entry points`_ ``configtree.source``.  So that it is
 extensible by plugins.  Ad hoc loader can be also defined within :ref:`loaderconf_py`
@@ -234,19 +237,19 @@ Updater
 -------
 
 :class:`configtree.loader.Updater` object is used to put loaded data into
-the result object of :meth:`configtree.loader.Loader.__call__`.  The updater
-responds to adding syntactic sugar into regular the data that come from YAML,
+the result object of :meth:`configtree.loader.Loader.__call__` method.  The updater
+responds for adding syntactic sugar into regular data that come from YAML,
 JSON, and other files.
 
 Updating process can be basically illustrated by the following code:
 
 ..  code-block:: python
 
-    for key, value in flatten(loaded_data.items()):
+    for key, value in loaded_data.items():
         # result_tree[key] = value
 
-        # Instead of simple assignment above, we call updater to it.
-        # So that extending updater, we can change default behavior.
+        # Instead of simple assignment above, we call updater.
+        # So that extending updater, we can change the default behavior.
         updater(result_tree, key, value)
 
 To pass updater into :class:`configtree.loader.Loader` programmatically use:
@@ -295,10 +298,10 @@ Out of the box the updater supports the following:
         y:
             foo: 2
 
-            # Formatting using ``str.format()``
+            # Formatted by ``str.format()``
             bar: "$>> {self[x]} {branch[foo]}"      # bar == '1 2'
 
-            # Formatting using ``%``
+            # Formatted by ``%``
             baz: "%>> %(x)s %(y.foo)s"              # baz == '1 2'
 
 *   Evaluate expressions, see :meth:`configtree.loader.Updater.eval_value`
@@ -339,7 +342,7 @@ Extending updater
 If you want to add some features to the updater, you can subclass it and
 add some additional workers to its pipeline (see :class:`configtree.loader.Pipeline`).
 
-Each worker accepts single argument—::class:`configtree.loader.UpdateAction` object.
+Each worker accepts single argument—:class:`configtree.loader.UpdateAction` object.
 Workers can transform :attr:`configtree.loader.UpdateAction.key`,
 :attr:`configtree.loader.UpdateAction.value`, or
 :attr:`configtree.loader.UpdateAction.update` attributes to change default
@@ -415,7 +418,7 @@ or error message as a string (or as an object that has human readable string rep
 These message will be accumulated and thrown within single :class:`configtree.loader.ProcessingError`
 exception at the end of processing.
 
-For example, let's add validator of port number values.  If ``key`` endswith ``.port``,
+For example, let's add validator of port number values.  If ``key`` ends with ``.port``,
 it must be ``int`` value greater than zero.
 
 ..  code-block:: python
@@ -432,7 +435,7 @@ it must be ``int`` value greater than zero.
                 value = int(value)
             except ValueError:
                 return (
-                    '%s: type ``int`` expected, but %r of type ``%s`` is given'
+                    '%s: type ``int`` is expected, but %r of type ``%s`` is given'
                     % (key, value, type(value).__name__)
                 )
             if value < 0:
@@ -446,7 +449,8 @@ Formatter
 
 Formatting of :class:`configtree.tree.Tree` objects is done by :mod:`configtree.formatter` module.
 The module provides :data:`configtree.formatter.map` that stores map of format names to
-formatters.  The following formats are supported out of the box:
+formatters.  This formatters are used by :ref:`ctdump` to print result.
+The following formats are supported out of the box:
 
 *   JSON with name ``json`` by :func:`configtree.formatter.to_json`;
 *   Shell script (Bash) with name ``shell`` by :func:`configtree.formatter.to_shell`.
@@ -456,7 +460,7 @@ extensible by plugins.  Ad hoc formatter can be also defined within :ref:`loader
 module.  The formatter itself should be a callable object, which accepts single
 argument—:class:`configtree.tree.Tree` object, and returns string.  Optional
 keyword arguments are possible too.  However, if you want to specify
-these arguments via :ref:`ctdump`, you should use decorator :func:`configtree.source.option`.
+these arguments via :ref:`ctdump`, you should use decorator :func:`configtree.formatter.option`.
 
 Example:
 
@@ -518,7 +522,7 @@ You can build only a part of configuration specifying branch:
     ctdump json --path path/to/config/sources --branch app.db > path/to/build/database.json
 
 The special formatter for shell scripts helps to use configuration within Bash scripts.
-For example you want to use database credentials within :
+For example, you want to use database credentials:
 
 ..  code-block::  Bash
 
