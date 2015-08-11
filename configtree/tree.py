@@ -55,12 +55,22 @@ class ITree(MutableMapping):
         pass  # pragma: nocover
 
     def rare_copy(self):
+        """
+        Returns a rarefied copy of the tree.
+
+        ..  code-block:: pycon
+
+            >>> tree = Tree({'x.y.z': 1})
+            >>> tree.rare_copy()
+            {'x': {'y': {'z': 1}}}
+
+        """
         result = {}
         for key, value in self.rare_items():
             if isinstance(value, ITree):
                 value = value.rare_copy()
             result[key] = value
-        return value
+        return result
 
     @abstractmethod
     def branch(self, key):
@@ -390,20 +400,31 @@ def flatten(d):
 
 def rarefy(tree):
     """
-    Converts passed :class:`Tree` object into a nested dictionary.
+    Converts passed flatten mapping object into a nested dictionary.
 
     It works oppositely to :func:`flatten`.
 
     ..  code-block:: pycon
 
-        >>> tree = Tree({'a.b.c' : 1})
-        >>> rarefy(tree)
+        >>> rarefy(Tree({'a.b.c' : 1}))
+        {'a': {'b': {'c': 1}}}
+        >>> rarefy({'a.b.c' : 1})
         {'a': {'b': {'c': 1}}}
 
     """
+    if isinstance(tree, ITree):
+        return tree.rare_copy()
+
     result = {}
-    for key, value in tree.rare_items():
-        if isinstance(value, ITree):
+    for key, value in tree.items():
+        target = result
+        if '.' in key:
+            keyparts = key.split('.')
+            key = keyparts.pop()
+            for keypart in keyparts:
+                target = target.setdefault(keypart, {})
+        if isinstance(value, Mapping):
             value = rarefy(value)
-        result[key] = value
+        target[key] = value
+
     return result

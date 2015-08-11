@@ -153,6 +153,34 @@ def copy_test():
 
 
 @tools.with_setup(full_tree)
+def rare_copy_test():
+    rd = td.rare_copy()
+    tools.eq_(rd, {
+        '1': 1,
+        'a': {
+            '2': 2,
+            'b': {
+                '3': 3,
+                '4': 4,
+                '5': 5,
+                '6': 6,
+            }
+        }
+    })
+
+    rd = td['a'].rare_copy()
+    tools.eq_(rd, {
+        '2': 2,
+        'b': {
+            '3': 3,
+            '4': 4,
+            '5': 5,
+            '6': 6,
+        }
+    })
+
+
+@tools.with_setup(full_tree)
 def pop_test():
     tools.eq_(td.pop('x', 1), 1)
     tools.ok_('x' not in td)
@@ -269,3 +297,6 @@ def flatten_test():
 def rarefy_test():
     rd = rarefy(Tree({'a.b.c': 1, 'x.y.z': 1}))
     tools.eq_(rd, {'a': {'b': {'c': 1}}, 'x': {'y': {'z': 1}}})
+
+    rd = rarefy({'a.b.c': {'x.y.z': 1}})
+    tools.eq_(rd, {'a': {'b': {'c': {'x': {'y': {'z': 1}}}}}})

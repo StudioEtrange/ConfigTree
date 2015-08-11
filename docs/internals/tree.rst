@@ -17,6 +17,7 @@
     ..  automethod:: rare_values
     ..  automethod:: rare_items
     ..  automethod:: copy
+    ..  automethod:: rare_copy
 
 ..  autoclass:: BranchProxy
 
