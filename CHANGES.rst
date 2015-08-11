@@ -4,7 +4,10 @@ Changes
 0.5
 ---
 
-Work in progress
+*   Added abstract base class ``ITree`` to unify type checking;
+*   Fixed ``pop`` method of ``Tree`` and ``BranchProxy``;
+*   Added ``rare_copy`` method into ``Tree`` and ``BranchProxy``;
+*   Unified ``rarefy`` function, it now handles any mapping object.
 
 
 0.4

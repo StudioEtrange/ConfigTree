@@ -4,7 +4,10 @@ Changes
 0.5
 ---
 
-Work in progress
+*   Added abstract base class :class:`configtree.tree.ITree` to unify type checking;
+*   Fixed ``pop`` method of :class:`configtree.tree.Tree` and :class:`configtree.tree.BranchProxy`;
+*   Added ``rare_copy`` method into :class:`configtree.tree.Tree` and :class:`configtree.tree.BranchProxy`;
+*   Unified :func:`configtree.tree.rarefy` function, it now handles any mapping object.
 
 
 0.4
