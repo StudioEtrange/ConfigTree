@@ -1,11 +1,65 @@
+from abc import abstractmethod
 from collections import defaultdict, Mapping, MutableMapping
 from warnings import warn
 
 
-__all__ = ['Tree', 'flatten', 'rarefy']
+__all__ = ['ITree', 'Tree', 'flatten', 'rarefy']
 
 
-class Tree(MutableMapping):
+class ITree(MutableMapping):
+    """
+    Abstract base class for :class:`Tree` and :class:`BranchProxy`.
+
+    Useful for type checking:
+
+    ..  code-block:: pycon
+
+        >>> tree = Tree({'x.y': 1})
+        >>> tree
+        Tree({'x.y': 1})
+        >>> isinstance(tree, ITree)
+        True
+        >>> tree['x']
+        BranchProxy('x'): {'y': 1}
+        >>> isinstance(tree, ITree)
+        True
+
+    """
+
+    @abstractmethod
+    def rare_keys(self):
+        pass  # pragma: nocover
+
+    def rare_values(self):
+        """
+        Returns an iterator over the first level values.
+
+        See :meth:`rare_keys`.
+
+        """
+        for key in self.rare_keys():
+            yield self[key]
+
+    def rare_items(self):
+        """
+        Returns an iterator over the first level items.
+
+        See :meth:`rare_keys`
+
+        """
+        for key in self.rare_keys():
+            yield key, self[key]
+
+    @abstractmethod
+    def copy(self):
+        pass  # pragma: nocover
+
+    @abstractmethod
+    def branch(self, key):
+        pass  # pragma: nocover
+
+
+class Tree(ITree):
     """
     Tree is a dictionary like object, which supports nested keys.
 
@@ -157,26 +211,6 @@ class Tree(MutableMapping):
             if '.' not in key and key not in self._branches:
                 yield key
 
-    def rare_values(self):
-        """
-        Returns an iterator over the first level values.
-
-        See :meth:`Tree.rare_keys`.
-
-        """
-        for key in self.rare_keys():
-            yield self[key]
-
-    def rare_items(self):
-        """
-        Returns an iterator over the first level items.
-
-        See :meth:`Tree.rare_keys`.
-
-        """
-        for key in self.rare_keys():
-            yield key, self[key]
-
     def branch(self, key):
         """ Returns a :class:`BranchProxy` object for specified ``key`` """
         return BranchProxy(key, self)
@@ -189,7 +223,7 @@ class Tree(MutableMapping):
         return self.__class__(self)
 
 
-class BranchProxy(MutableMapping):
+class BranchProxy(ITree):
     """
     Branch Proxy is a helper object.  This kind of object
     is created on demand when you expose an intermediate key of
@@ -263,26 +297,6 @@ class BranchProxy(MutableMapping):
             if '.' not in key:
                 yield key
 
-    def rare_values(self):
-        """
-        Returns an iterator over the first level values.
-
-        See :meth:`BranchProxy.rare_keys`.
-
-        """
-        for key in self.rare_keys():
-            yield self[key]
-
-    def rare_items(self):
-        """
-        Returns an iterator over the first level items.
-
-        See :meth:`BranchProxy.rare_keys`.
-
-        """
-        for key in self.rare_keys():
-            yield key, self[key]
-
     def branch(self, key):
         """ Returns a :class:`BranchProxy` object for specified ``key`` """
         return self._owner.branch(self._itemkey(key))
@@ -346,7 +360,7 @@ def rarefy(tree):
     """
     result = {}
     for key, value in tree.rare_items():
-        if isinstance(value, (Tree, BranchProxy)):
+        if isinstance(value, ITree):
             value = rarefy(value)
         result[key] = value
     return result

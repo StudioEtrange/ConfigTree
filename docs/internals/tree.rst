@@ -3,6 +3,8 @@
 
 ..  automodule:: configtree.tree
 
+..  autoclass:: ITree
+
 ..  autoclass:: Tree
 
     The tree object provides complete :class:`collections.abc.MutableMapping`

@@ -1,6 +1,6 @@
 import logging
 
-from .tree import Tree, flatten, rarefy
+from .tree import ITree, Tree, flatten, rarefy
 from .loader import (
     Loader, Walker, Updater, PostProcessor, Pipeline,
     load, loaderconf, make_walk, make_update,
@@ -8,7 +8,7 @@ from .loader import (
 
 
 __all__ = [
-    'Tree', 'flatten', 'rarefy',
+    'ITree', 'Tree', 'flatten', 'rarefy',
     'Loader', 'Walker', 'Updater', 'PostProcessor', 'Pipeline',
     'load', 'loaderconf', 'make_walk', 'make_update',
 ]
