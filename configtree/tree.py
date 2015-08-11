@@ -54,9 +54,20 @@ class ITree(MutableMapping):
     def copy(self):
         pass  # pragma: nocover
 
+    def rare_copy(self):
+        result = {}
+        for key, value in self.rare_items():
+            if isinstance(value, ITree):
+                value = value.rare_copy()
+            result[key] = value
+        return value
+
     @abstractmethod
     def branch(self, key):
         pass  # pragma: nocover
+
+
+_void = object()
 
 
 class Tree(ITree):
@@ -222,6 +233,27 @@ class Tree(ITree):
         """
         return self.__class__(self)
 
+    def pop(self, key, default=_void):
+        """
+        Removes specified key and returns the corresponding value.
+        If key is not found, ``default`` is returned if given,
+        otherwise KeyError is raised.
+
+        If extracted value is a branch, it will be converted to :class:`Tree`.
+
+        """
+        try:
+            value = self[key]
+        except KeyError:
+            if default is _void:
+                raise
+            return default
+        else:
+            if isinstance(value, BranchProxy):
+                value = value.copy()
+            del self[key]
+            return value
+
 
 class BranchProxy(ITree):
     """
@@ -319,6 +351,17 @@ class BranchProxy(ITree):
 
         """
         return self._owner.__class__(self)
+
+    def pop(self, key, default=_void):
+        """
+        Removes specified key and returns the corresponding value.
+        If key is not found, ``default`` is returned if given,
+        otherwise KeyError is raised.
+
+        If extracted value is a branch, it will be converted to :class:`Tree`.
+
+        """
+        return self._owner.pop(self._itemkey(key), default)
 
 
 def flatten(d):

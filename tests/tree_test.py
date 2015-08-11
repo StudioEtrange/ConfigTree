@@ -152,6 +152,33 @@ def copy_test():
     tools.ok_(isinstance(new_td, Tree))
 
 
+@tools.with_setup(full_tree)
+def pop_test():
+    tools.eq_(td.pop('x', 1), 1)
+    tools.ok_('x' not in td)
+    tools.eq_(td.pop('a.2'), 2)
+    tools.ok_('a.2' not in td)
+
+    a = td.pop('a')
+    tools.ok_('a' not in td)
+    tools.ok_(isinstance(a, Tree))
+    tools.eq_(a, {'b.3': 3, 'b.4': 4, 'b.5': 5, 'b.6': 6})
+
+
+@tools.with_setup(full_tree)
+def branch_pop_test():
+    b = td['a'].pop('b')
+    tools.ok_('a.b' not in td)
+    tools.ok_(isinstance(b, Tree))
+    tools.eq_(b, {'3': 3, '4': 4, '5': 5, '6': 6})
+
+
+@tools.raises(KeyError)
+@tools.with_setup(empty_tree)
+def pop_key_error_test():
+    td.pop('x')
+
+
 @tools.with_setup(empty_tree)
 def override_branch_test():
     td['x.y.1'] = 1
