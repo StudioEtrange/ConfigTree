@@ -27,7 +27,7 @@ class Loader(object):
         self.walk = walk or Walker()
         self.update = update or Updater()
         self.postprocess = postprocess or PostProcessor()
-        self.tree = tree or Tree()
+        self.tree = tree if tree is not None else Tree()
 
     @classmethod
     def fromconf(cls, path):
