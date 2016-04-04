@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.5.1
+-----
+
+*   Fixed bugs in ``Loader`` class.
+
+
 0.5
 ---
 
