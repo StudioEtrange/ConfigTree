@@ -304,9 +304,9 @@ In the result production configuration it will look like this:
     {
         "api": {
             "endpoints": {
-                index: "http://api.example.com:80",
-                login: "http://api.example.com:80/login",
-                logout: "http://api.example.com:80/logout"
+                "index": "http://api.example.com:80",
+                "login": "http://api.example.com:80/login",
+                "logout": "http://api.example.com:80/logout"
             }
         }
     }
