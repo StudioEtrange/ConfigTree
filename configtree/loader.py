@@ -44,7 +44,13 @@ class Loader(object):
         try:
             import loaderconf
             conf = loaderconf.__dict__
-        except ImportError:
+        except ImportError as e:
+            # Get module name from exception meessage:
+            #   Python 2.x "No module named module_name"
+            #   Python 3.x "No module named 'module_name'"
+            module_name = str(e).split()[-1].strip("'")
+            if module_name != 'loaderconf':
+                raise
             conf = {}
         keys = ('walk', 'update', 'postprocess', 'tree')
         conf = dict((k, v) for k, v in conf.items() if k in keys)
@@ -1060,7 +1066,13 @@ def loaderconf(path):
     try:
         import loaderconf
         conf = loaderconf.__dict__
-    except ImportError:
+    except ImportError as e:
+        # Get module name from exception meessage:
+        #   Python 2.x "No module named module_name"
+        #   Python 3.x "No module named 'module_name'"
+        module_name = str(e).split()[-1].strip("'")
+        if module_name != 'loaderconf':
+            raise
         conf = {}
     keys = ('walk', 'update', 'postprocess', 'tree')
     return dict((k, v) for k, v in conf.items() if k in keys)

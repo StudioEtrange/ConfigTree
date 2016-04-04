@@ -24,10 +24,9 @@ data_dir = os.path.join(data_dir, 'data', 'loader')
 
 
 def teardown_func():
-    try:
-        sys.path.remove(data_dir)
-    except ValueError:
-        pass
+    for path in sys.path[:]:
+        if path.startswith(data_dir):
+            sys.path.remove(path)
     try:
         del sys.modules['loaderconf']
     except KeyError:
@@ -80,17 +79,26 @@ def loader_test():
 
 @tools.with_setup(teardown=teardown_func)
 def loader_fromconf_test():
+    load = Loader.fromconf(data_dir)
+    tools.eq_(load.walk, 'walk')
+    tools.eq_(load.update, 'update')
+    tools.eq_(load.postprocess, 'postprocess')
+    tools.eq_(load.tree, 'tree')
+
+
+@tools.with_setup(teardown=teardown_func)
+def loader_fromconf_no_loaderconf_test():
     load = Loader.fromconf(os.path.dirname(data_dir))
     tools.ok_(isinstance(load.walk, Walker))
     tools.ok_(isinstance(load.update, Updater))
     tools.ok_(isinstance(load.postprocess, PostProcessor))
     tools.ok_(isinstance(load.tree, Tree))
 
-    load = Loader.fromconf(data_dir)
-    tools.eq_(load.walk, 'walk')
-    tools.eq_(load.update, 'update')
-    tools.eq_(load.postprocess, 'postprocess')
-    tools.eq_(load.tree, 'tree')
+
+@tools.raises(ImportError)
+@tools.with_setup(teardown=teardown_func)
+def loader_fromconf_import_error_test():
+    Loader.fromconf(os.path.join(data_dir, 'bad_loaderconf'))
 
 
 def pipeline_test():
@@ -520,9 +528,6 @@ def postprocess_test():
 
 @tools.with_setup(teardown=teardown_func)
 def loader_conf_test():
-    conf = loaderconf(os.path.dirname(data_dir))
-    tools.eq_(conf, {})
-
     conf = loaderconf(data_dir)
     tools.eq_(conf, {
         'walk': 'walk',
@@ -530,3 +535,15 @@ def loader_conf_test():
         'postprocess': 'postprocess',
         'tree': 'tree',
     })
+
+
+@tools.with_setup(teardown=teardown_func)
+def loader_conf_no_loaderconf_test():
+    conf = loaderconf(os.path.dirname(data_dir))
+    tools.eq_(conf, {})
+
+
+@tools.raises(ImportError)
+@tools.with_setup(teardown=teardown_func)
+def loader_conf_import_error_test():
+    loaderconf(os.path.join(data_dir, 'bad_loaderconf'))
