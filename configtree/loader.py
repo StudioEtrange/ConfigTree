@@ -60,7 +60,7 @@ class Loader(object):
         """
         Loads configuration
 
-        :param str path: Path to ``loaderconf`` module.
+        :param str path: Path to a directory that contains configuration files.
         :returns: Result tree object
         :rtype: Tree
 
