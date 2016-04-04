@@ -201,6 +201,16 @@ def updater_set_default_test():
     tools.eq_(tree, {'foo': 'bar', 'bar': 'baz'})
 
 
+def loader_set_default_tree_test():
+    tree = Tree({'foo': 'bar'})
+    load = Loader(tree=tree)
+    tools.eq_(id(load.tree), id(tree))
+
+    tree = Tree()
+    load = Loader(tree=tree)
+    tools.eq_(id(load.tree), id(tree))
+
+
 def updater_call_method_test():
     tree = Tree({'foo': []})
     update = Updater()
