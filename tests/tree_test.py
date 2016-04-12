@@ -123,13 +123,22 @@ def iter_and_keys_test():
 
 @tools.with_setup(full_tree)
 def rare_iterators_test():
-    tools.eq_(list(td.rare_keys()), ['a', '1'])
-    tools.eq_(list(td.rare_values()), [td['a'], 1])
-    tools.eq_(list(td.rare_items()), [('a', td['a']), ('1', 1)])
+    def key(v):
+        return str(v)
 
-    tools.eq_(list(td['a'].rare_keys()), ['b', '2'])
-    tools.eq_(list(td['a'].rare_values()), [td['a.b'], 2])
-    tools.eq_(list(td['a'].rare_items()), [('b', td['a.b']), ('2', 2)])
+    tools.eq_(sorted(list(td.rare_keys())), ['1', 'a'])
+    tools.eq_(sorted(list(td.rare_values()), key=key), [1, td['a']])
+    tools.eq_(
+        sorted(list(td.rare_items()), key=key),
+        [('1', 1), ('a', td['a'])],
+    )
+
+    tools.eq_(sorted(list(td['a'].rare_keys())), ['2', 'b'])
+    tools.eq_(sorted(list(td['a'].rare_values()), key=key), [2, td['a.b']])
+    tools.eq_(
+        sorted(list(td['a'].rare_items()), key=key),
+        [('2', 2), ('b', td['a.b'])],
+    )
 
 
 @tools.with_setup(empty_tree)

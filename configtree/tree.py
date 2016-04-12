@@ -26,9 +26,28 @@ class ITree(MutableMapping):
 
     """
 
-    @abstractmethod
+    _key_sep = '.'
+
     def rare_keys(self):
-        pass  # pragma: nocover
+        """
+        Returns an iterator over the first level keys.
+
+        ..  code-block:: pycon
+
+            >>> tree = Tree({'a.b.c': 1, 'k': 2, 'x.y.z': 3})
+            >>> sorted(list(tree.rare_keys())) == ['a', 'k', 'x']
+            True
+
+        """
+        branches = set()
+        for key in self.keys():
+            if self._key_sep not in key:
+                yield key
+                continue
+            key = key.split(self._key_sep, 1)[0]
+            if key not in branches:
+                yield key
+                branches.add(key)
 
     def rare_values(self):
         """
@@ -65,12 +84,7 @@ class ITree(MutableMapping):
             {'x': {'y': {'z': 1}}}
 
         """
-        result = {}
-        for key, value in self.rare_items():
-            if isinstance(value, ITree):
-                value = value.rare_copy()
-            result[key] = value
-        return result
+        return rarefy(self)
 
     @abstractmethod
     def branch(self, key):
@@ -160,8 +174,6 @@ class Tree(ITree):
 
     """
 
-    _key_sep = '.'
-
     def __init__(self, data=None):
         self._branches = defaultdict(set)
         self._items = {}
@@ -213,24 +225,6 @@ class Tree(ITree):
 
     def __repr__(self):
         return '{0}({1!r})'.format(self.__class__.__name__, self._items)
-
-    def rare_keys(self):
-        """
-        Returns an iterator over the first level keys.
-
-        ..  code-block:: pycon
-
-            >>> tree = Tree({'a.b.c': 1, 'k': 2, 'x.y.z': 3})
-            >>> sorted(list(tree.rare_keys())) == ['a', 'k', 'x']
-            True
-
-        """
-        for key in self._branches:
-            if '.' not in key:
-                yield key
-        for key in self._items:
-            if '.' not in key and key not in self._branches:
-                yield key
 
     def branch(self, key):
         """ Returns a :class:`BranchProxy` object for specified ``key`` """
@@ -318,27 +312,6 @@ class BranchProxy(ITree):
             dict(self),
         )
 
-    def rare_keys(self):
-        """
-        Returns an iterator over the first level keys.
-
-        ..  code-block:: pycon
-
-            >>> tree = Tree({'x.a.b': 1, 'x.k': 2, 'x.y.z': 3})
-            >>> sorted(list(tree['x'].rare_keys())) == ['a', 'k', 'y']
-            True
-
-        """
-        for key in self._owner._branches:
-            if not key.startswith(self._key) or key == self._key:
-                continue
-            key = key[len(self._key) + 1:]
-            if '.' not in key:
-                yield key
-        for key in self._owner._branches[self._key]:
-            if '.' not in key:
-                yield key
-
     def branch(self, key):
         """ Returns a :class:`BranchProxy` object for specified ``key`` """
         return self._owner.branch(self._itemkey(key))
@@ -412,9 +385,6 @@ def rarefy(tree):
         {'a': {'b': {'c': 1}}}
 
     """
-    if isinstance(tree, ITree):
-        return tree.rare_copy()
-
     result = {}
     for key, value in tree.items():
         target = result
