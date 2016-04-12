@@ -11,7 +11,7 @@ with open(path.join(path.dirname(__file__), 'CHANGES.rst')) as f:
 
 setup(
     name='ConfigTree',
-    version='0.5.1',
+    version='0.5.2',
     description='Is a configuration management tool',
     long_description=readme,
     classifiers=[

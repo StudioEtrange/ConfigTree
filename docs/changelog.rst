@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.5.2
+-----
+
+*   Fixed bugs in :meth:`configtree.tree.Tree.rare_copy`
+    and :meth:`configtree.tree.Tree.rare_keys` methods.
+
 
 0.5.1
 -----

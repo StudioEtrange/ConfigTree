@@ -1,6 +1,11 @@
 Changes
 =======
 
+0.5.2
+-----
+
+*   Fixed bugs in ``ITree.rare_copy`` and ``ITree.rare_keys`` methods.
+
 0.5.1
 -----
 
