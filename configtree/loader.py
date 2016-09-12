@@ -313,9 +313,10 @@ class Walker(Pipeline):
         if not fileobj.name.startswith('env-'):
             return None
         env = fileobj.cleanname.split('-', 1)[1]
-        if not fileobj.params.get('env', '').startswith(env):
+        effective_env = fileobj.params.get('env', '')
+        if effective_env != env and not effective_env.startswith(env + '.'):
             return -1
-        fileobj.params['env'] = fileobj.params['env'][len(env) + 1:]
+        fileobj.params['env'] = effective_env[len(env) + 1:]
         return 51 if fileobj.isdir else 50
 
     @Pipeline.worker(1000)

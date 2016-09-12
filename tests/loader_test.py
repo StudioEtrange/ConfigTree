@@ -174,6 +174,19 @@ def walker_test():
         'final-common.yaml',
     ])
 
+    walk = Walker(env='xx')
+    files = [os.path.relpath(f, data_dir) for f in walk(data_dir)]
+    tools.eq_(files, [
+        os.path.join('default', 'a.json'),
+        os.path.join('default', 'b.yaml'),
+        os.path.join('default', 'empty.yaml'),
+        os.path.join('default', 'subsystem', 'a.yaml'),
+        os.path.join('default', 'subsystem', 'b.yaml'),
+        'env-xx.yaml',
+        os.path.join('final-common', 'c.yaml'),
+        'final-common.yaml',
+    ])
+
 
 def file_test():
     f = File(data_dir, 'default', {})
