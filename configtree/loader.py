@@ -291,9 +291,9 @@ class Walker(Pipeline):
         :returns: * ``-1`` when the file is environment specific,
                     but environment name is not match;
                   * ``50`` when the file is environment specific
-                    ant it is regular file;
+                    and it is regular file;
                   * ``51`` when the file is environment specific
-                    ant it is directory;
+                    and it is directory;
                   * ``None`` when the file is not environment specific one.
 
         ..  attribute:: __priority__ = 50
