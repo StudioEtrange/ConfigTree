@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.5.3
+-----
+
+*   Fixed bug in :meth:`configtree.loader.Walker.environment` method.
+
+
 0.5.2
 -----
 

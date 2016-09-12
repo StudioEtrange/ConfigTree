@@ -1,6 +1,11 @@
 Changes
 =======
 
+0.5.3
+-----
+
+*   Fixed bug in ``Walker.environment`` method.
+
 0.5.2
 -----
 
