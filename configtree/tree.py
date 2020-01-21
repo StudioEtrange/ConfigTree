@@ -3,7 +3,7 @@ from collections import defaultdict, Mapping, MutableMapping
 from warnings import warn
 
 
-__all__ = ['ITree', 'Tree', 'flatten', 'rarefy']
+__all__ = ["ITree", "Tree", "flatten", "rarefy"]
 
 
 class ITree(MutableMapping):
@@ -26,7 +26,7 @@ class ITree(MutableMapping):
 
     """
 
-    _key_sep = '.'
+    _key_sep = "."
 
     def rare_keys(self):
         """
@@ -224,7 +224,7 @@ class Tree(ITree):
         return len(self._items)
 
     def __repr__(self):
-        return '{0}({1!r})'.format(self.__class__.__name__, self._items)
+        return "{0}({1!r})".format(self.__class__.__name__, self._items)
 
     def branch(self, key):
         """ Returns a :class:`BranchProxy` object for specified ``key`` """
@@ -306,10 +306,8 @@ class BranchProxy(ITree):
         return len(self.keys())
 
     def __repr__(self):
-        return '{0}({1!r}): {2!r}'.format(
-            self.__class__.__name__,
-            self._key,
-            dict(self),
+        return "{0}({1!r}): {2!r}".format(
+            self.__class__.__name__, self._key, dict(self)
         )
 
     def branch(self, key):
@@ -322,7 +320,7 @@ class BranchProxy(ITree):
 
         """
         warn(
-            'Method ``as_tree`` is deprected in favor of ``copy`` one',
+            "Method ``as_tree`` is deprected in favor of ``copy`` one",
             DeprecationWarning,
         )
         return self.copy()
@@ -366,7 +364,7 @@ def flatten(d):
     for key, value in d.items():
         if isinstance(value, Mapping):
             for subkey, subvalue in flatten(value):
-                yield '{0}.{1}'.format(key, subkey), subvalue
+                yield "{0}.{1}".format(key, subkey), subvalue
         else:
             yield str(key), value
 
@@ -388,8 +386,8 @@ def rarefy(tree):
     result = {}
     for key, value in tree.items():
         target = result
-        if '.' in key:
-            keyparts = key.split('.')
+        if "." in key:
+            keyparts = key.split(".")
             key = keyparts.pop()
             for keypart in keyparts:
                 target = target.setdefault(keypart, {})

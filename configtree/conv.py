@@ -19,7 +19,7 @@ from .tree import rarefy
 from .compat import unicode
 
 
-__all__ = ['map']
+__all__ = ["map"]
 
 
 def to_json(tree):
@@ -79,13 +79,13 @@ def to_shell(tree):
     for key in sorted(tree.keys()):
         value = tree[key]
         if value is None:
-            value = ''
+            value = ""
         value = unicode(value).replace("'", "\\'")
-        key = key.replace(tree._key_sep, '_').upper()
+        key = key.replace(tree._key_sep, "_").upper()
         result.append("{0}='{1}'".format(key, value))
     return linesep.join(result)
 
 
 map = {}
-for entry_point in iter_entry_points('configtree.conv'):
+for entry_point in iter_entry_points("configtree.conv"):
     map[entry_point.name] = entry_point.load()

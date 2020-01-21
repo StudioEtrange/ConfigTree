@@ -29,7 +29,7 @@ def ctdump(argv=None, stdout=None, stderr=None):
     # Import itself will be done by :meth:`Loader.fromconf`.
     default_path = os.getcwd()
     path_parser = argparse.ArgumentParser(add_help=False)
-    path_parser.add_argument('-p', '--path', default=default_path)
+    path_parser.add_argument("-p", "--path", default=default_path)
     args, _ = path_parser.parse_known_args(argv)
 
     loader_error = None
@@ -38,13 +38,14 @@ def ctdump(argv=None, stdout=None, stderr=None):
     except Exception as e:
         # We should not crash here, because a user might ask to print help
         # or version number.
-        logger.error('Failed to create loader.  Check your loaderconf.py')
+        logger.error("Failed to create loader.  Check your loaderconf.py")
         loader_error = e
 
     # Now we create main argument parser, that parses all passed arguments
     # and generates help message.
     parser = argparse.ArgumentParser(
-        description=textwrap.dedent("""
+        description=textwrap.dedent(
+            """
         dump configuration tree using specified format
 
           Configuration tree is loaded from current directory or
@@ -56,13 +57,14 @@ def ctdump(argv=None, stdout=None, stderr=None):
 
           If branch <key> is specified, only the branch of tree will be dumped.
 
-        """),
+        """
+        ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        add_help=False
+        add_help=False,
     )
     # Standard auto-generated usage is a bit messy, so we build our own.
-    parser.usage = ''
-    prog = '\n  %(prog)s'
+    parser.usage = ""
+    prog = "\n  %(prog)s"
 
     def format_usage(option_group):
         f = parser._get_formatter()
@@ -70,116 +72,111 @@ def ctdump(argv=None, stdout=None, stderr=None):
 
     # Add common arguments and options
     formats = sorted(formatter.map.keys())
-    required_options = parser.add_argument_group(title='required arguments')
+    required_options = parser.add_argument_group(title="required arguments")
     required_options.add_argument(
-        'format', metavar='<format>', choices=formats,
-        help='output format: %(choices)s',
+        "format", metavar="<format>", choices=formats, help="output format: %(choices)s"
     )
 
-    common_options = parser.add_argument_group(title='common options')
+    common_options = parser.add_argument_group(title="common options")
     common_options.add_argument(
-        '-b', '--branch', metavar='<key>',
-        help='branch of tree to be dumped'
+        "-b", "--branch", metavar="<key>", help="branch of tree to be dumped"
     )
     common_options.add_argument(
-        '-p', '--path', default=default_path, metavar='<path>',
-        help='path to configuration tree'
+        "-p",
+        "--path",
+        default=default_path,
+        metavar="<path>",
+        help="path to configuration tree",
     )
     common_options.add_argument(
-        '-v', '--verbose', action='store_true',
-        help='print debug output'
+        "-v", "--verbose", action="store_true", help="print debug output"
     )
 
-    parser.usage += '{} {} {} <formatter options>'.format(
-        prog,
-        format_usage(required_options),
-        format_usage(common_options),
+    parser.usage += "{} {} {} <formatter options>".format(
+        prog, format_usage(required_options), format_usage(common_options)
     )
 
     # Add formatter specific options that might be defined within
     # ``__options__`` attribute of formatter function.
     formatter_options = {}
     for name in formats:
-        parser.usage += '{} {} <common options>'.format(prog, name)
-        if hasattr(formatter.map[name], '__options__'):
+        parser.usage += "{} {} <common options>".format(prog, name)
+        if hasattr(formatter.map[name], "__options__"):
             formatter_options[name] = parser.add_argument_group(
-                '%s formatter options' % name
+                "%s formatter options" % name
             )
             for option, params in formatter.map[name].__options__:
                 # Option name is prefixed by formatter name
-                option = '--{}-{}'.format(name, option.replace('_', '-'))
+                option = "--{}-{}".format(name, option.replace("_", "-"))
                 formatter_options[name].add_argument(option, **params)
-            parser.usage += ' ' + format_usage(formatter_options[name])
+            parser.usage += " " + format_usage(formatter_options[name])
 
     # Add options for getting help and version
-    info_options = parser.add_argument_group(title='getting info')
+    info_options = parser.add_argument_group(title="getting info")
     info_options.add_argument(
-        '-h', '--help', action='help',
-        help='show this help message and exit'
+        "-h", "--help", action="help", help="show this help message and exit"
     )
     from . import __version__
-    info_options.add_argument(
-        '--version', action='version', version=__version__
-    )
-    parser.usage += '{} --help'.format(prog)
-    parser.usage += '{} --version'.format(prog)
+
+    info_options.add_argument("--version", action="version", version=__version__)
+    parser.usage += "{} --help".format(prog)
+    parser.usage += "{} --version".format(prog)
 
     # Parse arguments and load tree
     args = vars(parser.parse_args(argv))
 
     if loader_error:
         raise loader_error
-    if args['verbose']:
+    if args["verbose"]:
         logger.setLevel(logging.INFO)
 
-    logger.info('Loading tree')
+    logger.info("Loading tree")
     try:
-        tree = load(args['path'])
+        tree = load(args["path"])
     except ProcessingError as e:
         for error in e.args:
-            logger.error('%s', error)
+            logger.error("%s", error)
         return 1
     except Exception as e:
-        if (e.args and isinstance(e.args[-1], UpdateAction)):
-            logger.error('%s: %r', e.__class__.__name__, e.args)
+        if e.args and isinstance(e.args[-1], UpdateAction):
+            logger.error("%s: %r", e.__class__.__name__, e.args)
             return 1
-        raise                                   # pragma: no cover
-    if args['branch'] is not None:
+        raise  # pragma: no cover
+    if args["branch"] is not None:
         try:
-            tree = tree[args['branch']]
+            tree = tree[args["branch"]]
         except KeyError:
-            logger.error('Branch <%s> does not exist', args['branch'])
+            logger.error("Branch <%s> does not exist", args["branch"])
             return 1
 
     # Extract formatter specific arguments from parsed ones
     formatter_args = {}
-    if args['format'] in formatter_options:
-        prefix_len = len(args['format']) + 1
+    if args["format"] in formatter_options:
+        prefix_len = len(args["format"]) + 1
         formatter_args = dict(
             # Strip formatter name prefix from argument name
             (option.dest[prefix_len:], args[option.dest])
-            for option in formatter_options[args['format']]._group_actions
+            for option in formatter_options[args["format"]]._group_actions
         )
 
     # Format tree and print result
-    logger.info('Formatting result')
-    result = formatter.map[args['format']](tree, **formatter_args)
+    logger.info("Formatting result")
+    result = formatter.map[args["format"]](tree, **formatter_args)
     print(result, file=stdout)
 
 
-def setup_logger(stderr=None):      # pragma: no cover
+def setup_logger(stderr=None):  # pragma: no cover
     """
     Helper function that sets up a logger for :func:`ctdump` and :func:`main`
 
     """
     from . import logger
+
     if stderr is False:
         return logger
 
     handler = logging.StreamHandler(stderr)
-    handler.setFormatter(
-        logging.Formatter('%(name)s [%(levelname)s]: %(message)s')
-    )
+    handler.setFormatter(logging.Formatter("%(name)s [%(levelname)s]: %(message)s"))
     logger.addHandler(handler)
     logger.setLevel(logging.WARNING)
 
@@ -205,30 +202,33 @@ def main(argv=None, stdout=None, stderr=None):
 
     """
     logger = setup_logger(stderr)
-    logger.warning(
-        '``configtree`` command is deprecated in favor of ``ctdump``'
-    )
+    logger.warning("``configtree`` command is deprecated in favor of ``ctdump``")
 
     argv = argv or sys.argv[1:]
     stdout = stdout or sys.stdout
-    formats = '|'.join(sorted(conv.map.keys()))
+    formats = "|".join(sorted(conv.map.keys()))
 
-    parser = argparse.ArgumentParser(
-        description='Load and convert configuration tree'
-    )
+    parser = argparse.ArgumentParser(description="Load and convert configuration tree")
     parser.add_argument(
-        'path', nargs='?', default=os.getcwd(),
-        help='path to configuration tree (default: current directory)'
+        "path",
+        nargs="?",
+        default=os.getcwd(),
+        help="path to configuration tree (default: current directory)",
     )
     parser.add_argument(
         # Do not use ``choices`` to be able to use converters
         # defined within ``loaderconf.py``
-        '-f', '--format', default='json', required=False,
-        help='output format [%s] (default: json)' % formats
+        "-f",
+        "--format",
+        default="json",
+        required=False,
+        help="output format [%s] (default: json)" % formats,
     )
     parser.add_argument(
-        '-b', '--branch', required=False,
-        help='branch of tree, which should be converted'
+        "-b",
+        "--branch",
+        required=False,
+        help="branch of tree, which should be converted",
     )
     args = parser.parse_args(argv)
 

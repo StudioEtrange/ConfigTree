@@ -43,16 +43,17 @@ class Loader(object):
             sys.path.append(path)
         try:
             import loaderconf
+
             conf = loaderconf.__dict__
         except ImportError as e:
             # Get module name from exception meessage:
             #   Python 2.x "No module named module_name"
             #   Python 3.x "No module named 'module_name'"
             module_name = str(e).split()[-1].strip("'")
-            if module_name != 'loaderconf':
+            if module_name != "loaderconf":
                 raise
             conf = {}
-        keys = ('walk', 'update', 'postprocess', 'tree')
+        keys = ("walk", "update", "postprocess", "tree")
         conf = dict((k, v) for k, v in conf.items() if k in keys)
         return cls(**conf)
 
@@ -66,6 +67,7 @@ class Loader(object):
 
         """
         from . import logger
+
         logger.info('Walking over "%s"', path)
         for f in self.walk(path):
             relpath = os.path.relpath(f, path)
@@ -77,7 +79,7 @@ class Loader(object):
                     continue
                 for key, value in flatten(data):
                     self.update(self.tree, key, value, f)
-        logger.info('Post-processing')
+        logger.info("Post-processing")
         self.postprocess(self.tree)
         return self.tree
 
@@ -103,10 +105,10 @@ class Pipeline(object):
     def __pipeline__(self):
         pipeline = []
         for worker in dir(self):
-            if worker.startswith('_'):
+            if worker.startswith("_"):
                 continue
             worker = getattr(self, worker)
-            if not getattr(worker, '__worker__', False):
+            if not getattr(worker, "__worker__", False):
                 continue
             pipeline.append(worker)
         pipeline.sort(key=lambda worker: worker.__priority__)
@@ -177,11 +179,7 @@ class Walker(Pipeline):
         :param str path: Path to walk over
 
         """
-        fileobj = File(
-            os.path.dirname(path),
-            os.path.basename(path),
-            self.params,
-        )
+        fileobj = File(os.path.dirname(path), os.path.basename(path), self.params)
         for f in self.walk(fileobj):
             yield f.fullpath
 
@@ -241,7 +239,7 @@ class Walker(Pipeline):
             other.yaml          # returns None
 
         """
-        if fileobj.name.startswith('_') or fileobj.name.startswith('.'):
+        if fileobj.name.startswith("_") or fileobj.name.startswith("."):
             return -1
         if fileobj.isfile and fileobj.ext not in source.map:
             return -1
@@ -271,7 +269,7 @@ class Walker(Pipeline):
             other.yaml       # returns None
 
         """
-        if not fileobj.name.startswith('final'):
+        if not fileobj.name.startswith("final"):
             return None
         return 100 if fileobj.isdir else 101
 
@@ -310,13 +308,13 @@ class Walker(Pipeline):
                 other.yaml    # returns None
 
         """
-        if not fileobj.name.startswith('env-'):
+        if not fileobj.name.startswith("env-"):
             return None
-        env = fileobj.cleanname.split('-', 1)[1]
-        effective_env = fileobj.params.get('env', '')
-        if effective_env != env and not effective_env.startswith(env + '.'):
+        env = fileobj.cleanname.split("-", 1)[1]
+        effective_env = fileobj.params.get("env", "")
+        if effective_env != env and not effective_env.startswith(env + "."):
             return -1
-        fileobj.params['env'] = effective_env[len(env) + 1:]
+        fileobj.params["env"] = effective_env[len(env) + 1 :]  # noqa
         return 51 if fileobj.isdir else 50
 
     @Pipeline.worker(1000)
@@ -484,7 +482,7 @@ class Updater(Pipeline):
 
 
         """
-        if not action.key.endswith('?'):
+        if not action.key.endswith("?"):
             return
         action.key = action.key[:-1]
 
@@ -521,14 +519,13 @@ class Updater(Pipeline):
                 foo#extend: [3, 4]               # foo == [1, 2, 3, 4]
 
         """
-        if '#' not in action.key:
+        if "#" not in action.key:
             return
-        action.key, method = action.key.split('#')
+        action.key, method = action.key.split("#")
 
         def update(action):
             old_value = action.tree[action.key]
-            if isinstance(old_value, Promise) or \
-               isinstance(action.value, Promise):
+            if isinstance(old_value, Promise) or isinstance(action.value, Promise):
 
                 def deferred():
                     new_value = Promise.resolve(old_value)
@@ -568,8 +565,7 @@ class Updater(Pipeline):
                        # == "a = 'foo', b.x = 'bar'"
 
         """
-        if not isinstance(action.value, string) or \
-           not action.value.startswith('$>> '):
+        if not isinstance(action.value, string) or not action.value.startswith("$>> "):
             return
         value = action.value[4:]
         action.value = action.promise(
@@ -603,8 +599,7 @@ class Updater(Pipeline):
                 hello: "%>> Hello %(name)s"     # == "Hello World"
 
         """
-        if not isinstance(action.value, string) or \
-           not action.value.startswith('%>> '):
+        if not isinstance(action.value, string) or not action.value.startswith("%>> "):
             return
         value = action.value[4:]
         action.value = action.promise(
@@ -645,19 +640,18 @@ class Updater(Pipeline):
                     z: ">>> floor(3.0 / 2)"            # == 1
 
         """
-        if not isinstance(action.value, string) or \
-           not action.value.startswith('>>> '):
+        if not isinstance(action.value, string) or not action.value.startswith(">>> "):
             return
         value = action.value[4:]
-        namespace = self.params.get('namespace', {})
+        namespace = self.params.get("namespace", {})
         action.value = action.promise(
             lambda: eval(
                 value,
                 namespace,
                 {
-                    'self': ResolverProxy(action.tree, action.source),
-                    'branch': ResolverProxy(action.branch),
-                }
+                    "self": ResolverProxy(action.tree, action.source),
+                    "branch": ResolverProxy(action.branch),
+                },
             )
         )
 
@@ -680,8 +674,7 @@ class Updater(Pipeline):
                 bar: "!!! This should be redefined"     # with comment
 
         """
-        if not isinstance(action.value, string) or \
-           not action.value.startswith('!!!'):
+        if not isinstance(action.value, string) or not action.value.startswith("!!!"):
             return
         action.value = Required(action.key, action.value[3:].strip())
 
@@ -755,9 +748,7 @@ class UpdateAction(object):
         self.update(self)
 
     def __repr__(self):
-        return (
-            '<tree[{0._key!r}] = {0._value!r} from {0.source!r}>'.format(self)
-        )
+        return "<tree[{0._key!r}] = {0._value!r} from {0.source!r}>".format(self)
 
     def promise(self, deferred):
         """
@@ -770,12 +761,14 @@ class UpdateAction(object):
                                   :class:`Promise`
 
         """
+
         def wrapper():
             try:
                 return deferred()
             except Exception as e:
                 args = e.args + (self,)
                 raise e.__class__(*args)
+
         return Promise(wrapper)
 
     @staticmethod
@@ -872,9 +865,9 @@ class ResolverProxy(object):
             return Promise.resolve(self.__tree[key])
         except KeyError:
             if self.__source is not None:
-                if key == '__file__':
+                if key == "__file__":
                     return self.__source
-                elif key == '__dir__':
+                elif key == "__dir__":
                     return os.path.dirname(self.__source)
             raise
 
@@ -891,14 +884,14 @@ class Required(object):
 
     """
 
-    def __init__(self, key, comment=''):
+    def __init__(self, key, comment=""):
         self.key = key
         self.comment = comment
 
     def __repr__(self):
-        result = 'Undefined required key <%s>' % self.key
+        result = "Undefined required key <%s>" % self.key
         if self.comment:
-            result += ': ' + self.comment
+            result += ": " + self.comment
         return result
 
 
@@ -1017,7 +1010,7 @@ def load(path, walk=None, update=None, postprocess=None, tree=None):
 
     """
     warn(
-        'Function ``load`` is deprected in favor of class ``Loader``',
+        "Function ``load`` is deprected in favor of class ``Loader``",
         DeprecationWarning,
     )
     walk = walk or make_walk()
@@ -1029,12 +1022,12 @@ def load(path, walk=None, update=None, postprocess=None, tree=None):
             data = source.map[ext](data)
             if not data:
                 continue
-            tree['__file__'] = f
-            tree['__dir__'] = os.path.dirname(f)
+            tree["__file__"] = f
+            tree["__dir__"] = os.path.dirname(f)
             for key, value in flatten(data):
                 update(tree, key, value, f)
-            del tree['__file__']
-            del tree['__dir__']
+            del tree["__file__"]
+            del tree["__dir__"]
     PostProcessor()(tree)
     if postprocess is not None:
         postprocess(tree)
@@ -1059,27 +1052,28 @@ def loaderconf(path):
 
     """
     warn(
-        'Function ``loaderconf`` is deprected in favor of class ``Loader``',
+        "Function ``loaderconf`` is deprected in favor of class ``Loader``",
         DeprecationWarning,
     )
     if path not in sys.path:
         sys.path.append(path)
     try:
         import loaderconf
+
         conf = loaderconf.__dict__
     except ImportError as e:
         # Get module name from exception meessage:
         #   Python 2.x "No module named module_name"
         #   Python 3.x "No module named 'module_name'"
         module_name = str(e).split()[-1].strip("'")
-        if module_name != 'loaderconf':
+        if module_name != "loaderconf":
             raise
         conf = {}
-    keys = ('walk', 'update', 'postprocess', 'tree')
+    keys = ("walk", "update", "postprocess", "tree")
     return dict((k, v) for k, v in conf.items() if k in keys)
 
 
-def make_walk(env=''):
+def make_walk(env=""):
     """
     ..  warning:: Deprecated in favor of :class:`Walker`.
 
@@ -1140,16 +1134,16 @@ def make_walk(env=''):
 
     """
     warn(
-        'Function ``make_walk`` is deprected in favor of class ``Walker``',
+        "Function ``make_walk`` is deprected in favor of class ``Walker``",
         DeprecationWarning,
     )
 
     def walk(path, env=env):
-        if '.' in env:
-            env_name, tail = env.split('.', 1)
+        if "." in env:
+            env_name, tail = env.split(".", 1)
         else:
-            env_name, tail = env, ''
-        env_name = 'env-' + env_name
+            env_name, tail = env, ""
+        env_name = "env-" + env_name
         files = []
         dirs = []
         env_files = []
@@ -1157,15 +1151,15 @@ def make_walk(env=''):
         final_files = []
         final_dirs = []
         for name in os.listdir(path):
-            if name.startswith('_') or name.startswith('.'):
+            if name.startswith("_") or name.startswith("."):
                 continue
             fullname = os.path.join(path, name)
             if os.path.isdir(fullname):
-                if name.startswith('env-'):
+                if name.startswith("env-"):
                     if name != env_name:
                         continue
                     target = env_dirs
-                elif name.startswith('final-'):
+                elif name.startswith("final-"):
                     target = final_dirs
                 else:
                     target = dirs
@@ -1174,11 +1168,11 @@ def make_walk(env=''):
                 basename, ext = os.path.splitext(name)
                 if ext not in source.map:
                     continue
-                if basename.startswith('env-'):
+                if basename.startswith("env-"):
                     if basename != env_name:
                         continue
                     target = env_files
-                elif name.startswith('final-'):
+                elif name.startswith("final-"):
                     target = final_files
                 else:
                     target = files
@@ -1246,25 +1240,26 @@ def make_update(namespace=None):
 
     """
     warn(
-        'Function ``make_update`` is deprected in favor of class ``Updater``',
+        "Function ``make_update`` is deprected in favor of class ``Updater``",
         DeprecationWarning,
     )
     namespace = namespace or {}
 
     def update(tree, key, value, source=None):
-        if key.endswith('?'):
+        if key.endswith("?"):
             key = key[:-1]
             if key in tree:
                 return
-        if '#' in key:
-            key, method = key.split('#')
+        if "#" in key:
+            key, method = key.split("#")
 
             def set_value(k, v):
                 getattr(tree[k], method)(v)
+
         else:
             set_value = tree.__setitem__
         if isinstance(value, string):
-            match = re.match(r'(?:\$|>)>> ', value)
+            match = re.match(r"(?:\$|>)>> ", value)
             if match:
                 prefix = match.group(0)
                 if tree._key_sep in key:
@@ -1273,8 +1268,8 @@ def make_update(namespace=None):
                 else:
                     branch = tree
                 value = value[4:]  # Remove prefix
-                local = {'self': tree, 'branch': branch}
-                if prefix == '>>> ':
+                local = {"self": tree, "branch": branch}
+                if prefix == ">>> ":
                     value = eval(value, namespace, local)
                 else:
                     value = value.format(**local)

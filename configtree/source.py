@@ -25,7 +25,7 @@ import yaml
 from yaml.constructor import ConstructorError
 
 
-__all__ = ['map']
+__all__ = ["map"]
 
 
 def from_yaml(data):
@@ -39,7 +39,7 @@ def from_json(data):
 
 
 map = {}
-for entry_point in pkg_resources.iter_entry_points('configtree.source'):
+for entry_point in pkg_resources.iter_entry_points("configtree.source"):
     map[entry_point.name] = entry_point.load()
 
 
@@ -53,14 +53,8 @@ class OrderedDictYAMLLoader(yaml.Loader):
     def __init__(self, *args, **kwargs):
         yaml.Loader.__init__(self, *args, **kwargs)
 
-        self.add_constructor(
-            'tag:yaml.org,2002:map',
-            type(self).construct_yaml_map
-        )
-        self.add_constructor(
-            'tag:yaml.org,2002:omap',
-            type(self).construct_yaml_map
-        )
+        self.add_constructor("tag:yaml.org,2002:map", type(self).construct_yaml_map)
+        self.add_constructor("tag:yaml.org,2002:omap", type(self).construct_yaml_map)
 
     def construct_yaml_map(self, node):
         data = OrderedDict()
@@ -71,11 +65,12 @@ class OrderedDictYAMLLoader(yaml.Loader):
     def construct_mapping(self, node, deep=False):
         if isinstance(node, yaml.MappingNode):
             self.flatten_mapping(node)
-        else:                                                # pragma: nocover
+        else:  # pragma: nocover
             raise ConstructorError(
-                None, None,
-                'expected a mapping node, but found %s' % node.id,
-                node.start_mark
+                None,
+                None,
+                "expected a mapping node, but found %s" % node.id,
+                node.start_mark,
             )
 
         mapping = OrderedDict()
@@ -83,11 +78,12 @@ class OrderedDictYAMLLoader(yaml.Loader):
             key = self.construct_object(key_node, deep=deep)
             try:
                 hash(key)
-            except TypeError as exc:                         # pragma: nocover
+            except TypeError as exc:  # pragma: nocover
                 raise ConstructorError(
-                    'while constructing a mapping', node.start_mark,
-                    'found unacceptable key (%s)' % exc,
-                    key_node.start_mark
+                    "while constructing a mapping",
+                    node.start_mark,
+                    "found unacceptable key (%s)" % exc,
+                    key_node.start_mark,
                 )
             value = self.construct_object(value_node, deep=deep)
             mapping[key] = value

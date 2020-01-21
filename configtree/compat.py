@@ -5,9 +5,9 @@
 from sys import version_info
 
 
-if version_info[0] == 2:                                    # pragma: nocover
+if version_info[0] == 2:  # pragma: nocover
     string = basestring
     unicode = unicode
-else:                                                       # pragma: nocover
+else:  # pragma: nocover
     string = str
     unicode = str

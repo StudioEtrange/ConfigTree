@@ -40,19 +40,24 @@ def option(name, **kw):
                     :meth:`argparse.ArgumentParser.add_argument`
 
     """
+
     def decorator(f):
-        if not hasattr(f, '__options__'):
+        if not hasattr(f, "__options__"):
             f.__options__ = []
         f.__options__.append((name, kw))
         return f
+
     return decorator
 
 
-@option('rare', action='store_true', help='rarefy tree (default: %(default)s)')
-@option('sort', action='store_true', help='sort keys (default: %(default)s)')
+@option("rare", action="store_true", help="rarefy tree (default: %(default)s)")
+@option("sort", action="store_true", help="sort keys (default: %(default)s)")
 @option(
-    'indent', type=int, default=None, metavar='<indent>',
-    help='indent size (default: %(default)s)',
+    "indent",
+    type=int,
+    default=None,
+    metavar="<indent>",
+    help="indent size (default: %(default)s)",
 )
 def to_json(tree, rare=False, indent=None, sort=False):
     """
@@ -95,19 +100,19 @@ def to_json(tree, rare=False, indent=None, sort=False):
 
 
 @option(
-    'prefix', default='', metavar='<prefix>',
-    help='key prefix (default: empty string)',
+    "prefix", default="", metavar="<prefix>", help="key prefix (default: empty string)"
 )
 @option(
-    'seq_sep', default=' ', metavar='<sep>',
-    help='sequence items separator (default: space char)'
+    "seq_sep",
+    default=" ",
+    metavar="<sep>",
+    help="sequence items separator (default: space char)",
 )
-@option('sort', action='store_true', help='sort keys (default: %(default)s)')
+@option("sort", action="store_true", help="sort keys (default: %(default)s)")
 @option(
-    'capitalize', action='store_true',
-    help='capitalize keys (default: %(default)s)',
+    "capitalize", action="store_true", help="capitalize keys (default: %(default)s)"
 )
-def to_shell(tree, prefix='', seq_sep=' ', sort=False, capitalize=False):
+def to_shell(tree, prefix="", seq_sep=" ", sort=False, capitalize=False):
     """
     Format ``tree`` into shell (Bash) expression format
 
@@ -164,17 +169,17 @@ def to_shell(tree, prefix='', seq_sep=' ', sort=False, capitalize=False):
             keys = sorted(keys)
         for key in keys:
             value = convert(tree[key])
-            key = key.replace(tree._key_sep, '_')
+            key = key.replace(tree._key_sep, "_")
             if capitalize:
                 key = key.upper()
-            result.append(u'%s%s=%s' % (prefix, key, value))
+            result.append(u"%s%s=%s" % (prefix, key, value))
     else:
         value = convert(tree)
-        result.append(u'%s%s' % (prefix, value))
+        result.append(u"%s%s" % (prefix, value))
 
     return linesep.join(result)
 
 
 map = {}
-for entry_point in iter_entry_points('configtree.formatter'):
+for entry_point in iter_entry_points("configtree.formatter"):
     map[entry_point.name] = entry_point.load()
