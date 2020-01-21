@@ -1264,7 +1264,7 @@ def make_update(namespace=None):
         else:
             set_value = tree.__setitem__
         if isinstance(value, string):
-            match = re.match('(?:\$|>)>> ', value)
+            match = re.match(r'(?:\$|>)>> ', value)
             if match:
                 prefix = match.group(0)
                 if tree._key_sep in key:

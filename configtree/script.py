@@ -147,7 +147,7 @@ def ctdump(argv=None, stdout=None, stderr=None):
     if args['branch'] is not None:
         try:
             tree = tree[args['branch']]
-        except KeyError as e:
+        except KeyError:
             logger.error('Branch <%s> does not exist', args['branch'])
             return 1
 
