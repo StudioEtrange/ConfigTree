@@ -13,4 +13,3 @@ that is generated from doc-strings.
     script
     source
     formatter
-    conv

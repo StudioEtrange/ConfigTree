@@ -67,11 +67,3 @@ Post processor
     ..  automethod:: check_required
 
 ..  autoclass:: ProcessingError
-
-Deprecated features
-~~~~~~~~~~~~~~~~~~~
-
-..  autofunction:: load
-..  autofunction:: loaderconf
-..  autofunction:: make_walk
-..  autofunction:: make_update

@@ -22,7 +22,6 @@
 ..  autoclass:: BranchProxy
 
     ..  automethod:: copy
-    ..  automethod:: as_tree
 
 ..  autofunction:: flatten
 ..  autofunction:: rarefy

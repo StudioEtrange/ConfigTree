@@ -5,4 +5,3 @@
 
 ..  autofunction:: ctdump
 ..  autofunction:: setup_logger
-..  autofunction:: main

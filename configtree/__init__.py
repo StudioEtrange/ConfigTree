@@ -1,17 +1,7 @@
 import logging
 
 from .tree import ITree, Tree, flatten, rarefy
-from .loader import (
-    Loader,
-    Walker,
-    Updater,
-    PostProcessor,
-    Pipeline,
-    load,
-    loaderconf,
-    make_walk,
-    make_update,
-)
+from .loader import Loader, Walker, Updater, PostProcessor, Pipeline
 
 
 __all__ = [
@@ -24,10 +14,6 @@ __all__ = [
     "Updater",
     "PostProcessor",
     "Pipeline",
-    "load",
-    "loaderconf",
-    "make_walk",
-    "make_update",
 ]
 __version__ = "0.5.3"
 __author__ = "Dmitry Vakhrushev <self@kr41.net>"

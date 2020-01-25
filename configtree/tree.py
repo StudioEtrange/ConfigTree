@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from warnings import warn
 from collections import defaultdict
 
 from .compat.colabc import Mapping, MutableMapping
@@ -315,17 +314,6 @@ class BranchProxy(ITree):
     def branch(self, key):
         """ Returns a :class:`BranchProxy` object for specified ``key`` """
         return self._owner.branch(self._itemkey(key))
-
-    def as_tree(self):
-        """
-        ..  warning:: Deprectated in favor of :meth:`copy`
-
-        """
-        warn(
-            "Method ``as_tree`` is deprected in favor of ``copy`` one",
-            DeprecationWarning,
-        )
-        return self.copy()
 
     def copy(self):
         """
