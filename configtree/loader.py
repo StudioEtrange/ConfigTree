@@ -8,7 +8,7 @@ from warnings import warn
 from cached_property import cached_property
 
 from . import source
-from .compat import string
+from .compat.types import basestr
 from .tree import Tree, flatten
 
 
@@ -565,7 +565,7 @@ class Updater(Pipeline):
                        # == "a = 'foo', b.x = 'bar'"
 
         """
-        if not isinstance(action.value, string) or not action.value.startswith("$>> "):
+        if not isinstance(action.value, basestr) or not action.value.startswith("$>> "):
             return
         value = action.value[4:]
         action.value = action.promise(
@@ -599,7 +599,7 @@ class Updater(Pipeline):
                 hello: "%>> Hello %(name)s"     # == "Hello World"
 
         """
-        if not isinstance(action.value, string) or not action.value.startswith("%>> "):
+        if not isinstance(action.value, basestr) or not action.value.startswith("%>> "):
             return
         value = action.value[4:]
         action.value = action.promise(
@@ -640,7 +640,7 @@ class Updater(Pipeline):
                     z: ">>> floor(3.0 / 2)"            # == 1
 
         """
-        if not isinstance(action.value, string) or not action.value.startswith(">>> "):
+        if not isinstance(action.value, basestr) or not action.value.startswith(">>> "):
             return
         value = action.value[4:]
         namespace = self.params.get("namespace", {})
@@ -674,7 +674,7 @@ class Updater(Pipeline):
                 bar: "!!! This should be redefined"     # with comment
 
         """
-        if not isinstance(action.value, string) or not action.value.startswith("!!!"):
+        if not isinstance(action.value, basestr) or not action.value.startswith("!!!"):
             return
         action.value = Required(action.key, action.value[3:].strip())
 
@@ -1258,7 +1258,7 @@ def make_update(namespace=None):
 
         else:
             set_value = tree.__setitem__
-        if isinstance(value, string):
+        if isinstance(value, basestr):
             match = re.match(r"(?:\$|>)>> ", value)
             if match:
                 prefix = match.group(0)

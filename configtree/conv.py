@@ -16,7 +16,7 @@ from os import linesep
 from pkg_resources import iter_entry_points
 
 from .tree import rarefy
-from .compat import unicode
+from .compat.types import string
 
 
 __all__ = ["map"]
@@ -80,7 +80,7 @@ def to_shell(tree):
         value = tree[key]
         if value is None:
             value = ""
-        value = unicode(value).replace("'", "\\'")
+        value = string(value).replace("'", "\\'")
         key = key.replace(tree._key_sep, "_").upper()
         result.append("{0}='{1}'".format(key, value))
     return linesep.join(result)

@@ -20,11 +20,11 @@ The module provides formatters of :class:`configtree.tree.Tree` objects
 import json
 from os import linesep
 from pkg_resources import iter_entry_points
-from collections import Mapping, Sequence
 from numbers import Number
 
 from .tree import rarefy
-from .compat import unicode, string
+from .compat.types import string, chars
+from .compat.colabc import Mapping, Sequence
 
 
 def option(name, **kw):
@@ -152,14 +152,14 @@ def to_shell(tree, prefix="", seq_sep=" ", sort=False, capitalize=False):
         if value is None:
             return "''"
         if isinstance(value, bool):
-            return unicode(value).lower()
+            return string(value).lower()
         if isinstance(value, Number):
-            return unicode(value)
-        if isinstance(value, Sequence) and not isinstance(value, string):
+            return string(value)
+        if isinstance(value, Sequence) and not isinstance(value, chars):
             return u"'%s'" % seq_sep.join(
-                unicode(item).replace("'", "\\'") for item in value
+                string(item).replace("'", "\\'") for item in value
             )
-        return u"'%s'" % unicode(value).replace("'", "\\'")
+        return u"'%s'" % string(value).replace("'", "\\'")
 
     result = []
 

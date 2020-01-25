@@ -1,5 +1,5 @@
 from os import path
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 with open(path.join(path.dirname(__file__), "README.rst")) as f:
@@ -34,7 +34,7 @@ setup(
     url="https://bitbucket.org/kr41/configtree",
     download_url="https://bitbucket.org/kr41/configtree/downloads",
     license="BSD",
-    packages=["configtree"],
+    packages=find_packages(exclude=["tests", "tests.*"]),
     install_requires=["pyyaml", "cached-property"],
     include_package_data=True,
     zip_safe=True,

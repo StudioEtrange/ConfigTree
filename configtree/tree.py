@@ -1,6 +1,8 @@
 from abc import abstractmethod
-from collections import defaultdict, Mapping, MutableMapping
 from warnings import warn
+from collections import defaultdict
+
+from .compat.colabc import Mapping, MutableMapping
 
 
 __all__ = ["ITree", "Tree", "flatten", "rarefy"]
