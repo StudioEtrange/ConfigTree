@@ -1,6 +1,14 @@
 Changes
 =======
 
+0.6
+---
+
+*   Dropped deprecated features.
+*   Fixed deprecation warnings on Python 3.7 and higher.
+*   Migrated tests from ``Nose`` to ``PyTest``.
+
+
 0.5.3
 -----
 

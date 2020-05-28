@@ -1,15 +1,25 @@
 Changes
 =======
 
+0.6
+---
+
+*   Dropped deprecated features.
+*   Fixed deprecation warnings on Python 3.7 and higher.
+*   Migrated tests from ``Nose`` to ``PyTest``.
+
+
 0.5.3
 -----
 
 *   Fixed bug in ``Walker.environment`` method.
 
+
 0.5.2
 -----
 
 *   Fixed bugs in ``ITree.rare_copy`` and ``ITree.rare_keys`` methods.
+
 
 0.5.1
 -----
