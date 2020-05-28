@@ -2,6 +2,15 @@
 ConfigTree
 ==========
 
+..  image:: https://travis-ci.com/Cottonwood-Technology/ConfigTree.svg?branch=master
+    :target: https://travis-ci.com/Cottonwood-Technology/ConfigTree
+
+..  image:: https://badge.fury.io/py/ConfigTree.svg
+    :target: https://badge.fury.io/py/ConfigTree
+
+..  image:: https://readthedocs.org/projects/configtree/badge/?version=latest
+    :target: https://configtree.readthedocs.io/en/latest/?badge=latest
+
 Configuration files behave like cancer tumor.  As soon as one is created with a
 handful of parameters, it starts to grow.  And in a couple of month it becomes
 huge hardly supportable monster with dozens of parameters, which affects on
