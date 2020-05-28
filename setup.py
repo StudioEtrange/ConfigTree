@@ -8,10 +8,14 @@ with open(path.join(path.dirname(__file__), "README.rst")) as f:
 with open(path.join(path.dirname(__file__), "CHANGES.rst")) as f:
     readme += "\n\n" + f.read()
 
+with open(path.join(path.dirname(__file__), "configtree", "__init__.py")) as f:
+    version = next(line for line in f if line.startswith("__version__"))
+    version = version.strip().split(" = ")[1]
+    version = version.strip('"')
 
 setup(
     name="ConfigTree",
-    version="0.5.3",
+    version=version,
     description="Is a configuration management tool",
     long_description=readme,
     classifiers=[

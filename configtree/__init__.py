@@ -15,7 +15,7 @@ __all__ = [
     "PostProcessor",
     "Pipeline",
 ]
-__version__ = "0.5.3"
+__version__ = "0.6"
 __author__ = "Cottonwood Technology <info@cottonwood.tech>"
 __license__ = "BSD"
 
