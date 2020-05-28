@@ -16,7 +16,7 @@ __all__ = [
     "Pipeline",
 ]
 __version__ = "0.5.3"
-__author__ = "Dmitry Vakhrushev <self@kr41.net>"
+__author__ = "Cottonwood Technology <info@cottonwood.tech>"
 __license__ = "BSD"
 
 

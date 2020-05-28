@@ -45,7 +45,7 @@ master_doc = "index"
 
 # General information about the project.
 project = u"ConfigTree"
-copyright = u"2013, Dmitry Vakhrushev"
+copyright = u"2013-2020, Dmitry Vakhrushev; 2020, Cottonwood Technology"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

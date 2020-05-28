@@ -42,10 +42,10 @@ in the same way.
 Contribution And Bug Reports
 ----------------------------
 
-The project sources are hosted by BitBucket_ as well, as its bug tracker.
+The project sources are hosted by GitHub_ as well, as its bug tracker.
 Pull requests, bug reports, and feedback are welcome.
 
-.. _BitBucket: https://bitbucket.org/kr41/configtree
+.. _GitHub: https://github.com/Cottonwood-Technology/ConfigTree
 
 
 License

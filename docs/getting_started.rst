@@ -6,8 +6,6 @@ It covers all features, but does not explain them in details.
 It is enough to start using ConfigTree within your project,
 however more detailed explanation will be given in the :ref:`next section <advanced_usage>`.
 
-.. _the sources: https://bitbucket.org/kr41/configtree/src
-
 
 Installation
 ------------
