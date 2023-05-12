@@ -55,28 +55,32 @@ class Loader(object):
         conf = dict((k, v) for k, v in conf.items() if k in keys)
         return cls(**conf)
 
-    def __call__(self, path):
+    def __call__(self, pathlist):
         """
         Loads configuration
 
-        :param str path: Path to a directory that contains configuration files.
+        :param str or list pathlist: Path or List of paths to directories that contains configuration files.
         :returns: Result tree object
         :rtype: Tree
 
         """
         from . import logger
 
-        logger.info('Walking over "%s"', path)
-        for f in self.walk(path):
-            relpath = os.path.relpath(f, path)
-            logger.info('Loading "%s"', relpath)
-            ext = os.path.splitext(f)[1]
-            with open(f) as data:
-                data = source.map[ext](data)
-                if not data:
-                    continue
-                for key, value in flatten(data):
-                    self.update(self.tree, key, value, f)
+        if not type(pathlist) in (tuple, list):
+            pathlist=[pathlist]
+        
+        for path in pathlist:
+            logger.info('Walking over "%s"', path)
+            for f in self.walk(path):
+                relpath = os.path.relpath(f, path)
+                logger.info('Loading "%s"', relpath)
+                ext = os.path.splitext(f)[1]
+                with open(f) as data:
+                    data = source.map[ext](data)
+                    if not data:
+                        continue
+                    for key, value in flatten(data):
+                        self.update(self.tree, key, value, f)
         logger.info("Post-processing")
         self.postprocess(self.tree)
         return self.tree

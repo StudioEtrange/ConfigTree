@@ -8,6 +8,35 @@ import logging
 from . import formatter
 from .loader import Loader, ProcessingError, UpdateAction
 
+class CustomAppendAction(argparse.Action):
+    """Custom action to append values to a list.
+
+    When using the `append` action, the default value is not removed
+    from the list. This problem is described in
+    https://github.com/python/cpython/issues/60603
+
+    This custom action aims to fix this problem by removing the default
+    value when the argument is specified for the first time.
+
+    picked from https://github.com/python/cpython/issues/60603#issuecomment-1492883530
+    """
+
+    def __init__(self, option_strings, dest, nargs=None, **kwargs):
+        """Initialize the action."""
+        self.called_times = 0
+        self.default_value = kwargs.get("default")
+        super().__init__(option_strings, dest, **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        """When the argument is specified on the commandline."""
+        current_values = getattr(namespace, self.dest)
+
+        if self.called_times == 0 and current_values == self.default_value:
+            current_values = []
+
+        current_values.append(values)
+        setattr(namespace, self.dest, current_values)
+        self.called_times += 1
 
 def ctdump(argv=None, stdout=None, stderr=None):
     """
@@ -85,7 +114,8 @@ def ctdump(argv=None, stdout=None, stderr=None):
         "--path",
         default=default_path,
         metavar="<path>",
-        help="path to configuration tree",
+        action=CustomAppendAction,
+        help="paths to configuration tree",
     )
     common_options.add_argument(
         "-v", "--verbose", action="store_true", help="print debug output"
@@ -128,8 +158,7 @@ def ctdump(argv=None, stdout=None, stderr=None):
         raise loader_error
     if args["verbose"]:
         logger.setLevel(logging.INFO)
-
-    logger.info("Loading tree")
+    logger.info("Loading tree from path %s", args["path"])
     try:
         tree = load(args["path"])
     except ProcessingError as e:
