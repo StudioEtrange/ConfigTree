@@ -23,7 +23,7 @@ from pkg_resources import iter_entry_points
 from numbers import Number
 
 from .tree import rarefy
-from .compat.types import string, chars
+from .compat.types import string, chars, basestr
 from .compat.colabc import Mapping, Sequence
 
 
@@ -112,15 +112,23 @@ def to_json(tree, rare=False, indent=None, sort=False):
 @option(
     "capitalize", action="store_true", help="capitalize keys (default: %(default)s)"
 )
-def to_shell(tree, prefix="", seq_sep=" ", sort=False, capitalize=False):
+@option(
+    "capsbool", action="store_true", help="capitalize boolean value (default: %(default)s)"
+)
+@option(
+    "form", default="legacy", metavar="<format>", help="select a format between legacy and form2 (default: %(default)s)"
+)
+def to_shell(tree, prefix="", seq_sep=" ", sort=False, capitalize=False, capsbool=False, form='form1'):
     """
     Format ``tree`` into shell (Bash) expression format
 
     :param Tree tree: Tree object to format
     :param bool prefix: Key prefix
-    :param str seq_sep: Sequence items separator
+    :param str seq_sep: Sequence items separator ; used in legacy and form1 format
     :param bool sort: Sort keys
     :param bool capitalize: Capitalize keys
+    :param bool capsbool: Capitalize boolean value
+    :param bool form: Select a format of shell output
 
     Examples:
 
@@ -152,7 +160,7 @@ def to_shell(tree, prefix="", seq_sep=" ", sort=False, capitalize=False):
         if value is None:
             return "''"
         if isinstance(value, bool):
-            return string(value).lower()
+            return string(value).upper() if capsbool else string(value).lower()
         if isinstance(value, Number):
             return string(value)
         if isinstance(value, Sequence) and not isinstance(value, chars):
@@ -161,6 +169,34 @@ def to_shell(tree, prefix="", seq_sep=" ", sort=False, capitalize=False):
             )
         return u"'%s'" % string(value).replace("'", "\\'")
 
+    def convert1(value):
+        if value is None:
+            return "''"
+        if isinstance(value, bool):
+            return string(value).upper() if capsbool else string(value).lower()
+        if isinstance(value, Number):
+            return string(value)
+        if isinstance(value, Sequence) and not isinstance(value, chars):
+            return u"'%s'" % seq_sep.join(
+                string(item).replace("""'""","""'"'"'""") for item in value
+            )
+        return u"""'%s'""" % string(value).replace("""'""","""'"'"'""")
+
+    def convert2(value):
+        if value is None:
+            return "''"
+        if isinstance(value, bool):
+            return string(value).upper() if capsbool else string(value).lower()
+        if isinstance(value, Number):
+            return string(value)
+        # NOTE : https://stackoverflow.com/a/16605140
+        #        https://stackoverflow.com/a/1250279
+        if isinstance(value, basestr):
+            return u"""'%s'""" % string(value).replace("""'""","""'"'"'""")
+            
+        return u"""'%s'""" % string(value).replace("""'""","""'"'"'""")
+
+
     result = []
 
     if isinstance(tree, Mapping):
@@ -168,13 +204,23 @@ def to_shell(tree, prefix="", seq_sep=" ", sort=False, capitalize=False):
         if sort:
             keys = sorted(keys)
         for key in keys:
-            value = convert(tree[key])
+            if form=='legacy':
+                value = convert(tree[key])
+            if form=='form1':
+                value = convert1(tree[key])
+            if form=='form2':
+                value = convert2(tree[key])
             key = key.replace(tree._key_sep, "_")
             if capitalize:
                 key = key.upper()
             result.append(u"%s%s=%s" % (prefix, key, value))
     else:
-        value = convert(tree)
+        if form=='legacy':
+            value = convert(tree)
+        if form=='form1':
+            value = convert1(tree)
+        if form=='form2':
+            value = convert2(tree)
         result.append(u"%s%s" % (prefix, value))
 
     return linesep.join(result)
