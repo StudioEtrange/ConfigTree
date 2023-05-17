@@ -10,6 +10,7 @@ t = Tree(
         "a.y": 'Testing "json"',
         "a.z": "Testing 'shell'",
         "a.u": "\\",
+        "a.v": ('a', 'b'),
         "list": ['Testing "json"', "Testing 'shell'"],
         "none": None,
         "bool": True,
@@ -23,6 +24,10 @@ def test_json():
     assert result == [
         "{",
         '    "a.u": "\\\\",',
+        '    "a.v": [',
+        '        "a",',
+        '        "b"',
+        '    ],',
         '    "a.x": 1,',
         '    "a.y": "Testing \\"json\\"",',
         '    "a.z": "Testing \'shell\'",',
@@ -41,6 +46,10 @@ def test_json():
         "{",
         '    "a": {',
         '        "u": "\\\\",',
+        '        "v": [',
+        '            "a",',
+        '            "b"',
+        '        ],',
         '        "x": 1,',
         '        "y": "Testing \\"json\\"",',
         '        "z": "Testing \'shell\'"',
@@ -62,6 +71,7 @@ def test_shell():
     result = [line.rstrip() for line in result.split(linesep)]
     assert result == [
         "local A_U='\\'",
+        "local A_V='a:b'",
         "local A_X=1",
         "local A_Y='Testing \"json\"'",
         "local A_Z='Testing \\'shell\\''",
@@ -76,6 +86,7 @@ def test_shell():
     result = [line.rstrip() for line in result.split(linesep)]
     assert result == [
         "local A_U='\\'",
+        "local A_V='a:b'",
         "local A_X=1",
         "local A_Y='Testing \"json\"'",
         'local A_Z=\'Testing \'"\'"\'shell\'"\'"\'\'',
@@ -90,6 +101,7 @@ def test_shell():
     result = [line.rstrip() for line in result.split(linesep)]
     assert result == [
         "local A_U='\\'",
+        'local A_V=\'(\'"\'"\'a\'"\'"\', \'"\'"\'b\'"\'"\')\'',
         """local A_X=1""",
         """local A_Y='Testing "json"'""",
         'local A_Z=\'Testing \'"\'"\'shell\'"\'"\'\'',

@@ -453,7 +453,7 @@ formatters.  This formatters are used by :ref:`ctdump` to print result.
 The following formats are supported out of the box:
 
 *   JSON with name ``json`` by :func:`configtree.formatter.to_json`;
-*   Shell script (Bash) with name ``shell`` by :func:`configtree.formatter.to_shell`.
+*   Shell script (Bash) with name ``shell`` into different format possible by :func:`configtree.formatter.to_shell`.
 
 The map is filled scanning `entry points`_ ``configtree.formatters``.  So that it is
 extensible by plugins.  Ad hoc formatter can be also defined within :ref:`loaderconf_py`
@@ -524,17 +524,22 @@ You can build only a part of configuration specifying branch:
 The special formatter for shell scripts helps to use configuration within Bash scripts.
 For example, you want to use database credentials:
 
-..  code-block::  Bash
+..  code-block:: yaml
 
-    backup_db() {
-        eval "$( ctdump shell --branch app.db --shell-prefix 'local ' )"
-        # Output of ctdump will look like this:
-        #   local username='dbuser'
-        #   local password='qwerty'
-        #   local database='mydata'
+        username: 'dbuser'
+        x: 1
+        t: (2, 3)
+        l: [4, 5]
 
-        mysqldump --user="$username" --password="$password" "$database" > dump.sql
-    }
+..  code-block::  Bash    
+
+    ctdump shell --branch app.db --shell-prefix 'local '
+    # Output of ctdump will look like this:
+    #   local username='dbuser'
+    #   local x=1
+    #   local t=
+    #   local l=
+
 
 To get full help of the command run:
 
