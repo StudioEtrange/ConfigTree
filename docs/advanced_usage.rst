@@ -521,25 +521,116 @@ You can build only a part of configuration specifying branch:
     ctdump json --path path/to/config/sources --branch app.http > path/to/build/server.json
     ctdump json --path path/to/config/sources --branch app.db > path/to/build/database.json
 
+For shell output you have the choice between several formats:
+
+..  code-block:: yaml
+
+
+        string1: 'foo bar'
+        string2: '"foo" bar'
+        string3: '\"foo\" bar'
+        string4: "'foo' bar"
+        string5: "\\'foo\\' bar"
+        a: '[2, 3]'
+        b: '(2, 3)'
+        c: '1'
+        d: 1
+        e: (2, 3)
+        f: [4, 5]
+        g: 'Testing "G"'
+        h: 'Testing \"G\"'
+        i: "Testing 'I'"
+        j: "Testing \\'J\\'"
+        k: [4, 5, [10,11]]
+
+The default format and the historic default one `legacy`, it may have problem with escaping some characters:
+
+..  code-block::  Bash
+
+        ctdump shell --shell-form=legacy
+        # Output of ctdump will look like this:
+        # string1='foo bar'
+        # string2='"foo" bar'
+        # string3='\"foo\" bar'
+        # string4='\'foo\' bar'
+        # string5='\\'foo\\' bar'
+        # a='[2, 3]'
+        # b='(2, 3)'
+        # c='1'
+        # e='(2, 3)'
+        # f='4 5'
+        # g='Testing "G"'
+        # h='Testing \"G\"'
+        # i='Testing \'I\''
+        # j='Testing \\'J\\''
+        # k='4 5 [10, 11]'
+
+The format `form1`, which is more robust to escape quotes:
+
+..  code-block::  Bash
+
+        ctdump shell --shell-form=form1
+        # Output of ctdump will look like this:
+        # string1='foo bar'
+        # string2='"foo" bar'
+        # string3='\"foo\" bar'
+        # string4=''"'"'foo'"'"' bar'
+        # string5='\'"'"'foo\'"'"' bar'
+        # a='[2, 3]'
+        # b='(2, 3)'
+        # c='1'
+        # e='(2, 3)'
+        # f='4 5'
+        # g='Testing "G"'
+        # h='Testing \"G\"'
+        # i='Testing '"'"'I'"'"''
+        # j='Testing \'"'"'J\'"'"''
+        # k='4 5 [10, 11]'
+
+
+The format `form2`, which is equaly robust to quotes, but do not transform
+`python list [a, b]` into a separated string:
+
+..  code-block::  Bash
+
+        ctdump shell --shell-form=form1
+        # string1='foo bar'
+        # string2='"foo" bar'
+        # string3='\"foo\" bar'
+        # string4=''"'"'foo'"'"' bar'
+        # string5='\'"'"'foo\'"'"' bar'
+        # a='[2, 3]'
+        # b='(2, 3)'
+        # c='1'
+        # e='(2, 3)'
+        # f='[4, 5]'
+        # g='Testing "G"'
+        # h='Testing \"G\"'
+        # i='Testing '"'"'I'"'"''
+        # j='Testing \'"'"'J\'"'"''
+        # k='[4, 5, [10, 11]]'
+
+
 The special formatter for shell scripts helps to use configuration within Bash scripts.
 For example, you want to use database credentials:
 
 ..  code-block:: yaml
 
         username: 'dbuser'
-        x: 1
-        t: (2, 3)
-        l: [4, 5]
+        password: 'qwerty'
+        database: 'mydata'
 
-..  code-block::  Bash    
+..  code-block::  Bash
 
-    ctdump shell --branch app.db --shell-prefix 'local '
-    # Output of ctdump will look like this:
-    #   local username='dbuser'
-    #   local x=1
-    #   local t=
-    #   local l=
+    backup_db() {
+        eval "$( ctdump shell --shell-prefix 'local ' )"
+        # Output of ctdump will look like this:
+        #   local username='dbuser'
+        #   local password='qwerty'
+        #   local database='mydata'
 
+        mysqldump --user="$username" --password="$password" "$database" > dump.sql
+    }
 
 To get full help of the command run:
 
