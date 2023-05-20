@@ -23,7 +23,7 @@ from pkg_resources import iter_entry_points
 from numbers import Number
 
 from .tree import rarefy
-from .compat.types import string, chars, basestr
+from .compat.types import string, chars
 from .compat.colabc import Mapping, Sequence
 
 
@@ -189,13 +189,18 @@ def to_shell(tree, prefix="", seq_sep=" ", sort=False, capitalize=False, capsboo
             return string(value).upper() if capsbool else string(value).lower()
         if isinstance(value, Number):
             return string(value)
-        # NOTE : https://stackoverflow.com/a/16605140
-        #        https://stackoverflow.com/a/1250279
-        if isinstance(value, basestr):
-            return u"""'%s'""" % string(value).replace("""'""","""'"'"'""")
-            
+        if isinstance(value, Sequence) and not isinstance(value, chars):
+            print("value")
+            print(value)
+            if(isinstance(value,tuple)):
+                return u"'(%s)'" % ", ".join(
+                    string(item).replace("""'""","""'"'"'""") for item in value
+                )
+            else:
+                return u"'[%s]'" % ", ".join(
+                    string(item).replace("""'""","""'"'"'""") for item in value
+                )
         return u"""'%s'""" % string(value).replace("""'""","""'"'"'""")
-
 
     result = []
 

@@ -101,12 +101,12 @@ def test_shell():
     result = [line.rstrip() for line in result.split(linesep)]
     assert result == [
         "local A_U='\\'",
-        'local A_V=\'(\'"\'"\'a\'"\'"\', \'"\'"\'b\'"\'"\')\'',
+        "local A_V='(a, b)'",
         """local A_X=1""",
         """local A_Y='Testing "json"'""",
         'local A_Z=\'Testing \'"\'"\'shell\'"\'"\'\'',
         "local BOOL=TRUE",
-        'local LIST=\'[\'"\'"\'Testing "json"\'"\'"\', "Testing \'"\'"\'shell\'"\'"\'"]\'',
+        'local LIST=\'[Testing "json", Testing \'"\'"\'shell\'"\'"\']\'',
         "local NONE=''",
     ]
 
