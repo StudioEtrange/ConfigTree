@@ -522,7 +522,10 @@ class Updater(Pipeline):
         action.key, method = action.key.split("#")
 
         def update(action):
-            old_value = action.tree[action.key]
+            if action.key in action.tree:
+                old_value = action.tree[action.key]
+            else:
+                return
             if isinstance(old_value, Promise) or isinstance(action.value, Promise):
 
                 def deferred():

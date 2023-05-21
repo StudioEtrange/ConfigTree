@@ -232,8 +232,14 @@ def test_loader_set_default_tree():
 
 
 def test_updater_call_method():
-    tree = Tree({"foo": []})
     update = Updater()
+
+    tree = Tree()
+    with pytest.raises(KeyError):
+        update(tree, "foo#append", 1, "/test/source.yaml")
+        assert tree["foo"] == None
+
+    tree = Tree({"foo": []})
     update(tree, "foo#append", 1, "/test/source.yaml")
     assert tree["foo"] == [1]
 
