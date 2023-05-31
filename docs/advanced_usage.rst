@@ -282,6 +282,23 @@ Out of the box the updater supports the following:
         x?: 2      # x == 1
         y?: 3      # y == 3
 
+*   Add a value to the current value. If current value and the added value are number, a sum is used. 
+    If it is a collection, the value is append to it otherwise the value and the current value are
+    converted to string and concated together with a space character as separator.
+    
+    see :meth:`configtree.loader.Updater.add_method`:
+    
+    ..  code-block:: yaml
+
+        bar: "string"                    # bar == "string"
+        bar+: "other"                    # bar == "string other"
+        foo: [1, 2]                      # foo == [1, 2]
+        foo+: [5, 6]                     # foo == [1, 2, 5, 6]
+        foo+: (7, "8")                   # foo == [1, 2, 5, 6, 7, "8"]
+        foo+: "9"                        # foo == [1, 2, 5, 6, 7, "8", "9"]
+        x: 5                             # x 5
+        x+: 2     
+
 *   Call specified method of the value, see :meth:`configtree.loader.Updater.call_method`:
 
     ..  code-block:: yaml

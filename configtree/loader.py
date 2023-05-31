@@ -8,7 +8,7 @@ from cached_property import cached_property
 from . import source
 from .compat.types import basestr
 from .tree import Tree, flatten
-
+from itertools import chain
 
 class Loader(object):
     """
@@ -534,6 +534,80 @@ class Updater(Pipeline):
             else:
                 getattr(old_value, method)(action.value)
 
+        action.update = update
+
+    @Pipeline.worker(120)
+    def add_method(self, action):
+        """
+        Worker that add :attr:`UpdateAction.value` if key contains
+        "+" char.
+
+        It gets original value from :attr:`UpdateAction.tree` and emulate 
+        an add method with :attr:`UpdateAction.value`.
+
+        :param UpdateAction action: Current update action object
+
+        ..  attribute:: __priority__ = 120
+
+        Example:
+
+            ..  code-block:: yaml
+
+                bar: "string"                    # bar == "string"
+                bar+: "other"                    # bar == "string other"
+                foo: [1, 2]                      # foo == [1, 2]
+                foo+: [5, 6]                     # foo == [1, 2, 5, 6]
+                foo+: (7, "8")                   # foo == [1, 2, 5, 6, 7, "8"]
+                foo+: "9"                        # foo == [1, 2, 5, 6, 7, "8", "9"]
+                moo: []                          # moo == []
+                moo+: ">>> self['bar']"          # moo == ["string other"]
+                
+
+        """
+        if "+" not in action.key:
+            return
+        action.key = action.key[:-1]
+        
+        if action.key in action.tree:
+            current_value = action.tree[action.key]
+        else:
+            current_value = None
+        
+        def update(action):
+            old_value = Promise.resolve(current_value)
+            value = Promise.resolve(action.value)
+            
+            
+            if old_value is None or old_value=='':
+                # empty
+                action.tree[action.key] = value
+            # Non empty string + anything = "string string"
+            elif isinstance(Promise.resolve(current_value), basestr):
+                action.tree[action.key] = old_value + " " + str(value)
+            else:
+                try:
+                    iterator = iter(old_value)
+                except TypeError:
+                    # not iterable
+                    try:
+                        # trying + operator
+                        action.tree[action.key] = old_value + value
+                    except TypeError:
+                        # fallback to concatenate string
+                        action.tree[action.key] = str(old_value) + " " + str(value)
+                else:
+                    if isinstance(value, basestr):
+                        # wants to merge a string to an iterable
+                        value = [value]
+                    try:
+                        iterator2 = iter(value)
+                    except:
+                        value = [value]
+                        iterator2 = iter(value)
+                    # Iterable + iterable = merged iterables
+                    # add element to iterable
+                    action.tree[action.key] = type(old_value)(chain(iterator, iterator2))
+        
         action.update = update
 
     @Pipeline.worker(50)
