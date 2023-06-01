@@ -289,6 +289,15 @@ Out of the box the updater supports the following:
         x: [1, 2, 3]
         x#append: 4         # x == [1, 2, 3, 4]
 
+*   Replace key value if value was not empty nor None. see :meth:`configtree.loader.Updater.not_method`:
+
+    ..  code-block:: yaml
+
+        bar: ""                          # bar == ""
+        bar!: "other"                    # bar == ""
+        foo: "switch on"                 # foo == "switch on"
+        foo!: "ON"                       # foo == "ON"
+
 *   Use the value as a template, see :meth:`configtree.loader.Updater.format_value` and
     :meth:`configtree.loader.Updater.printf_value`:
 

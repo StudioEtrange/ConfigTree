@@ -536,6 +536,43 @@ class Updater(Pipeline):
 
         action.update = update
 
+    @Pipeline.worker(140)
+    def not_method(self, action):
+        """
+        Worker that add :attr:`UpdateAction.value` if key contains
+        "!" char.
+
+        It gets original value from :attr:`UpdateAction.tree` and if 
+        the value is not empty nor None replace it with :attr:`UpdateAction.value`.
+
+        :param UpdateAction action: Current update action object
+
+        ..  attribute:: __priority__ = 140
+
+        Example:
+
+            ..  code-block:: yaml
+
+                bar: ""                          # bar == ""
+                bar!: "other"                    # bar == ""
+                foo: "switch on"                 # foo == "switch on"
+                foo!: "ON"                       # foo == "ON"
+
+        """
+        if "!" not in action.key:
+            return
+        action.key = action.key[:-1]
+        
+        if action.key in action.tree:
+            current_value = action.tree[action.key]
+        else:
+            current_value = None
+       
+        value = action.value
+        action.value = action.promise(
+            lambda : Promise.resolve(value) if not Promise.resolve(current_value) is None and not Promise.resolve(current_value) == '' else Promise.resolve(current_value)
+        )
+
     @Pipeline.worker(50)
     def format_value(self, action):
         """

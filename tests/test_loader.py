@@ -79,6 +79,15 @@ def test_loader():
         "c.y": 20,
         "c.z": 30,
     }
+    
+    walk = Walker(env="w")
+    load = Loader(walk=walk, update=update)
+    result = load(os.path.join(data_dir,"env-w"))
+    assert result == {
+        "wa": "woo",
+        "za": None,
+        "ya": [1, 2],
+    }
 
 
 def test_loader_fromconf():
@@ -244,6 +253,23 @@ def test_updater_call_method():
     update(tree, "foo#append", 3, "/test/source.yaml")
     assert isinstance(tree["foo"], Promise)
     assert tree["foo"](), [1, 2, 3]
+
+
+def test_updater_not_method():
+    update = Updater()
+    
+    tree = Tree({"foo": None})
+    update(tree, "foo!", 1, "/test/source.yaml")
+    assert tree["foo"]() == None
+
+    tree = Tree({"foo": "switch on"})
+    update(tree, "foo!", "1", "/test/source.yaml")
+    assert tree["foo"]() == "1"
+    
+    tree = Tree({"foo": None})
+    update(tree, "foo", ">>> [1]", "/test/source.yaml")
+    update(tree, "foo!", "ON", "/test/source.yaml")
+    assert tree["foo"]() == "ON"
 
 
 def test_updater_format_value():
