@@ -434,23 +434,6 @@ def test_updater_not_method():
     assert tree["foo"]() == "ON"
 
 
-def test_updater_not_method():
-    update = Updater()
-    
-    tree = Tree({"foo": None})
-    update(tree, "foo!", 1, "/test/source.yaml")
-    assert tree["foo"]() == None
-
-    tree = Tree({"foo": "switch on"})
-    update(tree, "foo!", "1", "/test/source.yaml")
-    assert tree["foo"]() == "1"
-    
-    tree = Tree({"foo": None})
-    update(tree, "foo", ">>> [1]", "/test/source.yaml")
-    update(tree, "foo!", "ON", "/test/source.yaml")
-    assert tree["foo"]() == "ON"
-
-
 def test_updater_format_value():
     tree = Tree({"x.a": 1, "x.b": 2})
     update = Updater()
