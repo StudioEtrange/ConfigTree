@@ -232,8 +232,14 @@ def test_loader_set_default_tree():
 
 
 def test_updater_call_method():
-    tree = Tree({"foo": []})
     update = Updater()
+
+    tree = Tree()
+    update(tree, "foo#append", 1, "/test/source.yaml")
+    with pytest.raises(KeyError):
+        assert tree["foo"] == None
+
+    tree = Tree({"foo": []})
     update(tree, "foo#append", 1, "/test/source.yaml")
     assert tree["foo"] == [1]
 
@@ -244,6 +250,17 @@ def test_updater_call_method():
     update(tree, "foo#append", 3, "/test/source.yaml")
     assert isinstance(tree["foo"], Promise)
     assert tree["foo"](), [1, 2, 3]
+
+    tree = Tree({"foo": []})
+    update(tree, "foo#extend", [1], "/test/source.yaml")
+    assert tree["foo"] == [1]
+
+    update(tree, "foo#extend", [2, 3], "/test/source.yaml")
+    assert tree["foo"] == [1, 2, 3]
+
+    update(tree, "foo#extend", ">>> [4]", "/test/source.yaml")
+    assert isinstance(tree["foo"], Promise)
+    assert tree["foo"]() == [1, 2, 3, 4]
 
 
 def test_updater_format_value():
