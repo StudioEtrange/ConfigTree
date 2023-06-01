@@ -1,0 +1,12 @@
+a.b:
+    l+: "8"
+j+: foo
+y+: 10
+k: ">>> [1, 2]"
+mu: ['third']
+t+: ">>> self['mu']"
+mu+: 'four'
+k+: ">>> self['k']"
+u+: ">>> self['t']"
+moo: []
+moo+: ">>> self['w']"
